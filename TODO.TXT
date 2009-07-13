@@ -1,0 +1,28 @@
+BareMetal OS
+=============
+Arguments from CLI
+Add filename conversion to fat32 functions
+Use APIC to control interrupts instead of PIC
+initialize the IO APIC into Symmetric IO mode, to allow the AP's to begin to handle interrupts
+PCI Calls
+Reaktek network card driver
+SMP calls
+experimental: OS in interrupt
+
+
+
+Pure64
+=======
+documentation
+smp table checksum
+parse config file
+remapping physical memory
+infomap
+loading OS from usb jump drive (need to get os before switch to long mode)
+
+
+
+Cancelled
+==========
+switch from FAT32 to FAT16 as Microsoft has patents on FAT32
+support FAT16 and FAT32
