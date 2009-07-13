@@ -33,12 +33,12 @@ input:				equ 0x0000000000080200 ; 256 bytes = 0xE400 -> 0xE4FF		; times 255 db 
 dirlist:			equ 0x0000000000080300 ; 256 bytes = 0xE500 -> 0xE5FF		; times 255 db 0
 promptbuf:			equ 0x0000000000080400 ; 256 bytes = 0xE600 -> 0xE6FF		; times 255 db 0
 programlocation:	equ 0x0000000000200000 ; Location in memory where programs are loaded (the start of 2M)
-hdtempstring:		times 8 db 0
-memtempstring:		times 8 db 0
-cpunumtempstring:	times 8 db 0
-cpuspeedtempstring:	times 8 db 0
-timestring:			times 9 db 0 ; "HH:MM:SS"
-datestring:			times 11 db 0 ; "YYYY/MM/DD"
+;hdtempstring:		times 8 db 0
+;memtempstring:		times 8 db 0
+;cpunumtempstring:	times 8 db 0
+;cpuspeedtempstring:	times 8 db 0
+;timestring:			times 9 db 0 ; "HH:MM:SS"
+;datestring:			times 11 db 0 ; "YYYY/MM/DD"
 ram_amount:			dw 0x0000
 cpu_speed:			dd 0x00000000
 cursorx:			db 0x00		; cursor row location

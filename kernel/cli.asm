@@ -155,7 +155,7 @@ os_command_line:
 	jmp .more
 
 .date:
-	mov rdi, datestring
+	mov rdi, tempstring;datestring
 	call os_get_date_string
 	mov rsi, rdi
 	call os_print_string
@@ -163,7 +163,7 @@ os_command_line:
 	jmp .more
 
 .time:
-	mov rdi, timestring
+	mov rdi, tempstring;timestring
 	call os_get_time_string
 	mov rsi, rdi
 	call os_print_string
