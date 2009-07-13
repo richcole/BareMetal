@@ -90,15 +90,54 @@ mov rsi, tstring
 call os_print_string
 mov rsi, kbmsg
 call os_print_string
-
-;call os_dump_rax
-;call os_print_newline
-;mov eax, edx
-;shr eax, 14
-;call os_dump_rax
 	
-	call os_print_newline
+call os_print_newline
 
+mov rsi, cpufeatures
+call os_print_string
+mov rax, 1
+cpuid
+
+checksse:
+test edx, 00000010000000000000000000000000b
+jz checksse2
+mov rsi, sse
+call os_print_string
+
+checksse2:
+test edx, 00000100000000000000000000000000b
+jz checksse3
+mov rsi, sse2
+call os_print_string
+
+checksse3:
+test ecx, 00000000000000000000000000000001b
+jz checkssse3
+mov rsi, sse3
+call os_print_string
+
+checkssse3:
+test ecx, 00000000000000000000001000000000b
+jz checksse41
+mov rsi, ssse3
+call os_print_string
+
+checksse41:
+test ecx, 00000000000010000000000000000000b
+jz checksse42
+mov rsi, sse41
+call os_print_string
+
+checksse42:
+test ecx, 00000000000100000000000000000000b
+jz endit
+mov rsi, sse42
+call os_print_string
+
+
+endit:
+
+call os_print_newline
 
 ret							; Return to OS
 
@@ -107,7 +146,15 @@ cpustringmsg: db 'CPU String: ', 0
 l1codecachemsg: db 'L1 code cache: ', 0
 l1datacachemsg: db 'L1 data cache: ', 0
 l2cachemsg: db 'L2 cache: ', 0
+cpufeatures: db 'CPU features: ', 0
 kbmsg: db 'KB', 0
+sse: db 'SSE ', 0
+sse2: db 'SSE2 ', 0
+sse3: db 'SSE3 ', 0
+ssse3: db 'SSSE3 ', 0
+sse41: db 'SSE4.1 ', 0
+sse42: db 'SSE4.2 ', 0
+
 ;l3cachemessage1: db 'L3 cache: ', 0
 ;l3cachemessage2: db 'KB', 0
 
