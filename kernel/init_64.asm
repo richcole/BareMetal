@@ -52,28 +52,17 @@ make_interrupt_gates: 		; make gates for the other interrupts
 	jnz make_interrupt_gates
 
 	; Set up the exception gates for all of the CPU exceptions
-	; The following code will be seriously busted if the exception gates are moved above 16MB
-	mov	word [0x00*16], exception_gate_00
-	mov	word [0x01*16], exception_gate_01
-	mov	word [0x02*16], exception_gate_02
-	mov	word [0x03*16], exception_gate_03
-	mov	word [0x04*16], exception_gate_04
-	mov	word [0x05*16], exception_gate_05
-	mov	word [0x06*16], exception_gate_06
-	mov	word [0x07*16], exception_gate_07
-	mov	word [0x08*16], exception_gate_08
-	mov	word [0x09*16], exception_gate_09
-	mov	word [0x0A*16], exception_gate_10
-	mov	word [0x0B*16], exception_gate_11
-	mov	word [0x0C*16], exception_gate_12
-	mov	word [0x0D*16], exception_gate_13
-	mov	word [0x0E*16], exception_gate_14
-	mov	word [0x0F*16], exception_gate_15
-	mov	word [0x10*16], exception_gate_16
-	mov	word [0x11*16], exception_gate_17
-	mov	word [0x12*16], exception_gate_18
-	mov	word [0x13*16], exception_gate_19
+	mov rcx, 20
+	xor rdi, rdi
+make_real_exception_gates:
+	mov rax, exception_gate_00
+	call create_gate
+	inc rdi
+	add rax, 16				; The exception gates are aligned at 16 bytes
+	dec rcx
+	jnz make_real_exception_gates
 
+	; Enable specific interrupts
 	in	al, 0x21
 	mov	al, 11111000b			; enable cascade, keyboard, timer
 	out	0x21, al
@@ -111,8 +100,8 @@ create_gate:
 	shr rax, 32
 	stosd		; store the extra high dword (63..32)
 
-	pop rdi
 	pop rax
+	pop rdi
 ret
 
 
