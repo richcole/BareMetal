@@ -12,40 +12,44 @@ align 16
 
 init_64:
 	xor	rdi, rdi 			; create the 64-bit IDT (at linear address 0x0000000000000000) as defined by Pure64
+
 	mov	rcx, 32
 make_exception_gates: 		; make gates for exception handlers
 	mov rax, exception_gate
+	push rax				; save the exception gate to the stack for later use
 	stosw					; store the low word (15..0) of the address
 	mov ax, SYS64_CODE_SEL
 	stosw					; store the segment selector
 	mov ax, 0x8E00
-	stosw					; store whatever this is
-	mov rax, exception_gate
+	stosw					; store exception gate marker
+	pop rax					; get the exception gate back
 	shr rax, 16
 	stosw					; store the high word (31..16) of the address
-;	mov rax, exception_gate
-	shr rax, 16;32
+	shr rax, 16
 	stosd					; store the extra high dword (63..32) of the address.
 	xor rax, rax
 	stosd					; reserved
-	loop make_exception_gates
+	dec rcx
+	jnz make_exception_gates
+
 	mov	rcx, 256-32
 make_interrupt_gates: 		; make gates for the other interrupts
 	mov rax, interrupt_gate
+	push rax				; save the interrupt gate to the stack for later use
 	stosw					; store the low word (15..0) of the address
 	mov ax, SYS64_CODE_SEL
 	stosw					; store the segment selector
 	mov ax, 0x8F00
-	stosw					; store whatever this is
-	mov rax, interrupt_gate
+	stosw					; store interrupt gate marker
+	pop rax					; get the interrupt gate back
 	shr rax, 16
 	stosw					; store the high word (31..16) of the address
-;	mov rax, interrupt_gate
-	shr rax, 16;32
+	shr rax, 16
 	stosd					; store the extra high dword (63..32) of the address.
 	xor rax, rax
 	stosd					; reserved
-	loop make_interrupt_gates
+	dec rcx
+	jnz make_interrupt_gates
 
 	; Set up the exception gates for all of the CPU exceptions
 	; The following code will be seriously busted if the exception gates are moved above 16MB
