@@ -278,14 +278,7 @@ os_string_copy_more:
 	lodsb				; Load a character from the source string
 	stosb
 	cmp al, 0			; If source string is empty, quit out
-;	je os_string_copy_done
-;	stosb				; Transfer contents
-;	jmp os_string_copy_more
-jne os_string_copy_more
-
-;os_string_copy_done:
-;	xor rax, rax
-;	stosb	; Write terminating zero
+	jne os_string_copy_more
 
 	pop rax
 	pop rdi
@@ -301,13 +294,10 @@ jne os_string_copy_more
 ; OUT:	Nothing. All registers preserved
 os_string_truncate:
 	push rsi
-;	push rax
 
-;	mov byte [rsi+rax], 0x00
 	add rsi, rax
 	mov byte [rsi], 0x00
 
-;	pop rax
 	pop rsi
 	ret
 ; -----------------------------------------------------------------------------
@@ -591,7 +581,7 @@ os_get_time_string_processor:
 ; os_get_date_string -- Store the current time in a string in format "YYYY/MM/DD"
 ;  IN:	RDI = location to store string (must be able to fit 11 bytes, 10 data plus null terminator)
 ; OUT:	Nothing. All registers preserved
-; Notes: uses the os_get_time_string_processor function
+; Note:	Uses the os_get_time_string_processor function
 os_get_date_string:
 	push rdi
 	push rbx
@@ -630,6 +620,38 @@ os_get_date_string:
 	pop rax
 	pop rbx
 	pop rdi
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_is_digit -- 
+;  IN:	AL = ASCII char
+; OUT:	EQ flag set if numeric
+; Note:	JE (Jump if Equal) can be used after this function is called
+os_is_digit:
+	cmp al, '0'
+	jb not_digit
+	cmp al, '9'
+	ja not_digit
+	cmp al, al			; To set the equal flag
+not_digit:
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_is_alpha -- 
+;  IN:	AL = ASCII char
+; OUT:	EQ flag set if alpha
+; Note:	JE (Jump if Equal) can be used after this function is called
+os_is_alpha:
+	cmp al, ' '
+	jb not_alpha
+	cmp al, 0x7E
+	ja not_alpha
+	cmp al, al			; To set the equal flag
+not_alpha:
 	ret
 ; -----------------------------------------------------------------------------
 
