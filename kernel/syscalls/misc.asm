@@ -32,17 +32,19 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; os_delay -- 
+; os_delay -- Delay by X microseconds
 ; IN:	RCX
 ; OUT:	RCX = 0
+; 1 second = 1000000 microseconds
+; 1 milisecond = 1000 microseconds
 os_delay:
 	push rax
 
-	mov [delay_timer], rcx
-os_delay_loop:
-	mov rax, [delay_timer]
-	cmp rax, 0
-	jne os_delay_loop
+;	mov [delay_timer], rcx
+;os_delay_loop:
+;	mov rax, [delay_timer]
+;	cmp rax, 0
+;	jne os_delay_loop
 
 	pop rax
 	ret

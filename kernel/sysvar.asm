@@ -27,11 +27,7 @@ hd1_maxlba: dq 0x0000000000000000 ; we need at least a 64-bit value since at mos
 ; Memory addresses
 hdbuffer:			equ 0x0000000000070000 ; 32768 bytes = 0x70000 -> 0x77FFF
 hdbuffer1:			equ 0x0000000000078000 ; 32768 bytes = 0x78000 -> 0x7FFFF
-consoleinputstring:	equ 0x0000000000080000 ; 256 bytes = 0xE200 -> 0xE2FF
-tempstring:			equ 0x0000000000080100 ; 256 bytes = 0xE300 -> 0xE3FF
-input:				equ 0x0000000000080200 ; 256 bytes = 0xE400 -> 0xE4FF		; times 255 db 0
-dirlist:			equ 0x0000000000080300 ; 256 bytes = 0xE500 -> 0xE5FF		; times 255 db 0
-promptbuf:			equ 0x0000000000080400 ; 256 bytes = 0xE600 -> 0xE6FF		; times 255 db 0
+tempstring:			equ 0x0000000000080000 ; 1024 bytes = 0xE300 -> 0xE5FF
 programlocation:	equ 0x0000000000200000 ; Location in memory where programs are loaded (the start of 2M)
 ;hdtempstring:		times 8 db 0
 ;memtempstring:		times 8 db 0

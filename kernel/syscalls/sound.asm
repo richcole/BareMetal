@@ -61,11 +61,11 @@ os_speaker_beep:
 	push rax
 	push rcx
 
-	mov rax, 0x0000000000000C80
-	call os_speaker_tone
-	mov rcx, 0x0000000000000008
-	call os_delay
-	call os_speaker_off
+;	mov rax, 0x0000000000000C80
+;	call os_speaker_tone
+;	mov rcx, 10000000	; a quarter of a second
+;	call os_delay
+;	call os_speaker_off
 
 	pop rcx
 	pop rax

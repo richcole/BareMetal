@@ -20,7 +20,7 @@ os_command_line:
 	mov rsi, .default_prompt	; Prompt for input
 	call os_print_string
 
-	mov rdi, input				; Get string from user
+	mov rdi, tempstring			; Get string from user
 	mov rcx, 255				; Limit the capture of characters to 255
 	call os_input_string
 	
@@ -106,11 +106,11 @@ os_command_line:
 	mov byte [rsi], 0		; Zero-terminate string
 
 .full_name:
-	mov rbx, input
+	mov rbx, tempstring
 
 	call findfile			; Fuction will return the starting cluster value in ebx or 0 if not found
 	cmp ebx, 0				; If ebx is 0 then the file was not found
-	je .fail	; bail out if the file was not found
+	je .fail				; bail out if the file was not found
 
 	mov rdi, programlocation	; We load the program to this location in memory (currently 0x00100000 : at the 2MB mark)
 	.readfile_getdata:
@@ -147,15 +147,15 @@ os_command_line:
 	jmp .more
 
 .dir:
-	mov rdi, dirlist
+	mov rdi, tempstring
 	push rdi
 	call os_fat32_get_file_list
-	pop rsi;mov rsi, dirlist
+	pop rsi
 	call os_print_string
 	jmp .more
 
 .date:
-	mov rdi, tempstring;datestring
+	mov rdi, tempstring
 	call os_get_date_string
 	mov rsi, rdi
 	call os_print_string
@@ -163,7 +163,7 @@ os_command_line:
 	jmp .more
 
 .time:
-	mov rdi, tempstring;timestring
+	mov rdi, tempstring
 	call os_get_time_string
 	mov rsi, rdi
 	call os_print_string

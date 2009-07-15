@@ -35,13 +35,13 @@ timer:
 
 	add qword [timer_counter], 1		; 64-bit counter started at bootup
 	
-	mov rax, [delay_timer]
-	cmp rax, 0
-	je timer_over
-	dec rax
-	mov [delay_timer], rax
+;	mov rax, [delay_timer]
+;	cmp rax, 0
+;	je timer_over
+;	dec rax
+;	mov [delay_timer], rax
 
-timer_over:
+;timer_over:
 	
 	mov al, 20h
 	out 20h, al
