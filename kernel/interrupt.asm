@@ -30,26 +30,19 @@ interrupt_gate:				; handler for all other interrupts
 
 ; -----------------------------------------------------------------	
 timer:
-;	call showprogress64			; for debug purposes.. the timer is being called as long as the spinning cursor is on screen
+	call showprogress64					; For debug to see if system is still running
 	push rax
 
-	add qword [timer_counter], 1		; 64-bit counter started at bootup
-	
-;	mov rax, [delay_timer]
-;	cmp rax, 0
-;	je timer_over
-;	dec rax
-;	mov [delay_timer], rax
+	add qword [timer_counter], 1		; 128-bit counter started at bootup
+	adc qword [timer_counter+8], 0
 
-;timer_over:
-	
 	mov al, 20h
 	out 20h, al
 	pop rax
 	iretq
 	
-delay_timer: dq 0x0000000000000000
 timer_counter: dq 0x0000000000000000
+timer_counter_1: dq 0x0000000000000000
 ; -----------------------------------------------------------------
 
 
@@ -57,10 +50,10 @@ timer_counter: dq 0x0000000000000000
 keyboard:
 	push rax
 	push rbx
-	
+
 	mov al, 0xad
 	out 0x64, al ; disable keyboard
-	
+
 	in al, 0x61	; get the scancode
 	mov [scancode], al	; store the scancode
 	xor al, 0x80	; next five lines are for acknowledging the scancode
@@ -68,7 +61,7 @@ keyboard:
 	mov al, [scancode]
 	and al, 0x7f
 	out 0x61, al
-	
+
 	xor eax, eax
 	in al, 0x60	; get the key
 
@@ -83,17 +76,17 @@ keydown:
 	mov [kkey], bl
 	mov al, [kkey]
 	jmp donekey
-	
+
 keyup:
 	; else we got a valid key
-	
+
 ;	mov byte [0xB8f9c], al	; put the typed character in the bottom right hand corner
 
 
 donekey:
 	mov al, 0xae
 	out 0x64, al ; enable keyboard
-	
+
 	mov al, 20h
 	out 20h, al
 	pop rbx
@@ -248,10 +241,11 @@ exc_string12 db 'Interrupt 12 - Stack Fault Exception (#SS)        ', 0
 exc_string13 db 'Interrupt 13 - General Protection Exception (#GP) ', 0
 exc_string14 db 'Interrupt 14 - Page-Fault Exception (#PF)         ', 0
 exc_string15 db 'Interrupt 15 - Undefined                          ', 0
-exc_string16 db 'Interrupt 16 — x87 FPU Floating-Point Error (#MF) ', 0
-exc_string17 db 'Interrupt 17 — Alignment Check Exception (#AC)    ', 0
-exc_string18 db 'Interrupt 18 — Machine-Check Exception (#MC)      ', 0
-exc_string19 db 'Interrupt 19 — SIMD Floating-Point Exception (#XM)', 0
+exc_string16 db 'Interrupt 16 - x87 FPU Floating-Point Error (#MF) ', 0
+exc_string17 db 'Interrupt 17 - Alignment Check Exception (#AC)    ', 0
+exc_string18 db 'Interrupt 18 - Machine-Check Exception (#MC)      ', 0
+exc_string19 db 'Interrupt 19 - SIMD Floating-Point Exception (#XM)', 0
+
 
 ; =============================================================================
 ; EOF

@@ -173,6 +173,11 @@ os_command_line:
 .poomsg db 'OMG TESTZONE', 0
 .testzone:
 
+;mov rax, [timer_counter_1]
+;call os_dump_rax
+;mov rax, [timer_counter]
+;call os_dump_rax
+
 ;mov rsi, 0x0000000000001000
 ;mov rcx, 256
 ;call os_dump_mem
