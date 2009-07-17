@@ -33,16 +33,13 @@ timer:
 	call showprogress64					; For debug to see if system is still running
 	push rax
 
-	add qword [timer_counter], 1		; 128-bit counter started at bootup
-	adc qword [timer_counter+8], 0
+	add qword [timer_counter_0], 1		; 128-bit counter started at bootup
+	adc qword [timer_counter_0+8], 0
 
 	mov al, 20h
 	out 20h, al
 	pop rax
 	iretq
-	
-timer_counter: dq 0x0000000000000000
-timer_counter_1: dq 0x0000000000000000
 ; -----------------------------------------------------------------
 
 
@@ -92,9 +89,6 @@ donekey:
 	pop rbx
 	pop rax
 	iretq
-
-scancode: db 0x00
-kkey: db 0x00
 ; -----------------------------------------------------------------	
 
 

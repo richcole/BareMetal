@@ -35,11 +35,16 @@ programlocation:	equ 0x0000000000200000 ; Location in memory where programs are 
 ;cpuspeedtempstring:	times 8 db 0
 ;timestring:			times 9 db 0 ; "HH:MM:SS"
 ;datestring:			times 11 db 0 ; "YYYY/MM/DD"
+	
+timer_counter_0:	dq 0x0000000000000000 ; These timer counters make up the 128-bit system counter
+timer_counter_1:	dq 0x0000000000000000 ; 0 holds the 64 low bits and 1 holds the 64 high bits
 ram_amount:			dw 0x0000
 cpu_speed:			dd 0x00000000
 cursorx:			db 0x00		; cursor row location
 cursory:			db 0x00		; cursor column location
 hextable: 			db '0123456789ABCDEF'
+scancode:			db 0x00
+kkey:				db 0x00
 
 screen_rows 		db 25 ; x
 screen_cols 		db 80 ; y
