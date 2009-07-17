@@ -69,7 +69,7 @@ make_real_exception_gates:
 	in	al, 0xA1
 	mov	al, 11111110b			; enable rtc
 	out	0xA1, al
-
+	
 	; Set up the IRQ handlers
 	mov rdi, 0x20
 	mov rax, timer
@@ -78,6 +78,24 @@ make_real_exception_gates:
 	mov rdi, 0x21
 	mov rax, keyboard
 	call create_gate
+
+	mov rdi, 0x22
+	mov rax, cascade
+	call create_gate
+
+	mov rdi, 0x28
+	mov rax, rtc
+	call create_gate
+
+	;Set up RTC
+	mov al, 0x0a
+	out 0x70, al
+	mov al, 00100110b ; RTC@32.768KHz, Rate@1024MHz
+	out 0x71, al
+	mov al, 0x0b
+	out 0x70, al
+	mov al, 01000010b ; Periodic, 24H clock
+	out 0x71, al
 
 ;	lidt [IDTR64]				; load IDT register
 	sti							; Re-enable interupts.

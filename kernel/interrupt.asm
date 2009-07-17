@@ -30,8 +30,9 @@ interrupt_gate:				; handler for all other interrupts
 
 ; -----------------------------------------------------------------	
 timer:
-	call showprogress64					; For debug to see if system is still running
 	push rax
+
+;	call showprogress64					; For debug to see if system is still running
 
 	add qword [timer_counter_0], 1		; 128-bit counter started at bootup
 	adc qword [timer_counter_0+8], 0
@@ -90,6 +91,33 @@ donekey:
 	pop rax
 	iretq
 ; -----------------------------------------------------------------	
+
+
+; -----------------------------------------------------------------
+cascade:
+	push rax
+
+	mov al, 0x20
+	out 0x20, al
+
+	pop rax
+	iretq
+; -----------------------------------------------------------------
+
+
+; -----------------------------------------------------------------
+rtc:
+	push rax
+	
+	call showprogress64					; For debug to see if system is still running
+
+	mov al, 0x20
+	out 0xa0, al
+	out 0x20, al
+	
+	pop rax
+	iretq
+; -----------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------
