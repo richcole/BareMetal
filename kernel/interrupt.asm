@@ -111,6 +111,10 @@ rtc:
 	
 	call showprogress64					; For debug to see if system is still running
 
+	mov al, 0x0c
+	out 0x70, al
+	in al, 0x71
+
 	mov al, 0x20
 	out 0xa0, al
 	out 0x20, al
