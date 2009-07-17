@@ -13,21 +13,42 @@ align 16
 ; -----------------------------------------------------------------------------
 ; Show a incrementing digit on the screen... as long as it is incrementing the system is working (not hung)
 ; After 9 it wraps back to 0
-showprogress64:
+showprogress0:
 	push rax
-	mov al, [progress64]
+	mov al, [progress0]
 	mov [0x00000000000B809E], al		; we write the digit to the top right corner
 	inc al
 	cmp al, 0x3A ; 0x39 is '9'
-	jne showprogress64_end
+	jne showprogress0_end
 	mov al, 0x30
 
-showprogress64_end:
-	mov [progress64], al
+showprogress0_end:
+	mov [progress0], al
 	pop rax
 	ret
 
-progress64:	db 0x30 ; '0'
+progress0:	db 0x30 ; '0'
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; Show a incrementing digit on the screen... as long as it is incrementing the system is working (not hung)
+; After 9 it wraps back to 0
+showprogress1:
+	push rax
+	mov al, [progress1]
+	mov [0x00000000000B809C], al		; we write the digit to the top right corner
+	inc al
+	cmp al, 0x3A ; 0x39 is '9'
+	jne showprogress1_end
+	mov al, 0x30
+
+showprogress1_end:
+	mov [progress1], al
+	pop rax
+	ret
+
+progress1:	db 0x30 ; '0'
 ; -----------------------------------------------------------------------------
 
 

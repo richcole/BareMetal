@@ -94,7 +94,7 @@ make_real_exception_gates:
 	out 0x71, al
 	mov al, 0x0b
 	out 0x70, al
-	mov al, 01000010b ; Periodic, 24H clock
+	mov al, 01000010b ; Periodic(6), Edge(4), 24H clock(2)
 	out 0x71, al
 
 ;	lidt [IDTR64]				; load IDT register
