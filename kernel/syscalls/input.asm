@@ -12,26 +12,29 @@ align 16
 
 ; -----------------------------------------------------------------------------
 ; os_check_for_key -- Scans keyboard for input, but doesn't wait
-;  IN: Nothing
-; OUT: AL = 0 if no key pressed, otherwise ASCII code, other regs preserved
+;  IN:	Nothing
+; OUT:	AL = 0 if no key pressed, otherwise ASCII code, other regs preserved
+;		Carry flag is set if there was a keystoke, clear if there was not
 os_check_for_key:
 	mov al, [kkey]
 	cmp al, 0
 	je os_check_for_key_nokey
 
 	mov byte [kkey], 0x00	; clear the variable as the keystroke is in AL now
+	stc						; set the carry flag
 	ret
 
 os_check_for_key_nokey:	
-	xor al, al	; mov al, 0x00
+	xor al, al				; mov al, 0x00
+	clc						; clear the carry flag
 	ret
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
 ; os_wait_for_key -- Waits for keypress and returns key
-;  IN: Nothing
-; OUT: AL = key pressed, other regs preserved
+;  IN:	Nothing
+; OUT:	AL = key pressed, other regs preserved
 os_wait_for_key:
 	hlt						; Wait for an interrupt to be triggered. Thanks Dex!
 	mov al, [kkey]
@@ -46,9 +49,9 @@ os_wait_for_key:
 
 ; -----------------------------------------------------------------------------
 ; os_input_string -- Take string from keyboard entry
-;  IN: RDI = location where string will be stored
-;    : RCX = number of characters to accept
-; OUT: RCX = length of string that was inputed (NULL not counted)
+;  IN:	RDI = location where string will be stored
+;		RCX = number of characters to accept
+; OUT:	RCX = length of string that was inputed (NULL not counted)
 os_input_string:
 	push rdi
 	push rdx	; counter to keep track of max accepted characters
