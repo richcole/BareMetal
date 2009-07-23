@@ -11,10 +11,22 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-;  -- 
-;  IN: CPU #, Address to execute
-; OUT: 
+; os_smp_call -- Set a certain CPU to run a piece of code
+;  IN:	CPU #, Address to execute
+; OUT:	
 os_smp_call:
+	push rax
+
+	pop rax
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_smp_localid -- Returns the ID of the CPU that ran this function
+;  IN:	Nothing
+; OUT:	RAX = CPU ID number
+os_smp_localid:
 	push rax
 
 	pop rax
