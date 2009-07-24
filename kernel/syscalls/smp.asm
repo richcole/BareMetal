@@ -27,9 +27,16 @@ os_smp_call:
 ;  IN:	Nothing
 ; OUT:	RAX = CPU ID number
 os_smp_localid:
+	push rsi
 	push rax
+	mov rsi, [os_LocalAPICAddress]
+	add rsi, 0x20
+	lodsd
+	shr rax, 24		; AL now holds the CPU's APIC ID
+	call os_dump_rax
 
 	pop rax
+	pop rsi
 	ret
 ; -----------------------------------------------------------------------------
 

@@ -173,12 +173,14 @@ os_command_line:
 .poomsg db 'OMG TESTZONE', 0
 .testzone:
 
+	call os_smp_localid
+
 ;mov rax, [timer_counter_1]
 ;call os_dump_rax
 ;mov rax, [timer_counter]
 ;call os_dump_rax
 
-;mov rsi, 0x0000000000001000
+;mov rsi, 0x000000000000F600
 ;mov rcx, 256
 ;call os_dump_mem
 
@@ -222,6 +224,8 @@ os_command_line:
 ;	xor rcx, rcx
 ;	xor rdx, rdx
 ;	div rbx
+
+	call os_print_newline
 
 jmp .more
 

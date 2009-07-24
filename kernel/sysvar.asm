@@ -35,7 +35,9 @@ programlocation:	equ 0x0000000000200000 ; Location in memory where programs are 
 ;cpuspeedtempstring:	times 8 db 0
 ;timestring:			times 9 db 0 ; "HH:MM:SS"
 ;datestring:			times 11 db 0 ; "YYYY/MM/DD"
-	
+
+os_LocalAPICAddress	dq 0x0000000000000000
+os_IOAPICAddress	dq 0x0000000000000000
 timer_counter_0:	dq 0x0000000000000000 ; These timer counters make up the 128-bit system counter
 timer_counter_1:	dq 0x0000000000000000 ; 0 holds the 64 low bits and 1 holds the 64 high bits
 ram_amount:			dw 0x0000
