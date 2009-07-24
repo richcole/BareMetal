@@ -87,6 +87,10 @@ make_real_exception_gates:
 	mov rax, rtc
 	call create_gate
 
+	mov rdi, 0x50
+	mov rax, tester
+	call create_gate
+	
 	;Set up RTC
 	mov al, 0x0a
 	out 0x70, al

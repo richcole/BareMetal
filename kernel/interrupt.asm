@@ -125,6 +125,24 @@ rtc:
 
 
 ; -----------------------------------------------------------------
+tester:
+	push rsi
+	push rax
+
+;	mov al, 0x65
+;	call os_print_char
+	mov rsi, teststring
+	call os_print_string
+	
+	pop rax
+	pop rsi
+	iretq
+
+	teststring db 'This is SMP!', 0
+; -----------------------------------------------------------------
+
+
+; -----------------------------------------------------------------
 ; CPU Exception Gates
 align 16
 exception_gate_00:
