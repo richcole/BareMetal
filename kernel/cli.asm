@@ -177,6 +177,10 @@ os_command_line:
 
 ;int 0x50
 
+;mov al, 0x00
+;mov bl, 0x50
+;call os_smp_call
+
 mov al, 0x01
 mov bl, 0x50
 call os_smp_call
@@ -187,7 +191,7 @@ call os_smp_call
 ;call os_dump_rax
 
 ;mov rsi, 0x000000000000F600
-;mov rcx, 256
+;mov rcx, 8
 ;call os_dump_mem
 
 ;mov rdi, input				; Get string from user

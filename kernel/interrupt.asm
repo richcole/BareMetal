@@ -129,16 +129,17 @@ tester:
 	push rsi
 	push rax
 
-;	mov al, 0x65
-;	call os_print_char
-	mov rsi, teststring
+	mov rsi, hellofrom
 	call os_print_string
+	call os_smp_localid
+	call os_dump_rax
 	
 	pop rax
 	pop rsi
 	iretq
 
-	teststring db 'This is SMP!', 0
+;	teststring db 'This is SMP!', 0
+	hellofrom db 'Hello from CPU #', 0
 ; -----------------------------------------------------------------
 
 
