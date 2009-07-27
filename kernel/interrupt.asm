@@ -133,12 +133,16 @@ tester:
 	call os_print_string
 	call os_smp_localid
 	call os_dump_rax
+	mov rsi, stackstring
+	call os_print_string
+	mov rax, rsp
+	call os_dump_rax
 	
 	pop rax
 	pop rsi
 	iretq
 
-;	teststring db 'This is SMP!', 0
+	stackstring db 'Stack is ', 0
 	hellofrom db 'Hello from CPU #', 0
 ; -----------------------------------------------------------------
 
@@ -249,6 +253,14 @@ align 16
 exception_gate_main:
 	mov rsi, int_string00
 	call os_print_string
+	call os_smp_localid
+;	call os_dump_rax
+	mov rdi, tempstring
+	mov rsi, rdi
+	call os_int_to_string
+	call os_print_string
+	mov rsi, int_string01
+	call os_print_string
 	mov rsi, exc_string00
 	and rax, 0x00000000000000FF	; Clear out everything in RAX except for AL
 	push rax
@@ -266,8 +278,8 @@ exception_gate_main:
 	jmp os_command_line			; jump to start of the command line
 
 
-int_string00 db 'BareMetal OS - ', 0
-int_string01 db ' System Halted!', 0
+int_string00 db 'BareMetal OS - CPU ', 0
+int_string01 db ' - ', 0
 ; Strings for the error messages
 exc_string db 'Unknown Fatal Exception!', 0
 exc_string00 db 'Interrupt 0 - Divide Error Exception (#DE)        ', 0
