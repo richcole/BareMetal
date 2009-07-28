@@ -127,22 +127,24 @@ rtc:
 ; -----------------------------------------------------------------
 tester:
 	push rsi
+	push rdi
 	push rax
 
 	mov rsi, hellofrom
 	call os_print_string
 	call os_smp_localid
-	call os_dump_rax
-	mov rsi, stackstring
+
+	mov rdi, tempstring
+	mov rsi, rdi
+	call os_int_to_string
 	call os_print_string
-	mov rax, rsp
-	call os_dump_rax
-	
+
 	pop rax
+	pop rdi
 	pop rsi
 	iretq
 
-	stackstring db 'Stack is ', 0
+;	stackstring db 'Stack is ', 0
 	hellofrom db 'Hello from CPU #', 0
 ; -----------------------------------------------------------------
 
