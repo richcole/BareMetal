@@ -141,6 +141,11 @@ tester:
 	call os_int_to_string
 	call os_print_string
 
+	mov rdi, [os_LocalAPICAddress]
+	add rdi, 0xB0
+	xor rax, rax
+	stosd
+
 	pop rax
 	pop rdi
 	pop rsi
