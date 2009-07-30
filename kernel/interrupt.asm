@@ -123,7 +123,9 @@ rtc:
 	iretq
 ; -----------------------------------------------------------------
 
-
+align 16
+db 'DEBUG: TESTER   '
+align 16
 ; -----------------------------------------------------------------
 tester:
 	push rsi
@@ -144,8 +146,31 @@ tester:
 	pop rsi
 	iretq
 
-;	stackstring db 'Stack is ', 0
 	hellofrom db 'Hello from CPU #', 0
+; -----------------------------------------------------------------
+
+
+; -----------------------------------------------------------------
+tester2:
+	push rsi
+	push rdi
+	push rax
+
+	mov rsi, goodbyefrom
+	call os_print_string
+	call os_smp_localid
+
+	mov rdi, tempstring
+	mov rsi, rdi
+	call os_int_to_string
+	call os_print_string
+
+	pop rax
+	pop rdi
+	pop rsi
+	iretq
+
+	goodbyefrom db 'Goodbye from CPU #', 0
 ; -----------------------------------------------------------------
 
 
