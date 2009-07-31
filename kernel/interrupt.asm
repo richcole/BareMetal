@@ -156,30 +156,6 @@ tester:
 
 
 ; -----------------------------------------------------------------
-tester2:
-	push rsi
-	push rdi
-	push rax
-
-	mov rsi, goodbyefrom
-	call os_print_string
-	call os_smp_localid
-
-	mov rdi, tempstring
-	mov rsi, rdi
-	call os_int_to_string
-	call os_print_string
-
-	pop rax
-	pop rdi
-	pop rsi
-	iretq
-
-	goodbyefrom db 'Goodbye from CPU #', 0
-; -----------------------------------------------------------------
-
-
-; -----------------------------------------------------------------
 ; CPU Exception Gates
 align 16
 exception_gate_00:

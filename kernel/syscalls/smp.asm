@@ -40,7 +40,7 @@ os_smp_call:
 
 
 ; -----------------------------------------------------------------------------
-; os_smp_localid -- Returns the ID of the CPU that ran this function
+; os_smp_localid -- Returns the APIC ID of the CPU that ran this function
 ;  IN:	Nothing
 ; OUT:	RAX = CPU ID number
 os_smp_localid:
