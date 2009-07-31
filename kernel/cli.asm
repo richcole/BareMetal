@@ -182,10 +182,21 @@ os_command_line:
 
 ;int 0x50
 
+mov al, 0x00
+mov bl, 0x50
+call os_smp_call
+
 mov al, 0x01
 mov bl, 0x50
 call os_smp_call
 
+mov al, 0x02
+mov bl, 0x50
+call os_smp_call
+
+mov al, 0x03
+mov bl, 0x50
+call os_smp_call
 
 ;mov al, 0x01
 ;mov bl, 0x50
