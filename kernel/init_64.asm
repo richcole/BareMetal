@@ -118,7 +118,18 @@ make_real_exception_gates:
 	mov [os_IOAPICAddress], rax
 
 ;	lidt [IDTR64]				; load IDT register
+
 	sti							; Re-enable interupts.
+
+	; Initialize all AP's to run our sleep code
+	; BSP !!should!! be 0 so we skip it. Need checks here
+	mov rax, 1
+nextap:
+	mov rbx, sleep_ap
+	call os_smp_call
+	add rax, 1
+	cmp rax, 128		; Should be able to do up to 255 here...
+	jne nextap
 
 ret
 

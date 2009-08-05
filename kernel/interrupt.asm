@@ -37,8 +37,9 @@ timer:
 	add qword [timer_counter_0], 1		; 128-bit counter started at bootup
 	adc qword [timer_counter_0+8], 0
 
-	mov al, 20h
+	mov al, 20h							; Acknowledge the IRQ
 	out 20h, al
+
 	pop rax
 	iretq
 ; -----------------------------------------------------------------------------
@@ -85,8 +86,9 @@ donekey:
 	mov al, 0xae
 	out 0x64, al ; enable keyboard
 
-	mov al, 20h
+	mov al, 20h							; Acknowledge the IRQ
 	out 20h, al
+
 	pop rbx
 	pop rax
 	iretq
@@ -97,7 +99,7 @@ donekey:
 cascade:
 	push rax
 
-	mov al, 0x20
+	mov al, 0x20							; Acknowledge the IRQ
 	out 0x20, al
 
 	pop rax
@@ -115,7 +117,7 @@ rtc:
 	out 0x70, al
 	in al, 0x71
 
-	mov al, 0x20
+	mov al, 0x20							; Acknowledge the IRQ
 	out 0xa0, al
 	out 0x20, al
 	
@@ -123,45 +125,14 @@ rtc:
 	iretq
 ; -----------------------------------------------------------------------------
 
-align 16
-db 'DEBUG: TESTER   '
-align 16
-; -----------------------------------------------------------------------------
-tester:
-	push rsi
-	push rdi
-	push rax
-
-	mov rsi, hellofrom
-	call os_print_string
-	call os_smp_localid
-
-	mov rdi, tempstring
-	mov rsi, rdi
-	call os_int_to_string
-	call os_print_string
-
-	mov rdi, [os_LocalAPICAddress]
-	add rdi, 0xB0
-	xor rax, rax
-	stosd
-
-	pop rax
-	pop rdi
-	pop rsi
-	iretq
-
-	hellofrom db '  Hello from CPU #', 0
-; -----------------------------------------------------------------------------
-
 
 ; -----------------------------------------------------------------------------
-; A simple interrupt that just acknowledges an IPI. Useful for getting past a 'hlt' in the code.
+; A simple interrupt that just acknowledges an IPI. Useful for getting an AP past a 'hlt' in the code.
 ap_wakeup:
 	push rdi
 	push rax
 	
-	mov rdi, [os_LocalAPICAddress]
+	mov rdi, [os_LocalAPICAddress]	; Acknowledge the IPI
 	add rdi, 0xB0
 	xor rax, rax
 	stosd
@@ -169,24 +140,25 @@ ap_wakeup:
 	pop rax
 	pop rdi
 
-	iretq
+	iretq							; Return from the IPI.
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
 ; Modifies the running CPUs stack so after the iretq it jumps to the code address in stagingarea
 ap_call:
-	mov rax, [stagingarea]
+	mov rax, [stagingarea]			; Grab the code address from the staging area
 
-	mov [rsp], rax
-	
-	mov rdi, [os_LocalAPICAddress]
+	mov [rsp], rax					; Overwrite the return address on the CPU's stack
+
+	mov rdi, [os_LocalAPICAddress]	; Acknowledge the IPI
 	add rdi, 0xB0
 	xor rax, rax
 	stosd
 
-	iretq
+	iretq							; Return from the IPI. CPU will execute code at the address that was in stagingarea
 ; -----------------------------------------------------------------------------
+
 
 ; -----------------------------------------------------------------------------
 ; CPU Exception Gates

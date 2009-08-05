@@ -175,39 +175,13 @@ align 16
 align 16
 .testzone:
 
-
-;call os_dump_rax
-
-
-
-;	call os_smp_localid
-
-;int 0x50
-
 mov al, 0x01
-mov bl, 0x81
-mov rcx, sleep_ap
+mov rbx, sleep_ap
 call os_smp_call
 
-;mov al, 0x00
-;mov bl, 0x50
-;call os_smp_call
-
-;mov al, 0x01
-;mov bl, 0x50
-;call os_smp_call
-
-;mov al, 0x02
-;mov bl, 0x50
-;call os_smp_call
-
-;mov al, 0x03
-;mov bl, 0x50
-;call os_smp_call
-
-;mov al, 0x01
-;mov bl, 0x50
-;call os_smp_call
+mov al, 0x02
+mov rbx, sleep_ap
+call os_smp_call
 
 ;mov rax, [timer_counter_1]
 ;call os_dump_rax

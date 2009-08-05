@@ -13,17 +13,15 @@ align 16
 ; -----------------------------------------------------------------------------
 ; os_smp_call -- Set a certain CPU to run a piece of code
 ;  IN:	AL = CPU #
-;		BL = int #
-;		RCX = location of code to return to
+;		RBX = location of code to return to
 ; OUT:	
 ; Note:	This code gets an AP to modify its stack to reprogram the return RIP after the IRETQ
 os_smp_call:
 	push rdi
-	push rcx
 	push rbx
 	push rax
 
-	mov [stagingarea], rcx
+	mov [stagingarea], rbx
 	
 	mov rdi, [os_LocalAPICAddress]
 	add rdi, 0x0310
@@ -34,16 +32,41 @@ os_smp_call:
 
 	mov rdi, [os_LocalAPICAddress]
 	add rdi, 0x0300
-	mov al, bl		; BL holds the int #, 8:0 for the int,
+	mov al, 0x81
 	stosd
 
 	pop rax
 	pop rbx
-	pop rcx
 	pop rdi
 	ret
 	
 stagingarea dq 0x0000000000000000
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_smp_wakeup -- wake up a certain CPU
+;  IN:	AL = CPU #
+; OUT:	Nothing
+os_smp_wakeup:
+	push rdi
+	push rax
+	
+	mov rdi, [os_LocalAPICAddress]
+	add rdi, 0x0310
+	shl rax, 24		; AL holds the CPU #, shift left 24 bits to get it into 31:24, 23:0 are reserved
+	stosd
+	
+	xor rax, rax
+
+	mov rdi, [os_LocalAPICAddress]
+	add rdi, 0x0300
+	mov al, 0x80		; 0x80 is our wakeup interrupt
+	stosd
+
+	pop rax
+	pop rdi
+	ret
 ; -----------------------------------------------------------------------------
 
 
