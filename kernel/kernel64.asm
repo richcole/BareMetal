@@ -76,13 +76,14 @@ start:
 	call init_64	; After this point we are in a working 64-bit enviroment
 
 	call hd_setup	; gather information about the harddrive and set it up
+
 ;	call init_pci
 
 	mov ax, 0x0016
 	call os_move_cursor
 	mov rsi, readymsg
 	call os_print_string
-	
+
 	mov ax, 0x0018
 	call os_move_cursor
 	call os_show_cursor
@@ -91,15 +92,16 @@ start:
 	jmp os_command_line ; could be a call as well if we ever wanted to get out
 
 hang64:
+	hlt
 	jmp hang64					; Loop, self-jump
 
 align 16
 mess db 'AP SPIN ZONE', 0
 align 16
 
-sleep_ap:						; AP's should be running here
-	mov rsi, mess
-	call os_print_string
+sleep_ap:						; AP's will be running here
+;	mov rsi, mess
+;	call os_print_string
 	hlt
 	jmp sleep_ap
 

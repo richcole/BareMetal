@@ -29,6 +29,7 @@ interrupt_gate:				; handler for all other interrupts
 
 
 ; -----------------------------------------------------------------------------
+; Timer interrupt. IRQ 0x00, INT 0x20
 timer:
 	push rax
 
@@ -46,6 +47,7 @@ timer:
 
 
 ; -----------------------------------------------------------------------------
+; Keyboard interrupt. IRQ 0x01, INT 0x21
 keyboard:
 	push rax
 	push rbx
@@ -96,6 +98,7 @@ donekey:
 
 
 ; -----------------------------------------------------------------------------
+; Cascade interrup. IRQ 0x02, INT 0x22
 cascade:
 	push rax
 
@@ -108,6 +111,7 @@ cascade:
 
 
 ; -----------------------------------------------------------------------------
+; Real-time clock interrup. IRQ 0x08, INT 0x28
 rtc:
 	push rax
 	

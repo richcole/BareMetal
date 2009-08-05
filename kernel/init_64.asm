@@ -87,10 +87,6 @@ make_real_exception_gates:
 	mov rax, rtc
 	call create_gate
 
-;	mov rdi, 0x50
-;	mov rax, tester
-;	call create_gate
-
 	mov rdi, 0x80
 	mov rax, ap_wakeup
 	call create_gate
@@ -117,19 +113,17 @@ make_real_exception_gates:
 	lodsd
 	mov [os_IOAPICAddress], rax
 
-;	lidt [IDTR64]				; load IDT register
-
 	sti							; Re-enable interupts.
 
 	; Initialize all AP's to run our sleep code
 	; BSP !!should!! be 0 so we skip it. Need checks here
-	mov rax, 1
-nextap:
+	xor rax, rax
+next_ap:
+	add rax, 1
 	mov rbx, sleep_ap
 	call os_smp_call
-	add rax, 1
-	cmp rax, 128		; Should be able to do up to 255 here...
-	jne nextap
+	cmp rax, 254		; Should be able to do up to 255 here...
+	jne next_ap
 
 ret
 
@@ -147,7 +141,7 @@ create_gate:
 	add rdi, 4
 	stosw		; store the high word (31..16)
 	shr rax, 32
-	stosd		; store the extra high dword (63..32)
+	stosd		; store the high dword (63..32)
 
 	pop rax
 	pop rdi

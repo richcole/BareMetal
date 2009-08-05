@@ -175,13 +175,13 @@ align 16
 align 16
 .testzone:
 
-mov al, 0x01
-mov rbx, sleep_ap
-call os_smp_call
+;mov al, 0x01
+;mov rbx, sleep_ap
+;call os_smp_call
 
-mov al, 0x02
-mov rbx, sleep_ap
-call os_smp_call
+;mov al, 0x02
+;mov rbx, sleep_ap
+;call os_smp_call
 
 ;mov rax, [timer_counter_1]
 ;call os_dump_rax
