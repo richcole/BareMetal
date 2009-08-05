@@ -93,6 +93,10 @@ start:
 hang64:
 	jmp hang64					; Loop, self-jump
 
+sleep_ap:						; AP's should be running here
+	hlt
+	jmp sleep_ap
+
 ; Includes
 %include "init_64.asm"
 %include "init_hd.asm"

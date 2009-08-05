@@ -91,6 +91,10 @@ make_real_exception_gates:
 	mov rax, tester
 	call create_gate
 
+	mov rdi, 0x80
+	mov rax, ap_wakeup
+	call create_gate
+
 	;Set up RTC
 	mov al, 0x0a
 	out 0x70, al
@@ -108,7 +112,9 @@ make_real_exception_gates:
 	mov [os_LocalAPICAddress], rax
 	lodsd
 	mov [os_IOAPICAddress], rax
-	
+
+	; Search the Pure64 binary in memory for "THE_AP_SPIN_ZONE". Right after this message is where the AP's are spinning.
+
 
 ;	lidt [IDTR64]				; load IDT register
 	sti							; Re-enable interupts.
