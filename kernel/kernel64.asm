@@ -93,7 +93,13 @@ start:
 hang64:
 	jmp hang64					; Loop, self-jump
 
+align 16
+mess db 'AP SPIN ZONE', 0
+align 16
+
 sleep_ap:						; AP's should be running here
+	mov rsi, mess
+	call os_print_string
 	hlt
 	jmp sleep_ap
 

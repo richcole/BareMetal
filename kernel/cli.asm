@@ -170,7 +170,9 @@ os_command_line:
 	call os_print_newline
 	jmp .more
 
+align 16
 .poomsg db 'OMG TESTZONE', 0
+align 16
 .testzone:
 
 
@@ -182,21 +184,26 @@ os_command_line:
 
 ;int 0x50
 
-mov al, 0x00
-mov bl, 0x50
-call os_smp_call
-
 mov al, 0x01
-mov bl, 0x50
+mov bl, 0x81
+mov rcx, sleep_ap
 call os_smp_call
 
-mov al, 0x02
-mov bl, 0x50
-call os_smp_call
+;mov al, 0x00
+;mov bl, 0x50
+;call os_smp_call
 
-mov al, 0x03
-mov bl, 0x50
-call os_smp_call
+;mov al, 0x01
+;mov bl, 0x50
+;call os_smp_call
+
+;mov al, 0x02
+;mov bl, 0x50
+;call os_smp_call
+
+;mov al, 0x03
+;mov bl, 0x50
+;call os_smp_call
 
 ;mov al, 0x01
 ;mov bl, 0x50

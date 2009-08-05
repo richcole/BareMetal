@@ -160,17 +160,33 @@ tester:
 ap_wakeup:
 	push rdi
 	push rax
+	
+	mov rdi, [os_LocalAPICAddress]
+	add rdi, 0xB0
+	xor rax, rax
+	stosd
+	
+	pop rax
+	pop rdi
 
+	iretq
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; Modifies the running CPUs stack so after the iretq it jumps to the code address in stagingarea
+ap_call:
+	mov rax, [stagingarea]
+
+	mov [rsp], rax
+	
 	mov rdi, [os_LocalAPICAddress]
 	add rdi, 0xB0
 	xor rax, rax
 	stosd
 
-	pop rax
-	pop rdi
 	iretq
 ; -----------------------------------------------------------------------------
-
 
 ; -----------------------------------------------------------------------------
 ; CPU Exception Gates
