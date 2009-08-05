@@ -232,10 +232,36 @@ align 16
 ;	xor rcx, rcx
 ;	xor rdx, rdx
 ;	div rbx
+call .ap_print_hello			; Once for the BSP to print hello
+
+mov al, 0x01				; Once for each AP
+mov rbx, .ap_print_hello
+call os_dosomething
+
+mov al, 0x02
+mov rbx, .ap_print_hello
+call os_dosomething
+
+mov al, 0x03
+mov rbx, .ap_print_hello
+call os_dosomething
 
 	call os_print_newline
 
 jmp .more
+
+.ap_print_hello:
+	mov rsi, .hellofrom
+	call os_print_string
+	call os_smp_localid
+
+	mov rdi, tempstring
+	mov rsi, rdi
+	call os_int_to_string
+	call os_print_string
+ret
+
+	.hellofrom db '  Hello from CPU #', 0
 
 ;.tempgarbage db 'FILE.SY', 0, 0, 0, 0, 0, 0
 

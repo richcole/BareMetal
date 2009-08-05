@@ -5,34 +5,33 @@
 
 start:						; Start of program label
 
-;mov rsi, hello_message		; Load RSI with memory address of string
-;call os_print_string		; Print the string that RSI points to
+call ap_print_hello			; Once for the BSP to print hello
 
-;	push rsi
-;	push rdi
-;	push rax
-;
-;	mov rsi, hellofrom
-;	call os_print_string
-;	call os_smp_localid
-;
-;	mov rdi, tempstring
-;	mov rsi, rdi
-;	call os_int_to_string
-;	call os_print_string
-;
-;	mov rdi, [os_LocalAPICAddress]
-;	add rdi, 0xB0
-;	xor rax, rax
-;	stosd
-;
-;	pop rax
-;	pop rdi
-;	pop rsi
-;	iretq
-;
-;	hellofrom db '  Hello from CPU #', 0
+mov al, 0x01				; Once for each AP
+mov rbx, ap_print_hello
+call os_dosomething
+
+mov al, 0x02
+mov rbx, ap_print_hello
+call os_dosomething
+
+mov al, 0x03
+mov rbx, ap_print_hello
+call os_dosomething
 
 ret							; Return to OS
 
-hello_message: db 'Hello, world!', 13, 0
+
+ap_print_hello:
+	mov rsi, hellofrom
+	call os_print_string
+	call os_smp_localid
+
+	mov rdi, tempstring
+	mov rsi, rdi
+	call os_int_to_string
+	call os_print_string
+ret
+
+	hellofrom db '  Hello from CPU #', 0
+

@@ -102,7 +102,19 @@ align 16
 sleep_ap:						; AP's will be running here
 ;	mov rsi, mess
 ;	call os_print_string
-	hlt
+	hlt							; Wait for a "wakeup" IPI
+	
+	;If we got here than an interrupt has been triggered or this AP was told to wake up.
+	mov rax, [mp_job_queue]
+	cmp rax, 0x0000000000000000
+	je sleep_ap
+	push rax
+	xor rax, rax
+	mov [mp_job_queue], rax		; Clear the job queue as an AP will be dealing with it.
+	mov byte [mp_job_queue_inuse], 0x00	; Clear the inuse marker
+	pop rax
+	call rax
+
 	jmp sleep_ap
 
 ; Includes

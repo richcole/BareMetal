@@ -14,32 +14,28 @@ align 16
 %DEFINE BAREMETALOS_API_VER 1
 
 ; Strings
-readymsg: db 'BareMetal is ready.', 0
-prompt: db '> ', 0
-space: db ' ', 0
+readymsg:			db 'BareMetal is ready.', 0
+prompt:				db '> ', 0
+space:				db ' ', 0
 
 ; HD info
-hd1_enable: db 0 ; 1 if the drive is there and enabled
-hd1_lba48: db 0 ; 1 if LBA48 is allowed
-hd1_size: dd 0x00000000 ; size in MiB
-hd1_maxlba: dq 0x0000000000000000 ; we need at least a 64-bit value since at most it will hold a 48-bit value
+hd1_enable:			db 0 ; 1 if the drive is there and enabled
+hd1_lba48:			db 0 ; 1 if LBA48 is allowed
+hd1_size:			dd 0x00000000 ; size in MiB
+hd1_maxlba:			dq 0x0000000000000000 ; we need at least a 64-bit value since at most it will hold a 48-bit value
 
 ; Memory addresses
 hdbuffer:			equ 0x0000000000070000 ; 32768 bytes = 0x70000 -> 0x77FFF
 hdbuffer1:			equ 0x0000000000078000 ; 32768 bytes = 0x78000 -> 0x7FFFF
 tempstring:			equ 0x0000000000080000 ; 1024 bytes = 0xE300 -> 0xE5FF
 programlocation:	equ 0x0000000000200000 ; Location in memory where programs are loaded (the start of 2M)
-;hdtempstring:		times 8 db 0
-;memtempstring:		times 8 db 0
-;cpunumtempstring:	times 8 db 0
-;cpuspeedtempstring:	times 8 db 0
-;timestring:			times 9 db 0 ; "HH:MM:SS"
-;datestring:			times 11 db 0 ; "YYYY/MM/DD"
 
 os_LocalAPICAddress	dq 0x0000000000000000
 os_IOAPICAddress	dq 0x0000000000000000
 timer_counter_0:	dq 0x0000000000000000 ; These timer counters make up the 128-bit system counter
 timer_counter_1:	dq 0x0000000000000000 ; 0 holds the 64 low bits and 1 holds the 64 high bits
+mp_job_queue:		dq 0x0000000000000000
+mp_job_queue_inuse	db 0x00
 ram_amount:			dw 0x0000
 cpu_speed:			dd 0x00000000
 cursorx:			db 0x00		; cursor row location
@@ -68,11 +64,6 @@ db 0, '~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 0x0e, 0, 
 ;--------------------------------------------------------------------
 
 SYS64_CODE_SEL	equ 8		; defined by Pure64
-
-;align 8
-;IDTR64:						; Interrupt Descriptor Table Register
-;	dw 256*16-1				; limit of IDT (size minus one) (4096 bytes - 1)
-;	dq 0x0000000000000000	; linear address of IDT
 
 ; =============================================================================
 ; EOF

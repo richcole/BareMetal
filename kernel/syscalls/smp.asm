@@ -14,7 +14,7 @@ align 16
 ; os_smp_call -- Set a certain CPU to run a piece of code
 ;  IN:	AL = CPU #
 ;		RBX = location of code to return to
-; OUT:	
+; OUT:	Nothing. All registers preserved.
 ; Note:	This code gets an AP to modify its stack to reprogram the return RIP after the IRETQ
 os_smp_call:
 	push rdi
@@ -66,6 +66,24 @@ os_smp_wakeup:
 
 	pop rax
 	pop rdi
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_dosomething -- 
+;  IN:	AL = CPU#
+;		RBX = Code to execute
+; OUT:	
+os_dosomething:
+	cmp byte [mp_job_queue_inuse], 0x00	; Check if the marker is set to inuse
+	jne os_dosomething
+	lock
+	mov byte [mp_job_queue_inuse], 0x01	; If not lock and set it
+
+	mov qword [mp_job_queue], rbx	
+	call os_smp_wakeup
+
 	ret
 ; -----------------------------------------------------------------------------
 
