@@ -79,42 +79,78 @@ start:
 
 ;	call init_pci
 
-	mov ax, 0x0016
+	mov ax, 0x0016		; print the "ready" message
 	call os_move_cursor
 	mov rsi, readymsg
 	call os_print_string
 
-	mov ax, 0x0018
+	mov ax, 0x0018		; set the hardware cursor to the bottom left-hand corner
 	call os_move_cursor
 	call os_show_cursor
 
-; once init is done we start the CLI so the user can start their own apps/utils
-	jmp os_command_line ; could be a call as well if we ever wanted to get out
-
-hang64:
-	hlt
-	jmp hang64					; Loop, self-jump
+	; assign the command line "program" to CPU 0
+	mov rax, 0x0000000000000000
+	mov rbx, os_command_line
+	call os_set_cpu_task
+	
+	jmp sleep_ap
 
 align 16
 mess db 'AP SPIN ZONE', 0
 align 16
 
 sleep_ap:						; AP's will be running here
-;	mov rsi, mess
-;	call os_print_string
-	hlt							; Wait for a "wakeup" IPI
+
+	; reset the stack
+	call os_smp_get_local_id
+	shl rax, 10	; a 1024byte stack
+	add rax, 0x0000000000090400		; stacks decrement when you "push", start at 1024 bytes in
+	mov rsp, rax
+
+;	call os_dump_rax				; debug
 	
-	;If we got here than an interrupt has been triggered or this AP was told to wake up.
-	mov rax, [mp_job_queue]
+	; clear registers
+	xor rax, rax					; aka r0
+	xor rbx, rbx					; aka r3
+	xor rcx, rcx					; aka r1
+	xor rdx, rdx					; aka r2
+	xor rsi, rsi					; aka r6
+	xor rdi, rdi					; aka r7
+	xor rbp, rbp					; aka r5
+;	mov rsp, 0x0000000000098000		; aka r4
+	xor r8, r8
+	xor r9, r9
+	xor r10, r10
+	xor r11, r11
+	xor r12, r12
+	xor r13, r13
+	xor r14, r14
+	xor r15, r15
+	
+	hlt							; Wait for a interrupt or "wakeup" IPI
+	
+	call os_smp_get_local_id	; On wakeup find out which CPU we are
+
+	; check for a pending task
+	mov rsi, taskdata
+	shl rax, 4	; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
+	add rsi, rax
+	push rsi
+	lodsq		; load the task address into RAX
+	
+	; if there is none go back to sleep
 	cmp rax, 0x0000000000000000
 	je sleep_ap
-	push rax
-	xor rax, rax
-	mov [mp_job_queue], rax		; Clear the job queue as an AP will be dealing with it.
-	mov byte [mp_job_queue_inuse], 0x00	; Clear the inuse marker
-	pop rax
-	call rax
 
+	; if there is then call RAX
+	call rax
+	
+	; clear the pending task
+	pop rdi
+	xor rax, rax
+	stosq
+
+	; go back to sleep
 	jmp sleep_ap
 
 ; Includes

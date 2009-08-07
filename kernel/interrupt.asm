@@ -111,11 +111,20 @@ cascade:
 
 
 ; -----------------------------------------------------------------------------
-; Real-time clock interrup. IRQ 0x08, INT 0x28
+; Real-time clock interrupt. IRQ 0x08, INT 0x28
+; The supervisor lives here
 rtc:
 	push rax
 	
-	call showprogress1					; For debug to see if system is still running
+;	call showprogress1					; For debug to see if system is still running
+
+;	call os_check_for_key
+;	jnc no_key
+	
+;	call os_print_char
+
+;no_key:
+	
 
 	mov al, 0x0c
 	out 0x70, al
@@ -270,7 +279,7 @@ align 16
 exception_gate_main:
 	mov rsi, int_string00
 	call os_print_string
-	call os_smp_localid			; Get the local CPU ID and print it
+	call os_smp_get_local_id	; Get the local CPU ID and print it
 	mov rdi, tempstring
 	mov rsi, rdi
 	call os_int_to_string

@@ -71,18 +71,39 @@ os_smp_wakeup:
 
 
 ; -----------------------------------------------------------------------------
+; os_set_cpu_task -- 
+;  IN:	RAX = CPU #
+;		RBX = Code to execute
+; OUT:	Nothing
+os_set_cpu_task:
+	push rdi
+	push rax
+
+	shl rax, 4		; quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
+	mov rdi, taskdata
+	add rdi, rax
+	mov rax, rbx
+	stosq
+
+	pop rax
+	pop rdi
+ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
 ; os_dosomething -- 
 ;  IN:	AL = CPU#
 ;		RBX = Code to execute
 ; OUT:	
 os_dosomething:
-	cmp byte [mp_job_queue_inuse], 0x00	; Check if the marker is set to inuse
-	jne os_dosomething
-	lock
-	mov byte [mp_job_queue_inuse], 0x01	; If not lock and set it
+;	cmp byte [mp_job_queue_inuse], 0x00	; Check if the marker is set to inuse
+;	jne os_dosomething
+;	lock
+;	mov byte [mp_job_queue_inuse], 0x01	; If not lock and set it
 
-	mov qword [mp_job_queue], rbx	
-	call os_smp_wakeup
+;	mov qword [mp_job_queue], rbx	
+;	call os_smp_wakeup
 
 	ret
 ; -----------------------------------------------------------------------------
@@ -92,7 +113,7 @@ os_dosomething:
 ; os_smp_localid -- Returns the APIC ID of the CPU that ran this function
 ;  IN:	Nothing
 ; OUT:	RAX = CPU ID number
-os_smp_localid:
+os_smp_get_local_id:
 	push rsi
 
 	mov rsi, [os_LocalAPICAddress]

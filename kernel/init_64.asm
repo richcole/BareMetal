@@ -61,14 +61,6 @@ make_real_exception_gates:
 	add rax, 16				; The exception gates are aligned at 16 bytes
 	dec rcx
 	jnz make_real_exception_gates
-
-	; Enable specific interrupts
-	in	al, 0x21
-	mov	al, 11111000b			; enable cascade, keyboard, timer
-	out	0x21, al
-	in	al, 0xA1
-	mov	al, 11111110b			; enable rtc
-	out	0xA1, al
 	
 	; Set up the IRQ handlers
 	mov rdi, 0x20
@@ -122,8 +114,18 @@ next_ap:
 	add rax, 1
 	mov rbx, sleep_ap
 	call os_smp_call
-	cmp rax, 254		; Should be able to do up to 255 here...
+	cmp rax, 8		; Should be able to do up to 255 here...
 	jne next_ap
+
+	; Enable specific interrupts
+	; To be replaced with IOAPIC instead of PIC.
+	in	al, 0x21
+	mov	al, 11111000b			; enable cascade, keyboard, timer
+	out	0x21, al
+	in	al, 0xA1
+	mov	al, 11111110b			; enable rtc
+	out	0xA1, al
+
 
 ret
 
