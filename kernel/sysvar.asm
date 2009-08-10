@@ -35,8 +35,7 @@ os_LocalAPICAddress	dq 0x0000000000000000
 os_IOAPICAddress	dq 0x0000000000000000
 timer_counter_0:	dq 0x0000000000000000 ; These timer counters make up the 128-bit system counter
 timer_counter_1:	dq 0x0000000000000000 ; 0 holds the 64 low bits and 1 holds the 64 high bits
-mp_job_queue:		dq 0x0000000000000000
-mp_job_queue_inuse	db 0x00
+stagingarea			dq 0x0000000000000000
 ram_amount:			dw 0x0000
 cpu_speed:			dd 0x00000000
 cursorx:			db 0x00		; cursor row location

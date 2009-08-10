@@ -192,9 +192,6 @@ testzone:
 	call os_smp_wakeup
 
 
-
-
-
 ;mov al, 0x01
 ;mov rbx, sleep_ap
 ;call os_smp_call

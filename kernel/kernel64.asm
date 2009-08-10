@@ -89,14 +89,11 @@ start:
 	call os_show_cursor
 
 	; assign the command line "program" to CPU 0
-	mov rax, 0x0000000000000000
-	mov rbx, os_command_line
-	call os_set_cpu_task
-	
-	jmp sleep_ap
+	xor rax, rax				; Clear RAX to 0
+	mov rbx, os_command_line	; Set RBX to the memory address of the command line
+	call os_set_cpu_task		; Set it, don't need to wake it up as interrupts are enabled
 
-align 16
-mess db 'AP SPIN ZONE', 0
+
 align 16
 
 sleep_ap:						; AP's will be running here
@@ -107,8 +104,6 @@ sleep_ap:						; AP's will be running here
 	add rax, 0x0000000000090400		; stacks decrement when you "push", start at 1024 bytes in
 	mov rsp, rax
 
-;	call os_dump_rax				; debug
-	
 	; clear registers
 	xor rax, rax					; aka r0
 	xor rbx, rbx					; aka r3
@@ -117,7 +112,6 @@ sleep_ap:						; AP's will be running here
 	xor rsi, rsi					; aka r6
 	xor rdi, rdi					; aka r7
 	xor rbp, rbp					; aka r5
-;	mov rsp, 0x0000000000098000		; aka r4
 	xor r8, r8
 	xor r9, r9
 	xor r10, r10
@@ -145,7 +139,7 @@ sleep_ap:						; AP's will be running here
 	; if there is then call RAX
 	call rax
 	
-	; clear the pending task
+	; clear the pending task after execution
 	pop rdi
 	xor rax, rax
 	stosq

@@ -114,7 +114,7 @@ next_ap:
 	add rax, 1
 	mov rbx, sleep_ap
 	call os_smp_call
-	cmp rax, 8		; Should be able to do up to 255 here...
+	cmp rax, 8		; Should be able to do up to 255 here... VMware doen't like it
 	jne next_ap
 
 	; Enable specific interrupts

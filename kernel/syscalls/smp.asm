@@ -16,6 +16,8 @@ align 16
 ;		RBX = location of code to return to
 ; OUT:	Nothing. All registers preserved.
 ; Note:	This code gets an AP to modify its stack to reprogram the return RIP after the IRETQ
+;		For setup use only.
+;		Uses interrupt 0x81 to pull the address from the stagingarea into the AP stack
 os_smp_call:
 	push rdi
 	push rbx
@@ -24,13 +26,15 @@ os_smp_call:
 	mov [stagingarea], rbx
 	
 	mov rdi, [os_LocalAPICAddress]
+	
+	push rdi
 	add rdi, 0x0310
 	shl rax, 24		; AL holds the CPU #, shift left 24 bits to get it into 31:24, 23:0 are reserved
 	stosd
 	
 	xor rax, rax
 
-	mov rdi, [os_LocalAPICAddress]
+	pop rdi
 	add rdi, 0x0300
 	mov al, 0x81
 	stosd
@@ -39,8 +43,6 @@ os_smp_call:
 	pop rbx
 	pop rdi
 	ret
-	
-stagingarea dq 0x0000000000000000
 ; -----------------------------------------------------------------------------
 
 
@@ -48,18 +50,21 @@ stagingarea dq 0x0000000000000000
 ; os_smp_wakeup -- wake up a certain CPU
 ;  IN:	AL = CPU #
 ; OUT:	Nothing
+; Note:	Uses interrupt 0x80. Just a stub interrupt with no real code behind it.
 os_smp_wakeup:
 	push rdi
 	push rax
 	
-	mov rdi, [os_LocalAPICAddress]
+	mov rdi, [os_LocalAPICAddress]	; Load the address of the LAPIC from memory
+
+	push rdi		; Save the RDI register so we don't need to load from memory twice
 	add rdi, 0x0310
 	shl rax, 24		; AL holds the CPU #, shift left 24 bits to get it into 31:24, 23:0 are reserved
 	stosd
 	
 	xor rax, rax
 
-	mov rdi, [os_LocalAPICAddress]
+	pop rdi			; Restore RDI from the stack. Saves a second memory load
 	add rdi, 0x0300
 	mov al, 0x80		; 0x80 is our wakeup interrupt
 	stosd
@@ -92,20 +97,24 @@ ret
 
 
 ; -----------------------------------------------------------------------------
-; os_dosomething -- 
-;  IN:	AL = CPU#
-;		RBX = Code to execute
-; OUT:	
-os_dosomething:
-;	cmp byte [mp_job_queue_inuse], 0x00	; Check if the marker is set to inuse
-;	jne os_dosomething
-;	lock
-;	mov byte [mp_job_queue_inuse], 0x01	; If not lock and set it
+; os_set_cpu_data -- 
+;  IN:	RAX = CPU #
+;		RBX = Location of AP data
+; OUT:	Nothing
+os_set_cpu_data:
+	push rdi
+	push rax
 
-;	mov qword [mp_job_queue], rbx	
-;	call os_smp_wakeup
+	shl rax, 4		; quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
+	mov rdi, taskdata
+	add rdi, rax
+	add rdi, 4		; The second qword is to hold the data address
+	mov rax, rbx
+	stosq
 
-	ret
+	pop rax
+	pop rdi
+ret
 ; -----------------------------------------------------------------------------
 
 
