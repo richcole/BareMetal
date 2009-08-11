@@ -10,7 +10,7 @@
 [ORG 0x0000000000100000]
 
 kernel_start:
-	jmp start
+	jmp start		; Skip over the function call index
 
 	; Aligned for simplicity... It does waste a bit of space.
 	align 16
@@ -103,13 +103,13 @@ align 16
 
 sleep_ap:						; AP's will be running here
 
-	; reset the stack
-	call os_smp_get_local_id
-	shl rax, 10	; a 1024byte stack
-	add rax, 0x0000000000090400		; stacks decrement when you "push", start at 1024 bytes in
-	mov rsp, rax
+	; Reset the stack. Each CPU gets a unique stack location
+	call os_smp_get_local_id		; return CPU ID in RAX
+	shl rax, 10						; shift left 10 bits for a 1024byte stack
+	add rax, 0x0000000000050400		; stacks decrement when you "push", start at 1024 bytes in
+	mov rsp, rax					; Pure64 leaves 0x50000-0x9FFFF free so we use that
 
-	; clear registers
+	; Clear registers. Gives us a clean slate to work with
 	xor rax, rax					; aka r0
 	xor rbx, rbx					; aka r3
 	xor rcx, rcx					; aka r1
@@ -126,30 +126,35 @@ sleep_ap:						; AP's will be running here
 	xor r14, r14
 	xor r15, r15
 	
-	hlt							; Wait for a interrupt or "wakeup" IPI
-	
-	call os_smp_get_local_id	; On wakeup find out which CPU we are
+	; Wait for a interrupt or "wakeup" IPI. No need to spin when there is nothing to do
+	hlt
 
-	; check for a pending task
+	; On wakeup find out which CPU we are
+	call os_smp_get_local_id
+
+	; Check for a pending task
 	mov rsi, taskdata
-	shl rax, 4	; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
+	shl rax, 4		; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
 	add rsi, rax
 	push rsi
-	lodsq		; load the task address into RAX
+	lodsq			; load the task code address into RAX
+	xchg rax, rbx	; Swap RAX and RBX since LODSQ uses RAX
+	lodsq			; load the task data address/data into RAX
+	xchg rax, rbx	; Swap RAX and RBX again
 	
-	; if there is none go back to sleep
+	; If there is no pending task to complere then go back to sleep
 	cmp rax, 0x0000000000000000
-	je sleep_ap
+	je sleep_ap		; If it was NULL then there is nothing to work on
 
-	; if there is then call RAX
+	; If there is a pending task then call RAX
 	call rax
 	
-	; clear the pending task after execution
+	; Clear the pending task after execution
 	pop rdi
 	xor rax, rax
 	stosq
 
-	; go back to sleep
+	; Go back to sleep
 	jmp sleep_ap
 
 ; Includes
@@ -161,7 +166,7 @@ sleep_ap:						; AP's will be running here
 %include "sysvar.asm"
 %include "cli.asm"
 
-times 8192-($-$$) db 0			; Set the compiled binary to at least this size
+times 8192-($-$$) db 0			; Set the compiled binary to at least this size in bytes
 
 ; =============================================================================
 ; EOF
