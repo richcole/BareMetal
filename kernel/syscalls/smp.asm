@@ -1,8 +1,8 @@
 ; =============================================================================
-; Bare Metal OS -- a 64-bit OS written in Assembly for x86-64 systems
-; Copyright (C) 2008 Ian Seyler -- see LICENSE.TXT
+; BareMetal -- a 64-bit OS written in Assembly for x86-64 systems
+; Copyright (C) 2008-2009 Return Infinity -- see LICENSE.TXT
 ;
-;
+; SMP Functions
 ; =============================================================================
 
 align 16
@@ -24,14 +24,14 @@ os_smp_call:
 	push rax
 
 	mov [stagingarea], rbx
-	
+
 	mov rdi, [os_LocalAPICAddress]
-	
+
 	push rdi
 	add rdi, 0x0310
 	shl rax, 24		; AL holds the CPU #, shift left 24 bits to get it into 31:24, 23:0 are reserved
 	stosd
-	
+
 	xor rax, rax
 
 	pop rdi
@@ -49,7 +49,7 @@ os_smp_call:
 ; -----------------------------------------------------------------------------
 ; os_smp_wakeup -- wake up a certain CPU
 ;  IN:	AL = CPU #
-; OUT:	Nothing
+; OUT:	Nothing. All registers perserved.
 ; Note:	Uses interrupt 0x80. Just a stub interrupt with no real code behind it.
 os_smp_wakeup:
 	push rdi
@@ -76,7 +76,7 @@ os_smp_wakeup:
 
 
 ; -----------------------------------------------------------------------------
-; os_set_cpu_task -- 
+; os_set_cpu_task -- Set an AP to execute a piece of code
 ;  IN:	RAX = CPU #
 ;		RBX = Code to execute
 ;		RCX = Data to work on
@@ -89,9 +89,9 @@ os_set_cpu_task:
 	shl rax, 4		; quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
 	mov rdi, taskdata
 	add rdi, rax
-	mov rax, rbx
+	mov rax, rbx	; Store the address of the code to execute
 	stosq
-	mov rax, rcx
+	mov rax, rcx	; Store the address of/data itself for AP to use (if any)
 	stosq
 
 	pop rax

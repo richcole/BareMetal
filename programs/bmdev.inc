@@ -1,9 +1,9 @@
-; =================================================================
-; Bare Metal OS -- a 64-bit OS written in Assembly for x86-64 systems
-; Copyright (C) 2008 Ian Seyler -- see LICENSE.TXT
+; =============================================================================
+; BareMetal -- a 64-bit OS written in Assembly for x86-64 systems
+; Copyright (C) 2008-2009 Return Infinity -- see LICENSE.TXT
 ;
 ; Include file for Bare Metal program development (API version 1)
-; =================================================================
+; =============================================================================
 
 
 os_print_string		equ	0x0000000000100010	; Displays text, IN: RSI = message location (zero-terminated string)
@@ -36,3 +36,6 @@ os_string_to_int	equ	0x00000000001000E0	;
 os_smp_get_local_id	equ	0x00000000001000E8	;
 os_set_cpu_task		equ	0x00000000001000F0	;
 os_smp_wakeup		equ	0x00000000001000F8	;
+
+; =============================================================================
+; EOF
