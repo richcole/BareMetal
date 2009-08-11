@@ -10,7 +10,7 @@ db 'DEBUG: SYSVAR   '
 align 16
 
 
-%DEFINE BAREMETALOS_VER 'v0.4 (July 31, 2009)'
+%DEFINE BAREMETALOS_VER 'v0.4 (August 11, 2009)'
 %DEFINE BAREMETALOS_API_VER 1
 
 ; Strings
@@ -33,8 +33,8 @@ programlocation:	equ 0x0000000000200000 ; Location in memory where programs are 
 
 os_LocalAPICAddress	dq 0x0000000000000000
 os_IOAPICAddress	dq 0x0000000000000000
-timer_counter_0:	dq 0x0000000000000000 ; These timer counters make up the 128-bit system counter
-timer_counter_1:	dq 0x0000000000000000 ; 0 holds the 64 low bits and 1 holds the 64 high bits
+timer_counter_lo:	dq 0x0000000000000000 ; These timer counters make up the 128-bit system counter
+timer_counter_hi:	dq 0x0000000000000000
 stagingarea			dq 0x0000000000000000
 ram_amount:			dw 0x0000
 cpu_speed:			dd 0x00000000
@@ -58,8 +58,6 @@ db 0, '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0x0e, 0, 
 
 ; 0e = backspace
 ; 1c = enter
-
-.blank db 0x20, 0x00
 
 align 16
 taskdata:

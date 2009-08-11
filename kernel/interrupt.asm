@@ -33,10 +33,10 @@ interrupt_gate:				; handler for all other interrupts
 timer:
 	push rax
 
-	call showprogress0					; For debug to see if system is still running
+;	call showprogress0					; For debug to see if system is still running
 
-	add qword [timer_counter_0], 1		; 128-bit counter started at bootup
-	adc qword [timer_counter_0+8], 0
+	add qword [timer_counter_lo], 1		; 128-bit counter started at bootup
+	adc qword [timer_counter_hi], 0		; If 'lo' overflowed then 1 will be added to 'hi'
 
 	mov al, 20h							; Acknowledge the IRQ
 	out 20h, al
@@ -116,15 +116,7 @@ cascade:
 rtc:
 	push rax
 	
-;	call showprogress1					; For debug to see if system is still running
-
-;	call os_check_for_key
-;	jnc no_key
-	
-;	call os_print_char
-
-;no_key:
-	
+	call showprogress0					; For debug to see if system is still running
 
 	mov al, 0x0c
 	out 0x70, al
