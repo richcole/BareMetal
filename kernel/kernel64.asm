@@ -69,6 +69,12 @@ kernel_start:
 	jmp os_dump_rax
 	align 8
 	jmp os_string_to_int
+	align 8
+	jmp os_smp_get_local_id
+	align 8
+	jmp os_set_cpu_task
+	align 8
+	jmp os_smp_wakeup
 	align 16
 
 start:

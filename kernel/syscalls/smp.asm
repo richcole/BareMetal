@@ -79,9 +79,11 @@ os_smp_wakeup:
 ; os_set_cpu_task -- 
 ;  IN:	RAX = CPU #
 ;		RBX = Code to execute
+;		RCX = Data to work on
 ; OUT:	Nothing
 os_set_cpu_task:
 	push rdi
+	push rbx
 	push rax
 
 	shl rax, 4		; quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
@@ -89,30 +91,11 @@ os_set_cpu_task:
 	add rdi, rax
 	mov rax, rbx
 	stosq
-
-	pop rax
-	pop rdi
-ret
-; -----------------------------------------------------------------------------
-
-
-; -----------------------------------------------------------------------------
-; os_set_cpu_data -- 
-;  IN:	RAX = CPU #
-;		RBX = Location of AP data
-; OUT:	Nothing
-os_set_cpu_data:
-	push rdi
-	push rax
-
-	shl rax, 4		; quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
-	mov rdi, taskdata
-	add rdi, rax
-	add rdi, 4		; The second qword is to hold the data address
-	mov rax, rbx
+	mov rax, rcx
 	stosq
 
 	pop rax
+	pop rbx
 	pop rdi
 ret
 ; -----------------------------------------------------------------------------

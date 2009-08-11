@@ -13,7 +13,7 @@ os_print_newline	equ	0x0000000000100028	; Print a new line
 os_check_for_key	equ	0x0000000000100030	; Scans keyboard for input, but doesn't wait, OUT: AL = 0 if no key pressed, otherwise ASCII code, other regs preserved
 os_wait_for_key		equ	0x0000000000100038	; Waits for keypress and returns key, OUT: AL = key pressed, other regs preserved
 os_input_string		equ	0x0000000000100040	; Take string from keyboard entry, IN/OUT: RDI = location where string will be stored
-os_delay		equ	0x0000000000100048	; 
+os_delay			equ	0x0000000000100048	; 
 os_speaker_tone		equ	0x0000000000100050	; Generate PC speaker tone (call os_speaker_off after), IN: RAX = note frequency
 os_speaker_off		equ	0x0000000000100058	; 
 os_speaker_beep		equ	0x0000000000100060	; 
@@ -29,6 +29,10 @@ os_string_compare	equ	0x00000000001000A8	;
 os_string_uppercase	equ	0x00000000001000B0	; 
 os_string_lowercase	equ	0x00000000001000B8	; 
 os_int_to_string	equ	0x00000000001000C0	; 
-os_dump_reg		equ	0x00000000001000C8	; 
-os_dump_mem		equ	0x00000000001000D0	;
-os_dump_rax		equ	0x00000000001000D8	;
+os_dump_reg			equ	0x00000000001000C8	; 
+os_dump_mem			equ	0x00000000001000D0	;
+os_dump_rax			equ	0x00000000001000D8	;
+os_string_to_int	equ	0x00000000001000E0	; 
+os_smp_get_local_id	equ	0x00000000001000E8	;
+os_set_cpu_task		equ	0x00000000001000F0	;
+os_smp_wakeup		equ	0x00000000001000F8	;
