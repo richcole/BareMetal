@@ -118,5 +118,44 @@ os_smp_get_local_id:
 ; -----------------------------------------------------------------------------
 
 
+; -----------------------------------------------------------------------------
+; os_smp_find_free_cpu -- Returns the APIC ID of a free (not busy) CPU
+;  IN:	Nothing
+; OUT:	RAX = CPU ID of first free (not busy) CPU
+;		Carry flag = Set if a free CPU was not found
+os_smp_find_free_cpu:
+	push rsi
+	push rcx
+
+	xor rcx, rcx
+	
+	mov rsi, taskdata					; Set RSI to the location of the task data
+os_smp_find_free_cpu_load:
+	lodsq								; Load the code value
+	cmp rax, 0x0000000000000000
+	je os_smp_find_free_cpu_found		; If NULL then we found a free CPU
+	lodsq								; Load the data value
+	add rcx, 1
+	cmp rcx, 256
+	je os_smp_find_free_cpu_not_found
+	jmp os_smp_find_free_cpu_load
+	
+os_smp_find_free_cpu_found:
+	mov rax, rcx						; Copy the APIC ID to RAX
+	clc									; Clear the carry flag as it was a success
+
+	pop rcx
+	pop rsi
+	ret
+	
+os_smp_find_free_cpu_not_found:
+	stc									; Set the carry flag as it was a failure
+	
+	pop rcx
+	pop rsi
+	ret
+; -----------------------------------------------------------------------------
+
+
 ; =============================================================================
 ; EOF
