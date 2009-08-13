@@ -1,13 +1,13 @@
 [BITS 64]
 [ORG 0x0000000000200000]
 
-%INCLUDE "bmdev.inc"
+%INCLUDE "bmdev.asm"
 
 start:						; Start of program label
 
-	fld	QWORD [x]		;
+	fld QWORD [x]		;
 	fmul st0, st0	; x = x * x			31 x 31 = 961
-	fld	QWORD [rf9]	; 
+	fld QWORD [rf9]	; 
 	fmul st0, st1	; x = x * rf9		0.002648258377425044091643953576
 	fsub QWORD [rf7]	; x = x - rf7		0.002449845679012345678945540878
 	fmul st0, st1	; x = x * rf9		6.7511179426045681186170117476512e-9

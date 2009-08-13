@@ -1,7 +1,7 @@
 [BITS 64]
 [ORG 0x0000000000200000]
 
-%INCLUDE "bmdev.inc"
+%INCLUDE "bmdev.asm"
 
 start:						; Start of program label
 

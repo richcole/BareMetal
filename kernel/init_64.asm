@@ -11,9 +11,9 @@ align 16
 
 
 init_64:
-	xor	rdi, rdi 		; create the 64-bit IDT (at linear address 0x0000000000000000) as defined by Pure64
+	xor rdi, rdi 			; create the 64-bit IDT (at linear address 0x0000000000000000) as defined by Pure64
 
-	mov	rcx, 32
+	mov rcx, 32
 make_exception_gates: 			; make gates for exception handlers
 	mov rax, exception_gate
 	push rax			; save the exception gate to the stack for later use
@@ -32,7 +32,7 @@ make_exception_gates: 			; make gates for exception handlers
 	dec rcx
 	jnz make_exception_gates
 
-	mov	rcx, 256-32
+	mov rcx, 256-32
 make_interrupt_gates: 			; make gates for the other interrupts
 	mov rax, interrupt_gate
 	push rax			; save the interrupt gate to the stack for later use
@@ -109,6 +109,7 @@ make_real_exception_gates:
 
 	; Initialize all AP's to run our sleep code
 	; BSP !!should!! be 0 so we skip it. Need checks here
+	; Should read the Pure64 CPU info and only init the cpu's we know about.
 	xor rax, rax
 next_ap:
 	add rax, 1
@@ -119,12 +120,12 @@ next_ap:
 
 	; Enable specific interrupts
 	; To be replaced with IOAPIC instead of PIC.
-	in	al, 0x21
-	mov	al, 11111000b		; enable cascade, keyboard, timer
-	out	0x21, al
-	in	al, 0xA1
-	mov	al, 11111110b		; enable rtc
-	out	0xA1, al
+	in al, 0x21
+	mov al, 11111000b		; enable cascade, keyboard, timer
+	out 0x21, al
+	in al, 0xA1
+	mov al, 11111110b		; enable rtc
+	out 0xA1, al
 
 
 ret
