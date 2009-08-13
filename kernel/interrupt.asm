@@ -17,14 +17,14 @@ exception_gate:
 	call os_print_string
 	mov rsi, exc_string
 	call os_print_string
-	jmp	$					; hang
+	jmp	$			; hang
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
 ; Default interrupt handler
 interrupt_gate:				; handler for all other interrupts
-	iretq					; It was an undefined interrupt so return to caller
+	iretq				; It was an undefined interrupt so return to caller
 ; -----------------------------------------------------------------------------
 
 
@@ -33,12 +33,12 @@ interrupt_gate:				; handler for all other interrupts
 timer:
 	push rax
 
-;	call showprogress0					; For debug to see if system is still running
+;	call showprogress0		; For debug to see if system is still running
 
-	add qword [timer_counter_lo], 1		; 128-bit counter started at bootup
-	adc qword [timer_counter_hi], 0		; If 'lo' overflowed then 1 will be added to 'hi'
+	add qword [timer_counter_lo], 1	; 128-bit counter started at bootup
+	adc qword [timer_counter_hi], 0	; If 'lo' overflowed then 1 will be added to 'hi'
 
-	mov al, 20h							; Acknowledge the IRQ
+	mov al, 20h			; Acknowledge the IRQ
 	out 20h, al
 
 	pop rax
@@ -53,18 +53,18 @@ keyboard:
 	push rbx
 
 	mov al, 0xad
-	out 0x64, al ; disable keyboard
+	out 0x64, al			; disable keyboard
 
-	in al, 0x61	; get the scancode
-	mov [scancode], al	; store the scancode
-	xor al, 0x80	; next five lines are for acknowledging the scancode
+	in al, 0x61			; get the scancode
+	mov [scancode], al		; store the scancode
+	xor al, 0x80			; next five lines are for acknowledging the scancode
 	out 0x61, al
 	mov al, [scancode]
 	and al, 0x7f
 	out 0x61, al
 
 	xor eax, eax
-	in al, 0x60	; get the key
+	in al, 0x60			; get the key
 
 	test al, 0x80
 	jz keydown
@@ -88,7 +88,7 @@ donekey:
 	mov al, 0xae
 	out 0x64, al ; enable keyboard
 
-	mov al, 20h							; Acknowledge the IRQ
+	mov al, 20h			; Acknowledge the IRQ
 	out 20h, al
 
 	pop rbx
@@ -102,7 +102,7 @@ donekey:
 cascade:
 	push rax
 
-	mov al, 0x20							; Acknowledge the IRQ
+	mov al, 0x20			; Acknowledge the IRQ
 	out 0x20, al
 
 	pop rax
@@ -116,13 +116,13 @@ cascade:
 rtc:
 	push rax
 	
-	call showprogress0					; For debug to see if system is still running
+	call showprogress0		; For debug to see if system is still running
 
 	mov al, 0x0c
 	out 0x70, al
 	in al, 0x71
 
-	mov al, 0x20							; Acknowledge the IRQ
+	mov al, 0x20			; Acknowledge the IRQ
 	out 0xa0, al
 	out 0x20, al
 	
@@ -145,23 +145,23 @@ ap_wakeup:
 	pop rax
 	pop rdi
 
-	iretq							; Return from the IPI.
+	iretq				; Return from the IPI.
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
 ; Modifies the running CPUs stack so after the iretq it jumps to the code address in stagingarea
 ap_call:
-	mov rax, [stagingarea]			; Grab the code address from the staging area
+	mov rax, [stagingarea]		; Grab the code address from the staging area
 
-	mov [rsp], rax					; Overwrite the return address on the CPU's stack
+	mov [rsp], rax			; Overwrite the return address on the CPU's stack
 
 	mov rdi, [os_LocalAPICAddress]	; Acknowledge the IPI
 	add rdi, 0xB0
 	xor rax, rax
 	stosd
 
-	iretq							; Return from the IPI. CPU will execute code at the address that was in stagingarea
+	iretq				; Return from the IPI. CPU will execute code at the address that was in stagingarea
 ; -----------------------------------------------------------------------------
 
 
@@ -282,17 +282,17 @@ exception_gate_main:
 	and rax, 0x00000000000000FF	; Clear out everything in RAX except for AL
 	push rax
 	mov bl, 51
-	mul bl						; AX = AL x BL
-	add rsi, rax				; Use the value in RAX as an offset to get to the right message
+	mul bl				; AX = AL x BL
+	add rsi, rax			; Use the value in RAX as an offset to get to the right message
 	pop rax
 	call os_print_string
 	xor rax, rax
-	pop rax						; The processor puts an error code on the stack, get it and print it
+	pop rax				; The processor puts an error code on the stack, get it and print it
 	call os_print_newline
 	call os_dump_reg
 
-	sti							; Re-enable interrupts
-	jmp os_command_line			; jump to start of the command line
+	sti				; Re-enable interrupts
+	jmp os_command_line		; jump to start of the command line
 
 
 int_string00 db 'BareMetal OS - CPU ', 0

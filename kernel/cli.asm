@@ -20,8 +20,8 @@ more:
 	mov rsi, prompt				; Prompt for input
 	call os_print_string
 
-	mov rdi, tempstring			; Get string from user
-	mov rcx, 255				; Limit the capture of characters to 255
+	mov rdi, tempstring		; Get string from user
+	mov rcx, 255			; Limit the capture of characters to 255
 	call os_input_string
 	
 	push rdi
@@ -29,7 +29,7 @@ more:
 	call os_print_string
 	pop rsi
 
-	cmp rcx, 0					; If just enter pressed, prompt again
+	cmp rcx, 0			; If just enter pressed, prompt again
 	je more
 	
 	call os_string_chomp		; Remove leading and trailing spaces
@@ -74,9 +74,9 @@ more:
 	mov al, '.'
 	call os_find_char_in_string	; User entered dot in filename?
 	cmp rax, 0
-	je notadot					; If not, see if it's 11 chars
+	je notadot			; If not, see if it's 11 chars
 	dec rax
-	jmp padout					; Otherwise, make sure it's padded out
+	jmp padout			; Otherwise, make sure it's padded out
 
 notadot:
 	call os_string_length
@@ -109,20 +109,20 @@ full_name:
 	mov rbx, tempstring
 
 	call findfile			; Fuction will return the starting cluster value in ebx or 0 if not found
-	cmp ebx, 0				; If ebx is 0 then the file was not found
-	je fail					; bail out if the file was not found
+	cmp ebx, 0			; If ebx is 0 then the file was not found
+	je fail				; bail out if the file was not found
 
 	mov rdi, programlocation	; We load the program to this location in memory (currently 0x00100000 : at the 2MB mark)
 	readfile_getdata:
 	call readcluster		; store in memory
-	cmp ebx, 0x0FFFFFFF 	; 
+	cmp ebx, 0x0FFFFFFF
 	jl readfile_getdata		; Are there more clusters? If so then read again.. if not fall through.
 
-	call programlocation	; 0x00100000 : at the 2MB mark
+	call programlocation		; 0x00100000 : at the 2MB mark
 
 	jmp more	
 
-fail:						; We didn't get a valid command or program name
+fail:					; We didn't get a valid command or program name
 	mov rsi, not_found_msg
 	call os_print_string
 	jmp more
@@ -133,10 +133,10 @@ print_help:
 	jmp more
 
 clear_screen:
-	mov rdi, 0x00000000000B8000			; memory address of color video
-	mov ax, 0x0720		; 0x07 for black background/white foreground, 0x20 for space (black) character
+	mov rdi, 0x00000000000B8000	; memory address of color video
+	mov ax, 0x0720			; 0x07 for black background/white foreground, 0x20 for space (black) character
 	mov cx, 0x4000
-	rep stosw					; clear the screen, Store word in AX to RDI CX times
+	rep stosw			; clear the screen, Store word in AX to RDI CX times
 	mov ax, 0x0018
 	call os_move_cursor
 	jmp more
@@ -250,20 +250,6 @@ testzone:
 ;	xor rdx, rdx
 ;	div rbx
 
-;call ap_print_hello			; Once for the BSP to print hello
-
-;mov al, 0x01				; Once for each AP
-;mov rbx, ap_print_hello
-;call os_dosomething
-
-;mov al, 0x02
-;mov rbx, ap_print_hello
-;call os_dosomething
-
-;mov al, 0x03
-;mov rbx, ap_print_hello
-;call os_dosomething
-
 	call os_print_newline
 
 jmp more
@@ -277,7 +263,7 @@ helloap:
 	pop rsi
 	ret
 
-helloapmsg	db ' hello from AP.', 0
+helloapmsg db ' hello from AP.', 0
 
 reboot:
 	mov al, 0xD1
@@ -291,16 +277,16 @@ debug:
 	jmp more
 
 ; Strings
-	help_text			db 'Built-in commands: CLS, HELP, VER, DIR, DATE, TIME', 13, 0
+	help_text		db 'Built-in commands: CLS, HELP, VER, DIR, DATE, TIME', 13, 0
 	not_found_msg		db 'Command or program not found', 13, 0
-	version_msg			db 'BareMetal ', BAREMETALOS_VER, 13, 0
+	version_msg		db 'BareMetal ', BAREMETALOS_VER, 13, 0
 
-	help_string			db 'HELP', 0
-	cls_string			db 'CLS', 0
-	ver_string			db 'VER', 0
-	dir_string			db 'DIR', 0
-	date_string			db 'DATE', 0
-	time_string			db 'TIME', 0
+	help_string		db 'HELP', 0
+	cls_string		db 'CLS', 0
+	ver_string		db 'VER', 0
+	dir_string		db 'DIR', 0
+	date_string		db 'DATE', 0
+	time_string		db 'TIME', 0
 	testzone_string		db 'TESTZONE', 0
 	reboot_string		db 'REBOOT', 0
 	debug_string		db 'DEBUG', 0

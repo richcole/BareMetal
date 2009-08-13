@@ -78,9 +78,9 @@ kernel_start:
 
 start:
 
-	call init_64	; After this point we are in a working 64-bit enviroment
+	call init_64		; After this point we are in a working 64-bit enviroment
 
-	call hd_setup	; gather information about the harddrive and set it up
+	call hd_setup		; gather information about the harddrive and set it up
 
 ;	call init_pci
 
@@ -94,7 +94,7 @@ start:
 	call os_show_cursor
 
 	; assign the command line "program" to CPU 0
-	xor rax, rax				; Clear RAX to 0
+	xor rax, rax			; Clear RAX to 0
 	mov rbx, os_command_line	; Set RBX to the memory address of the command line
 	call os_set_cpu_task		; Set it, don't need to wake it up as interrupts are enabled
 
@@ -105,18 +105,18 @@ sleep_ap:						; AP's will be running here
 
 	; Reset the stack. Each CPU gets a unique stack location
 	call os_smp_get_local_id		; return CPU ID in RAX
-	shl rax, 10						; shift left 10 bits for a 1024byte stack
+	shl rax, 10				; shift left 10 bits for a 1024byte stack
 	add rax, 0x0000000000050400		; stacks decrement when you "push", start at 1024 bytes in
-	mov rsp, rax					; Pure64 leaves 0x50000-0x9FFFF free so we use that
+	mov rsp, rax				; Pure64 leaves 0x50000-0x9FFFF free so we use that
 
 	; Clear registers. Gives us a clean slate to work with
-	xor rax, rax					; aka r0
-	xor rbx, rbx					; aka r3
-	xor rcx, rcx					; aka r1
-	xor rdx, rdx					; aka r2
-	xor rsi, rsi					; aka r6
-	xor rdi, rdi					; aka r7
-	xor rbp, rbp					; aka r5
+	xor rax, rax				; aka r0
+	xor rbx, rbx				; aka r3
+	xor rcx, rcx				; aka r1
+	xor rdx, rdx				; aka r2
+	xor rsi, rsi				; aka r6
+	xor rdi, rdi				; aka r7
+	xor rbp, rbp				; aka r5
 	xor r8, r8
 	xor r9, r9
 	xor r10, r10
@@ -138,9 +138,9 @@ sleep_ap:						; AP's will be running here
 	add rsi, rax
 	push rsi
 	lodsq			; load the task code address into RAX
-	xchg rax, rbx	; Swap RAX and RBX since LODSQ uses RAX
+	xchg rax, rbx		; Swap RAX and RBX since LODSQ uses RAX
 	lodsq			; load the task data address/data into RAX
-	xchg rax, rbx	; Swap RAX and RBX again
+	xchg rax, rbx		; Swap RAX and RBX again
 	
 	; If there is no pending task to complere then go back to sleep
 	cmp rax, 0x0000000000000000
@@ -166,7 +166,7 @@ sleep_ap:						; AP's will be running here
 %include "sysvar.asm"
 %include "cli.asm"
 
-times 8192-($-$$) db 0			; Set the compiled binary to at least this size in bytes
+times 8192-($-$$) db 0		; Set the compiled binary to at least this size in bytes
 
 ; =============================================================================
 ; EOF
