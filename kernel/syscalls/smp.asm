@@ -76,6 +76,35 @@ os_smp_wakeup:
 
 
 ; -----------------------------------------------------------------------------
+; os_smp_wakeup_all -- wake up all CPU's (except self)
+;  IN:	Nothing
+; OUT:	Nothing. All registers perserved.
+; Note:	Uses interrupt 0x80. Just a stub interrupt with no real code behind it.
+os_smp_wakeup_all:
+	push rdi
+	push rax
+	
+	mov rdi, [os_LocalAPICAddress]	; Load the address of the LAPIC from memory
+
+	push rdi		; Save the RDI register so we don't need to load from memory twice
+	add rdi, 0x0310
+	xor rax, rax		; Nothing needed here
+	stosd
+	
+	xor rax, rax
+
+	pop rdi			; Restore RDI from the stack. Saves a second memory load
+	add rdi, 0x0300
+	mov eax, 0x000C0080	; 0x0C for all except self, 0x80 is our wakeup interrupt
+	stosd
+
+	pop rax
+	pop rdi
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
 ; os_smp_set_task -- Set an AP to execute a piece of code
 ;  IN:	RAX = CPU #
 ;	RBX = Code to execute
@@ -119,7 +148,7 @@ os_smp_get_id:
 
 
 ; -----------------------------------------------------------------------------
-; os_smp_find_free_cpu -- Returns the APIC ID of a free (not busy) CPU
+; os_smp_find_free -- Returns the APIC ID of a free (not busy) CPU
 ;  IN:	Nothing
 ; OUT:	RAX = CPU ID of first free (not busy) CPU
 ;	Carry flag = Set if a free CPU was not found
@@ -151,6 +180,39 @@ os_smp_find_free_found:
 os_smp_find_free_not_found:
 	stc					; Set the carry flag as it was a failure
 	
+	pop rcx
+	pop rsi
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_smp_wait_for_aps -- Wait for all AP's to finish
+;  IN:	Nothing
+; OUT:	Nothing. All registers preserved.
+os_smp_wait_for_aps:
+	push rsi
+	push rcx
+
+	mov rsi, taskdata			; Set RSI to the location of the task data
+	add rsi, 16				; Skip the BSP entry
+	add rsi, 8
+	xor rcx, rcx
+
+os_smp_checkit:
+	sub rsi, 8
+	lodsq					; Load the code value
+	cmp rax, 0x0000000000000000
+	jne os_smp_checkit
+
+	lodsq					; Load the data value
+	lodsq
+	lodsq
+	
+	add rcx, 1
+	cmp rcx, 256
+	je os_smp_checkit
+
 	pop rcx
 	pop rsi
 	ret
