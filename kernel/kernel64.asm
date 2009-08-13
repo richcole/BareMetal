@@ -69,11 +69,13 @@ kernel_start:
 	align 8
 	jmp os_string_to_int
 	align 8
-	jmp os_smp_get_local_id
+	jmp os_smp_get_id
 	align 8
-	jmp os_set_cpu_task
+	jmp os_smp_set_task
 	align 8
 	jmp os_smp_wakeup
+	align 8
+	jmp os_smp_find_free
 	align 16
 
 start:
@@ -96,7 +98,7 @@ start:
 	; assign the command line "program" to CPU 0
 	xor rax, rax			; Clear RAX to 0
 	mov rbx, os_command_line	; Set RBX to the memory address of the command line
-	call os_set_cpu_task		; Set it, don't need to wake it up as interrupts are enabled
+	call os_smp_set_task		; Set it, don't need to wake it up as interrupts are enabled
 
 
 align 16
@@ -104,7 +106,7 @@ align 16
 sleep_ap:						; AP's will be running here
 
 	; Reset the stack. Each CPU gets a unique stack location
-	call os_smp_get_local_id		; return CPU ID in RAX
+	call os_smp_get_id			; return CPU ID in RAX
 	shl rax, 10				; shift left 10 bits for a 1024byte stack
 	add rax, 0x0000000000050400		; stacks decrement when you "push", start at 1024 bytes in
 	mov rsp, rax				; Pure64 leaves 0x50000-0x9FFFF free so we use that
@@ -130,7 +132,7 @@ sleep_ap:						; AP's will be running here
 	hlt
 
 	; On wakeup find out which CPU we are
-	call os_smp_get_local_id
+	call os_smp_get_id
 
 	; Check for a pending task
 	mov rsi, taskdata

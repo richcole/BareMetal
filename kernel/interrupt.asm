@@ -271,7 +271,7 @@ align 16
 exception_gate_main:
 	mov rsi, int_string00
 	call os_print_string
-	call os_smp_get_local_id	; Get the local CPU ID and print it
+	call os_smp_get_id		; Get the local CPU ID and print it
 	mov rdi, tempstring
 	mov rsi, rdi
 	call os_int_to_string

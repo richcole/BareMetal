@@ -13,11 +13,11 @@ align 16
 ; -----------------------------------------------------------------------------
 ; os_smp_call -- Set a certain CPU to run a piece of code
 ;  IN:	AL = CPU #
-;		RBX = location of code to return to
+;	RBX = location of code to return to
 ; OUT:	Nothing. All registers preserved.
 ; Note:	This code gets an AP to modify its stack to reprogram the return RIP after the IRETQ
-;		For setup use only.
-;		Uses interrupt 0x81 to pull the address from the stagingarea into the AP stack
+;	For setup use only.
+;	Uses interrupt 0x81 to pull the address from the stagingarea into the AP stack
 os_smp_call:
 	push rdi
 	push rbx
@@ -76,12 +76,12 @@ os_smp_wakeup:
 
 
 ; -----------------------------------------------------------------------------
-; os_set_cpu_task -- Set an AP to execute a piece of code
+; os_smp_set_task -- Set an AP to execute a piece of code
 ;  IN:	RAX = CPU #
-;		RBX = Code to execute
-;		RCX = Data to work on
+;	RBX = Code to execute
+;	RCX = Data to work on
 ; OUT:	Nothing
-os_set_cpu_task:
+os_smp_set_task:
 	push rdi
 	push rbx
 	push rax
@@ -89,9 +89,9 @@ os_set_cpu_task:
 	shl rax, 4		; quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
 	mov rdi, taskdata
 	add rdi, rax
-	mov rax, rbx	; Store the address of the code to execute
+	mov rax, rbx		; Store the address of the code to execute
 	stosq
-	mov rax, rcx	; Store the address of/data itself for AP to use (if any)
+	mov rax, rcx		; Store the address of/data itself for AP to use (if any)
 	stosq
 
 	pop rax
@@ -102,10 +102,10 @@ ret
 
 
 ; -----------------------------------------------------------------------------
-; os_smp_localid -- Returns the APIC ID of the CPU that ran this function
+; os_smp_get_id -- Returns the APIC ID of the CPU that ran this function
 ;  IN:	Nothing
 ; OUT:	RAX = CPU ID number
-os_smp_get_local_id:
+os_smp_get_id:
 	push rsi
 
 	mov rsi, [os_LocalAPICAddress]
@@ -122,34 +122,34 @@ os_smp_get_local_id:
 ; os_smp_find_free_cpu -- Returns the APIC ID of a free (not busy) CPU
 ;  IN:	Nothing
 ; OUT:	RAX = CPU ID of first free (not busy) CPU
-;		Carry flag = Set if a free CPU was not found
-os_smp_find_free_cpu:
+;	Carry flag = Set if a free CPU was not found
+os_smp_find_free:
 	push rsi
 	push rcx
 
 	xor rcx, rcx
 	
-	mov rsi, taskdata					; Set RSI to the location of the task data
-os_smp_find_free_cpu_load:
-	lodsq								; Load the code value
+	mov rsi, taskdata			; Set RSI to the location of the task data
+os_smp_find_free_load:
+	lodsq					; Load the code value
 	cmp rax, 0x0000000000000000
-	je os_smp_find_free_cpu_found		; If NULL then we found a free CPU
-	lodsq								; Load the data value
+	je os_smp_find_free_found		; If NULL then we found a free CPU
+	lodsq					; Load the data value
 	add rcx, 1
 	cmp rcx, 256
-	je os_smp_find_free_cpu_not_found
-	jmp os_smp_find_free_cpu_load
+	je os_smp_find_free_not_found
+	jmp os_smp_find_free_load
 	
-os_smp_find_free_cpu_found:
-	mov rax, rcx						; Copy the APIC ID to RAX
-	clc									; Clear the carry flag as it was a success
+os_smp_find_free_found:
+	mov rax, rcx				; Copy the APIC ID to RAX
+	clc					; Clear the carry flag as it was a success
 
 	pop rcx
 	pop rsi
 	ret
 	
-os_smp_find_free_cpu_not_found:
-	stc									; Set the carry flag as it was a failure
+os_smp_find_free_not_found:
+	stc					; Set the carry flag as it was a failure
 	
 	pop rcx
 	pop rsi

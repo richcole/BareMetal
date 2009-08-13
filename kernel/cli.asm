@@ -176,20 +176,20 @@ align 16
 testzone:
 
 
-	mov rax, 0x0000000000000001
-	mov rbx, helloap
-	call os_set_cpu_task
-	call os_smp_wakeup
+;	mov rax, 0x0000000000000001
+;	mov rbx, helloap
+;	call os_set_cpu_task
+;	call os_smp_wakeup
 
-	mov rax, 0x0000000000000002
-	mov rbx, helloap
-	call os_set_cpu_task
-	call os_smp_wakeup
+;	mov rax, 0x0000000000000002
+;	mov rbx, helloap
+;	call os_set_cpu_task
+;	call os_smp_wakeup
 
-	mov rax, 0x0000000000000003
-	mov rbx, helloap
-	call os_set_cpu_task
-	call os_smp_wakeup
+;	mov rax, 0x0000000000000003
+;	mov rbx, helloap
+;	call os_set_cpu_task
+;	call os_smp_wakeup
 
 
 ;mov al, 0x01

@@ -5,30 +5,26 @@
 
 start:						; Start of program label
 
+
+
+find_AP:
+	call os_smp_find_free
+	jc no_more
+	mov rbx, ap_print_hello
+	call os_smp_set_task
+	call os_smp_wakeup
+	jmp find_AP
+
+no_more:
 	call ap_print_hello			; Once for the BSP to print hello
 
-	mov al, 0x03				; Once for each AP
-	mov rbx, ap_print_hello
-	call os_set_cpu_task
-	call os_smp_wakeup
-
-	mov al, 0x02
-	mov rbx, ap_print_hello
-	call os_set_cpu_task
-	call os_smp_wakeup
-
-	mov al, 0x01
-	mov rbx, ap_print_hello
-	call os_set_cpu_task
-	call os_smp_wakeup
-
-ret							; Return to OS
+ret						; Return to OS
 
 
 ap_print_hello:
 	mov rsi, hellofrom
 	call os_print_string
-	call os_smp_get_local_id
+	call os_smp_get_id
 
 	mov rdi, tempstring
 	mov rsi, rdi
