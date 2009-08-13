@@ -99,6 +99,16 @@ start:
 	call os_move_cursor
 	call os_show_cursor
 
+	; Clear the task data
+	mov rdi, taskdata
+	xor rax, rax
+	xor rcx, rcx
+cleartaskdata:
+	stosq
+	inc rcx
+	cmp rcx, 512
+	jne cleartaskdata
+
 	; assign the command line "program" to CPU 0
 	xor rax, rax			; Clear RAX to 0
 	mov rbx, os_command_line	; Set RBX to the memory address of the command line

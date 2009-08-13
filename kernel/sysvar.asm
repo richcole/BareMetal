@@ -30,6 +30,7 @@ hdbuffer:		equ 0x0000000000070000 ; 32768 bytes = 0x70000 -> 0x77FFF
 hdbuffer1:		equ 0x0000000000078000 ; 32768 bytes = 0x78000 -> 0x7FFFF
 tempstring:		equ 0x0000000000080000 ; 1024 bytes = 0xE300 -> 0xE5FF
 programlocation:	equ 0x0000000000200000 ; Location in memory where programs are loaded (the start of 2M)
+taskdata		equ 0x00000000001FF000 ; Location of task data (4KB before the 2MB mark)
 
 os_LocalAPICAddress	dq 0x0000000000000000
 os_IOAPICAddress	dq 0x0000000000000000
@@ -59,16 +60,17 @@ db 0, '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0x0e, 0, 
 ; 0e = backspace
 ; 1c = enter
 
-align 16
-taskdata:
-codecpu00	dq 0x0000000000000000
-datacpu00	dq 0x0000000000000000
-codecpu01	dq 0x0000000000000000
-datacpu01	dq 0x0000000000000000
-codecpu02	dq 0x0000000000000000
-datacpu02	dq 0x0000000000000000
-codecpu03	dq 0x0000000000000000
-datacpu03	dq 0x0000000000000000
+; Move this somewhere else.
+;align 16
+;taskdata:
+;codecpu00	dq 0x0000000000000000
+;datacpu00	dq 0x0000000000000000
+;codecpu01	dq 0x0000000000000000
+;datacpu01	dq 0x0000000000000000
+;codecpu02	dq 0x0000000000000000
+;datacpu02	dq 0x0000000000000000
+;codecpu03	dq 0x0000000000000000
+;datacpu03	dq 0x0000000000000000
 
 ;--------------------------------------------------------------------
 

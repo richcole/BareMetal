@@ -107,16 +107,30 @@ make_real_exception_gates:
 
 	sti				; Re-enable interupts.
 
-	; Initialize all AP's to run our sleep code
-	; BSP !!should!! be 0 so we skip it. Need checks here
-	; Should read the Pure64 CPU info and only init the cpu's we know about.
+	; Initialize all AP's to run our sleep code. Skip the BSP
 	xor rax, rax
+	mov rsi, 0x000000000000F600	; Location in memory of the Pure64 CPU data
+	mov rcx, 256
 next_ap:
-	add rax, 1
+	lodsb				; Load the CPU ID
+	lodsb				; Load the CPU parameters
+	bt rax, 0			; Check if the CPU is enabled
+	jnc skipit
+	bt rax, 1			; test to see if this is the BSP (Do not init!)
+	jc skipit
+	sub rsi, 2
+	lodsb
+	add rsi, 1
+	cmp rax, 0
+	je theend
 	mov rbx, sleep_ap
 	call os_smp_call
-	cmp rax, 8			; Should be able to do up to 255 here... VMware doen't like it
-	jne next_ap
+	jmp next_ap
+
+skipit:
+	jmp next_ap
+
+theend:	
 
 	; Enable specific interrupts
 	; To be replaced with IOAPIC instead of PIC.

@@ -79,24 +79,15 @@ os_smp_wakeup:
 ; os_smp_wakeup_all -- wake up all CPU's (except self)
 ;  IN:	Nothing
 ; OUT:	Nothing. All registers perserved.
-; Note:	Uses interrupt 0x80. Just a stub interrupt with no real code behind it.
+; Note:	Uses os_smp_wakeup
 os_smp_wakeup_all:
 	push rdi
 	push rax
-	
-	mov rdi, [os_LocalAPICAddress]	; Load the address of the LAPIC from memory
 
-	push rdi		; Save the RDI register so we don't need to load from memory twice
-	add rdi, 0x0310
-	xor rax, rax		; Nothing needed here
-	stosd
-	
-	xor rax, rax
+	call os_smp_get_id
 
-	pop rdi			; Restore RDI from the stack. Saves a second memory load
-	add rdi, 0x0300
-	mov eax, 0x000C0080	; 0x0C for all except self, 0x80 is our wakeup interrupt
-	stosd
+;	os_smp_wakeup
+; wake them up one by one.. skip running cpu	
 
 	pop rax
 	pop rdi
@@ -112,19 +103,17 @@ os_smp_wakeup_all:
 ; OUT:	Nothing
 os_smp_set_task:
 	push rdi
-	push rbx
 	push rax
 
 	shl rax, 4		; quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
 	mov rdi, taskdata
-	add rdi, rax
-	mov rax, rbx		; Store the address of the code to execute
-	stosq
-	mov rax, rcx		; Store the address of/data itself for AP to use (if any)
-	stosq
+	add rdi, rax		; Add the offset to RDI
+	mov rax, rbx
+	stosq			; Store the address of the code to execute
+	mov rax, rcx
+	stosq			; Store the address of/data itself for AP to use (if any)
 
 	pop rax
-	pop rbx
 	pop rdi
 ret
 ; -----------------------------------------------------------------------------
