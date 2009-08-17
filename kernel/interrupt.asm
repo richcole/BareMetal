@@ -17,7 +17,7 @@ exception_gate:
 	call os_print_string
 	mov rsi, exc_string
 	call os_print_string
-	jmp	$			; hang
+	jmp $			; hang
 ; -----------------------------------------------------------------------------
 
 
@@ -291,8 +291,8 @@ exception_gate_main:
 	call os_print_newline
 	call os_dump_reg
 
-	sti				; Re-enable interrupts
-	jmp os_command_line		; jump to start of the command line
+	sti				; Re-enable interrupts	
+	jmp sleep_ap			; jump to AP sleep code
 
 
 int_string00 db 'BareMetal OS - CPU ', 0
