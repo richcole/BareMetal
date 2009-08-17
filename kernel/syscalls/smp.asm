@@ -79,15 +79,24 @@ os_smp_wakeup:
 ; os_smp_wakeup_all -- wake up all CPU's (except self)
 ;  IN:	Nothing
 ; OUT:	Nothing. All registers perserved.
-; Note:	Uses os_smp_wakeup
+; Note:	Should use os_smp_wakeup
 os_smp_wakeup_all:
 	push rdi
 	push rax
 
-	call os_smp_get_id
+	mov rdi, [os_LocalAPICAddress]	; Load the address of the LAPIC from memory
 
-;	os_smp_wakeup
-; wake them up one by one.. skip running cpu	
+	push rdi		; Save the RDI register so we don't need to load from memory twice
+	add rdi, 0x0310
+	xor rax, rax		; Nothing needed here
+	stosd
+	
+	xor rax, rax
+
+	pop rdi			; Restore RDI from the stack. Saves a second memory load
+	add rdi, 0x0300
+	mov eax, 0x000C0080	; 0x0C for all except self, 0x80 is our wakeup interrupt
+	stosd
 
 	pop rax
 	pop rdi
