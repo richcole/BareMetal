@@ -13,8 +13,9 @@ align 16
 init_64:
 	xor rdi, rdi 			; create the 64-bit IDT (at linear address 0x0000000000000000) as defined by Pure64
 
+	; Create exception gate stubs
 	mov rcx, 32
-make_exception_gates: 			; make gates for exception handlers
+make_exception_gates:
 	mov rax, exception_gate
 	push rax			; save the exception gate to the stack for later use
 	stosw				; store the low word (15..0) of the address
@@ -32,8 +33,9 @@ make_exception_gates: 			; make gates for exception handlers
 	dec rcx
 	jnz make_exception_gates
 
+	; Create interrupt gate stubs
 	mov rcx, 256-32
-make_interrupt_gates: 			; make gates for the other interrupts
+make_interrupt_gates:
 	mov rax, interrupt_gate
 	push rax			; save the interrupt gate to the stack for later use
 	stosw				; store the low word (15..0) of the address
@@ -66,23 +68,18 @@ make_real_exception_gates:
 	mov rdi, 0x20
 	mov rax, timer
 	call create_gate
-
 	mov rdi, 0x21
 	mov rax, keyboard
 	call create_gate
-
 	mov rdi, 0x22
 	mov rax, cascade
 	call create_gate
-
 	mov rdi, 0x28
 	mov rax, rtc
 	call create_gate
-
 	mov rdi, 0x80
 	mov rax, ap_wakeup
 	call create_gate
-
 	mov rdi, 0x81
 	mov rax, ap_call
 	call create_gate
@@ -97,7 +94,7 @@ make_real_exception_gates:
 	mov al, 01000010b ; Periodic(6), 24H clock(2)
 	out 0x71, al
 
-	; Clear the task data
+	; Clear the task data (4096 bytes, each CPU uses 16 bytes)
 	mov rdi, taskdata
 	xor rax, rax
 	xor rcx, rcx

@@ -308,7 +308,7 @@ exc_string05 db 'Interrupt 5 - BOUND Range Exceeded Exception (#BR)', 0
 exc_string06 db 'Interrupt 6 - Invalid Opcode Exception (#UD)      ', 0
 exc_string07 db 'Interrupt 7 - Device Not Available Exception (#NM)', 0
 exc_string08 db 'Interrupt 8 - Double Fault Exception (#DF)        ', 0
-exc_string09 db 'Interrupt 9 - Coprocessor Segment Overrun         ', 0
+exc_string09 db 'Interrupt 9 - Coprocessor Segment Overrun         ', 0	; No longer generated on new CPU's
 exc_string10 db 'Interrupt 10 - Invalid TSS Exception (#TS)        ', 0
 exc_string11 db 'Interrupt 11 - Segment Not Present (#NP)          ', 0
 exc_string12 db 'Interrupt 12 - Stack Fault Exception (#SS)        ', 0
