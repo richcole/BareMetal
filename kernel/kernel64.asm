@@ -103,6 +103,28 @@ start:
 	xor rax, rax			; Clear RAX to 0
 	mov rbx, os_command_line	; Set RBX to the memory address of the command line
 	call os_smp_set_task		; Set it, don't need to wake it up as interrupts are enabled
+	
+	jmp sleep_ap
+
+
+align 16
+
+clear_ap:					; AP's start here after an exception
+
+	; Get local ID without using the stack
+	mov rsi, [os_LocalAPICAddress]		; We would call os_smp_get_id here but the stack is not ...
+	add rsi, 0x20				; ... yet defined. It is safer to find the value directly.
+	lodsd					; Load a 32-bit value. We only want the high 8 bits
+	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
+
+	; Find the task in the taskdata
+	mov rsi, taskdata
+	shl rax, 4		; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
+	add rsi, rax
+
+	; Clear it
+	xor rax, rax
+	stosq
 
 
 align 16
