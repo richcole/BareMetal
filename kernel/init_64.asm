@@ -97,6 +97,16 @@ make_real_exception_gates:
 	mov al, 01000010b ; Periodic(6), 24H clock(2)
 	out 0x71, al
 
+	; Clear the task data
+	mov rdi, taskdata
+	xor rax, rax
+	xor rcx, rcx
+cleartaskdata:
+	stosq
+	inc rcx
+	cmp rcx, 512
+	jne cleartaskdata
+	
 	;Grab data from Pure64's infomap
 	mov rsi, 0xf000
 	xor rax, rax
@@ -104,8 +114,6 @@ make_real_exception_gates:
 	mov [os_LocalAPICAddress], rax
 	lodsd
 	mov [os_IOAPICAddress], rax
-
-	sti				; Re-enable interupts.
 
 	; Initialize all AP's to run our sleep code. Skip the BSP
 	xor rax, rax
@@ -141,6 +149,7 @@ theend:
 	mov al, 11111110b		; enable rtc
 	out 0xA1, al
 
+	sti				; Re-enable interupts.
 
 ret
 

@@ -99,16 +99,6 @@ start:
 	call os_move_cursor
 	call os_show_cursor
 
-	; Clear the task data
-	mov rdi, taskdata
-	xor rax, rax
-	xor rcx, rcx
-cleartaskdata:
-	stosq
-	inc rcx
-	cmp rcx, 512
-	jne cleartaskdata
-
 	; assign the command line "program" to CPU 0
 	xor rax, rax			; Clear RAX to 0
 	mov rbx, os_command_line	; Set RBX to the memory address of the command line
@@ -117,10 +107,13 @@ cleartaskdata:
 
 align 16
 
-sleep_ap:						; AP's will be running here
+sleep_ap:					; AP's will be running here
 
-	; Reset the stack. Each CPU gets a unique stack location
-	call os_smp_get_id			; return CPU ID in RAX
+	; Reset the stack. Each CPU gets a 1024-byte unique stack location
+	mov rsi, [os_LocalAPICAddress]		; We would call os_smp_get_id here but the stack is not ...
+	add rsi, 0x20				; ... yet defined. It is safer to find the value directly.
+	lodsd					; Load a 32-bit value. We only want the high 8 bits
+	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
 	shl rax, 10				; shift left 10 bits for a 1024byte stack
 	add rax, 0x0000000000050400		; stacks decrement when you "push", start at 1024 bytes in
 	mov rsp, rax				; Pure64 leaves 0x50000-0x9FFFF free so we use that
@@ -133,7 +126,7 @@ sleep_ap:						; AP's will be running here
 	xor rsi, rsi				; aka r6
 	xor rdi, rdi				; aka r7
 	xor rbp, rbp				; aka r5
-	xor r8, r8
+	xor r8, r8				; We skip RSP (aka r4) as it was previously set
 	xor r9, r9
 	xor r10, r10
 	xor r11, r11
@@ -155,7 +148,7 @@ sleep_ap:						; AP's will be running here
 	push rsi
 	lodsq			; load the task code address into RAX
 	xchg rax, rbx		; Swap RAX and RBX since LODSQ uses RAX
-	lodsq			; load the task data address/data into RAX
+	lodsq			; load the task data address/data variable into RAX
 	xchg rax, rbx		; Swap RAX and RBX again
 	
 	; If there is no pending task to complere then go back to sleep
