@@ -12,26 +12,21 @@ align 16
 
 os_command_line:
 
-	xor rbp, rbp
-	mov rsp, 0x0000000000098000
-
-more:
-
-	mov rsi, prompt				; Prompt for input
+	mov rsi, prompt			; Prompt for input
 	call os_print_string
 
 	mov rdi, tempstring		; Get string from user
 	mov rcx, 255			; Limit the capture of characters to 255
 	call os_input_string
-	
+
 	push rdi
 	mov rsi, newline
 	call os_print_string
 	pop rsi
 
 	cmp rcx, 0			; If just enter pressed, prompt again
-	je more
-	
+	je os_command_line
+
 	call os_string_chomp		; Remove leading and trailing spaces
 	call os_string_uppercase	; Convert to uppercase for comparison
 
@@ -120,17 +115,17 @@ full_name:
 
 	call programlocation		; 0x00100000 : at the 2MB mark
 
-	jmp more	
+	jmp os_command_line		; After the program is finished we go back to the start of the CLI
 
 fail:					; We didn't get a valid command or program name
 	mov rsi, not_found_msg
 	call os_print_string
-	jmp more
+	jmp os_command_line
 
 print_help:
 	mov rsi, help_text
 	call os_print_string
-	jmp more
+	jmp os_command_line
 
 clear_screen:
 	mov rdi, 0x00000000000B8000	; memory address of color video
@@ -139,12 +134,12 @@ clear_screen:
 	rep stosw			; clear the screen, Store word in AX to RDI CX times
 	mov ax, 0x0018
 	call os_move_cursor
-	jmp more
+	jmp os_command_line
 
 print_ver:
 	mov rsi, version_msg
 	call os_print_string
-	jmp more
+	jmp os_command_line
 
 dir:
 	mov rdi, tempstring
@@ -152,7 +147,7 @@ dir:
 	call os_fat32_get_file_list
 	pop rsi
 	call os_print_string
-	jmp more
+	jmp os_command_line
 
 date:
 	mov rdi, tempstring
@@ -160,7 +155,7 @@ date:
 	mov rsi, rdi
 	call os_print_string
 	call os_print_newline
-	jmp more
+	jmp os_command_line
 
 time:
 	mov rdi, tempstring
@@ -168,7 +163,7 @@ time:
 	mov rsi, rdi
 	call os_print_string
 	call os_print_newline
-	jmp more
+	jmp os_command_line
 
 align 16
 poomsg db 'OMG TESTZONE', 0
@@ -176,94 +171,14 @@ align 16
 testzone:
 
 
-;	mov rax, 0x0000000000000001
-;	mov rbx, helloap
-;	call os_set_cpu_task
-;	call os_smp_wakeup
-
-;	mov rax, 0x0000000000000002
-;	mov rbx, helloap
-;	call os_set_cpu_task
-;	call os_smp_wakeup
-
-;	mov rax, 0x0000000000000003
-;	mov rbx, helloap
-;	call os_set_cpu_task
-;	call os_smp_wakeup
-
-
-;mov al, 0x01
-;mov rbx, sleep_ap
-;call os_smp_call
-
-;mov al, 0x02
-;mov rbx, sleep_ap
-;call os_smp_call
-
-;mov rax, [timer_counter_1]
-;call os_dump_rax
-;mov rax, [timer_counter]
-;call os_dump_rax
-
-;mov rsi, 0x000000000000F600
-;mov rcx, 8
-;call os_dump_mem
-
-;mov rdi, input				; Get string from user
-;mov rcx, 255				; Limit the capture of characters to 255
-;call os_input_string
-
-;mov al, 'a'
-;mov bl, 'b'
-;mov rsi, rdi
-;call os_string_charchange
-;call os_print_newline
-;call os_print_string
-
-;mov rsi, tempgarbage
-;call os_fat32_filename_convert
-;call os_print_string
-
-;mov rax, 0xFFFFFFFFFFFFFFFF
-;mov rdi, tmpstring
-;call os_int_to_string
-;mov rsi, tmpstring
-;call os_print_string
-;call os_print_newline
-
-;call os_dump_mem
-;	mov al, 0x65
-;	out 0xE9, al	; Send an 'e' to the Bochs debug port. It shows up in the bochs console.
-	
-; Cause an int 14 - Page-Fault exception (Trying to access memory not in the page map)
-;	mov rdi, 0x00007FFF12345678
-;	stosq
-
-; Cause an int 13 - General Protection Fault (Trying to access memory outside of the canonical range)
-;	mov rdi, 0x1234567812345678
-;	stosq
-
-; Cause an int 0 - Divide Error Exception
-;	xor rax, rax
-;	xor rbx, rbx
-;	xor rcx, rcx
-;	xor rdx, rdx
-;	div rbx
-
 	call os_print_newline
+	jmp os_command_line
 
-jmp more
-
-helloap:
+testzone_ap:
 	push rsi
-	
-	mov rsi, helloapmsg
-	call os_print_string
-	
+
 	pop rsi
 	ret
-
-helloapmsg db ' hello from AP.', 0
 
 reboot:
 	mov al, 0xD1
@@ -274,10 +189,10 @@ reboot:
 
 debug:
 	call os_dump_reg
-	jmp more
+	jmp os_command_line
 
 ; Strings
-	help_text		db 'Built-in commands: CLS, HELP, VER, DIR, DATE, TIME', 13, 0
+	help_text		db 'Built-in commands: CLS, DATE, DEBUG, DIR, HELP, REBOOT, TIME, VER', 13, 0
 	not_found_msg		db 'Command or program not found', 13, 0
 	version_msg		db 'BareMetal ', BAREMETALOS_VER, 13, 0
 

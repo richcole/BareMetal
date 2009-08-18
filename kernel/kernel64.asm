@@ -103,7 +103,7 @@ start:
 	xor rax, rax			; Clear RAX to 0
 	mov rbx, os_command_line	; Set RBX to the memory address of the command line
 	call os_smp_set_task		; Set it, don't need to wake it up as interrupts are enabled
-	
+
 	jmp sleep_ap
 
 
@@ -156,7 +156,7 @@ sleep_ap:					; AP's will be running here
 	xor r13, r13
 	xor r14, r14
 	xor r15, r15
-	
+
 	; Wait for a interrupt or "wakeup" IPI. No need to spin when there is nothing to do
 	hlt
 
@@ -172,14 +172,14 @@ sleep_ap:					; AP's will be running here
 	xchg rax, rbx		; Swap RAX and RBX since LODSQ uses RAX
 	lodsq			; load the task data address/data variable into RAX
 	xchg rax, rbx		; Swap RAX and RBX again
-	
+
 	; If there is no pending task to complere then go back to sleep
 	cmp rax, 0x0000000000000000
 	je sleep_ap		; If it was NULL then there is nothing to work on
 
 	; If there is a pending task then call RAX
 	call rax
-	
+
 	; Clear the pending task after execution
 	pop rdi
 	xor rax, rax
