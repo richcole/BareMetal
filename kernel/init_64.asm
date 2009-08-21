@@ -114,25 +114,22 @@ cleartaskdata:
 
 	; Initialize all AP's to run our sleep code. Skip the BSP
 	xor rax, rax
-	mov rsi, 0x000000000000F600	; Location in memory of the Pure64 CPU data
-	mov rcx, 256
+	xor rcx, rcx
+	mov rsi, 0x000000000000F700	; Location in memory of the Pure64 CPU data
+
 next_ap:
-	lodsb				; Load the CPU ID
+	cmp rcx, 4			; enable up to this amount of CPUs
+	je theend
 	lodsb				; Load the CPU parameters
 	bt rax, 0			; Check if the CPU is enabled
 	jnc skipit
 	bt rax, 1			; test to see if this is the BSP (Do not init!)
 	jc skipit
-	sub rsi, 2
-	lodsb
-	add rsi, 1
-	cmp rax, 0
-	je theend
+	mov rax, rcx
 	mov rbx, sleep_ap
 	call os_smp_call
-	jmp next_ap
-
 skipit:
+	inc rcx
 	jmp next_ap
 
 theend:	
