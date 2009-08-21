@@ -118,7 +118,7 @@ cleartaskdata:
 	mov rsi, 0x000000000000F700	; Location in memory of the Pure64 CPU data
 
 next_ap:
-	cmp rcx, 4			; enable up to this amount of CPUs
+	cmp rcx, 128			; enable up to this amount of CPUs
 	je theend
 	lodsb				; Load the CPU parameters
 	bt rax, 0			; Check if the CPU is enabled
@@ -126,7 +126,7 @@ next_ap:
 	bt rax, 1			; test to see if this is the BSP (Do not init!)
 	jc skipit
 	mov rax, rcx
-	mov rbx, sleep_ap
+	mov rbx, clear_ap
 	call os_smp_call
 skipit:
 	inc rcx
