@@ -126,12 +126,15 @@ clear_ap:					; AP's start here after an exception
 	xor rax, rax
 	stosq
 
+	; We fall through to sleep_ap as align fills the space with No-Ops
+
 
 align 16
 
 sleep_ap:					; AP's will be running here
 
 	; Reset the stack. Each CPU gets a 1024-byte unique stack location
+	xor rax, rax				; Clear RAX as the high 32 bits may contain data
 	mov rsi, [os_LocalAPICAddress]		; We would call os_smp_get_id here but the stack is not ...
 	add rsi, 0x20				; ... yet defined. It is safer to find the value directly.
 	lodsd					; Load a 32-bit value. We only want the high 8 bits
@@ -180,7 +183,7 @@ sleep_ap:					; AP's will be running here
 	; If there is a pending task then call RAX
 	call rax
 
-	; Clear the pending task after execution
+	; Clear the pending task after execution. We will only get here is the task returned successfully.
 	pop rdi
 	xor rax, rax
 	stosq
