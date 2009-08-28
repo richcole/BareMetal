@@ -102,6 +102,7 @@ start:
 	; assign the command line "program" to CPU 0
 	xor rax, rax			; Clear RAX to 0
 	mov rbx, os_command_line	; Set RBX to the memory address of the command line
+	xor rcx, rcx			; Clear RCX as well since there is no need to pass a data address or variable
 	call os_smp_set_task		; Set it, don't need to wake it up as interrupts are enabled
 
 	jmp sleep_ap
@@ -118,9 +119,9 @@ clear_ap:					; AP's start here after an exception
 	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
 
 	; Find the task in the taskdata
-	mov rsi, taskdata
+	mov rdi, taskdata
 	shl rax, 4		; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
-	add rsi, rax
+	add rdi, rax
 
 	; Clear it
 	xor rax, rax

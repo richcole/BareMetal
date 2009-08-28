@@ -202,6 +202,8 @@ os_smp_checkit:
 	lodsq					; Load the code value
 	cmp rax, 0x0000000000000000
 	jne os_smp_checkit
+;	cmp rax, 0xFFFFFFFFFFFFFFFF
+;	jne os_smp_checkit
 
 	lodsq					; Load the data value
 	lodsq

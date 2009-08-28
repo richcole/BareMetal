@@ -170,7 +170,9 @@ poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
 
-
+	mov rsi, taskdata
+	mov rcx, 256
+	call os_dump_mem
 	call os_print_newline
 	jmp os_command_line
 

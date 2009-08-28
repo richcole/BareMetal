@@ -119,20 +119,20 @@ cleartaskdata:
 
 next_ap:
 	cmp rcx, 128			; enable up to this amount of CPUs
-	je theend
+	je no_more_aps
 	lodsb				; Load the CPU parameters
 	bt rax, 0			; Check if the CPU is enabled
-	jnc skipit
+	jnc skip_ap
 	bt rax, 1			; test to see if this is the BSP (Do not init!)
-	jc skipit
+	jc skip_ap
 	mov rax, rcx
 	mov rbx, clear_ap
 	call os_smp_call
-skipit:
+skip_ap:
 	inc rcx
 	jmp next_ap
 
-theend:	
+no_more_aps:	
 
 	; Enable specific interrupts
 	; To be replaced with IOAPIC instead of PIC.

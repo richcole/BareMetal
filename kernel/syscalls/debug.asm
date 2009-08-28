@@ -77,7 +77,7 @@ os_dump_reg_stage:		db 0x00
 ; -----------------------------------------------------------------------------
 ; os_dump_mem -- Dump some memory content to the screen
 ;  IN:	RSI = location of memory to dump
-;		RCX = number of bytes to dump
+;	RCX = number of bytes to dump
 ; OUT:	Nothing, all registers preserved
 os_dump_mem:
 	push rsi
