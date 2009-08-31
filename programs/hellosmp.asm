@@ -22,6 +22,13 @@ ret					; Return to OS
 
 
 ap_print_hello:
+	bt word [mutex], 0	; Check if the lock is open
+	jnc ap_print_hello	; If not check it again
+
+	lock		; The lock was open, try to lock it
+	btr word [mutex], 0	; Set the lock
+	jnc ap_print_hello	; Check if we were able to lock it, if not the check again
+	
 	mov rsi, hellofrom
 	call os_print_string
 	call os_smp_get_id
@@ -30,8 +37,11 @@ ap_print_hello:
 	mov rsi, rdi
 	call os_int_to_string
 	call os_print_string
+	
+	bts word [mutex], 0	; Release the lock
 ret
 
 	hellofrom db '  Hello from CPU #', 0
+	mutex dw 1	; Our MUTual-EXclustion flag
 
 tempstring:
