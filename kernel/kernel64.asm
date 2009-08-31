@@ -127,6 +127,16 @@ clear_ap:					; AP's start here after an exception
 	xor rax, rax
 	stosq
 
+	; Clear the local CPU flag
+;	mov rsi, [os_LocalAPICAddress]		; We would call os_smp_get_id here but the stack is not ...
+;	add rsi, 0x20				; ... yet defined. It is safer to find the value directly.
+;	lodsd					; Load a 32-bit value. We only want the high 8 bits
+;	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
+;	mov rdi, cpuflags			; Point RDI to the start of the cpuflags area
+;	add rdi, rax				; Add the APIC ID as an offset
+;	xor rax, rax
+;	stosb					; Write over the existing byte with 0x00
+
 	; We fall through to sleep_ap as align fills the space with No-Ops
 
 

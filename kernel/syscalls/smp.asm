@@ -191,28 +191,30 @@ os_smp_find_free_not_found:
 os_smp_wait_for_aps:
 	push rsi
 	push rcx
+	push rax
 
 	mov rsi, taskdata			; Set RSI to the location of the task data
-	add rsi, 16				; Skip the BSP entry
-	add rsi, 8
+	add rsi, 24				; Skip the BSP entry (16 bytes) and the first AP code entry (8 bytes)
 	xor rcx, rcx
 
-os_smp_checkit:
+os_smp_check_next:
 	sub rsi, 8
 	lodsq					; Load the code value
-	cmp rax, 0x0000000000000000
-	jne os_smp_checkit
-;	cmp rax, 0xFFFFFFFFFFFFFFFF
-;	jne os_smp_checkit
 
-	lodsq					; Load the data value
-	lodsq
-	lodsq
+	cmp rax, 0x0000000000000000		; If all bits are clear then this AP is idle
+	je os_smp_check_foundfree
+	cmp rax, 0xFFFFFFFFFFFFFFFF		; If all bits are set then this AP is unusable
+	je os_smp_check_foundfree
+	jmp os_smp_check_next
+	
+os_smp_check_foundfree:
+	add rsi, 16				; Skip to next record
 	
 	add rcx, 1
 	cmp rcx, 256
-	je os_smp_checkit
+	je os_smp_check_next
 
+	pop rax
 	pop rcx
 	pop rsi
 	ret

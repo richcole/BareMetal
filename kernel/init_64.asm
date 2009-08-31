@@ -96,13 +96,23 @@ make_real_exception_gates:
 
 	; Clear the task data (4096 bytes, each CPU uses 16 bytes)
 	mov rdi, taskdata
-	xor rax, rax
+	mov rax, 0xFFFFFFFFFFFFFFFF	;xor rax, rax
 	xor rcx, rcx
 cleartaskdata:
 	stosq
 	inc rcx
 	cmp rcx, 512
 	jne cleartaskdata
+	
+	; Clear the CPU flags (256 bytes)
+;	mov rdi, cpuflags
+;	mov rax, 0xFFFFFFFFFFFFFFFF
+;	xor rcx, rcx
+;clearcpuflags:
+;	stosq
+;	inc rcx
+;	cmp rcx, 32
+;	jne clearcpuflags
 	
 	;Grab data from Pure64's infomap
 	mov rsi, 0xf000
