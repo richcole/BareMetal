@@ -211,8 +211,8 @@ os_smp_check_foundfree:
 	add rsi, 16				; Skip to next record
 	
 	add rcx, 1
-	cmp rcx, 256
-	je os_smp_check_next
+	cmp rcx, 255
+	jne os_smp_check_next
 
 	pop rax
 	pop rcx
