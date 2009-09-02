@@ -114,7 +114,7 @@ os_smp_set_task:
 	push rdi
 	push rax
 
-	shl rax, 4		; quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
+	shl rax, 4		; Quick multiply by 16 as each record (code+data) is 16 bytes (64bits x2)
 	mov rdi, taskdata
 	add rdi, rax		; Add the offset to RDI
 	mov rax, rbx
@@ -124,21 +124,22 @@ os_smp_set_task:
 
 	pop rax
 	pop rdi
-ret
+	ret
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
 ; os_smp_get_id -- Returns the APIC ID of the CPU that ran this function
 ;  IN:	Nothing
-; OUT:	RAX = CPU ID number
+; OUT:	RAX = CPU's APIC ID number, All other registers perserved.
 os_smp_get_id:
 	push rsi
 
+	xor rax, rax		; We clear RAX since lodsd does not clear the high 32 bits
 	mov rsi, [os_LocalAPICAddress]
-	add rsi, 0x20
-	lodsd
-	shr rax, 24		; AL now holds the CPU's APIC ID
+	add rsi, 0x20		; Add the offset for the APIC ID location
+	lodsd			; APIC ID is stored in bits 31:24
+	shr rax, 24		; AL now holds the CPU's APIC ID (0 - 255)
 
 	pop rsi
 	ret

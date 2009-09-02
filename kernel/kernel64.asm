@@ -179,13 +179,13 @@ sleep_ap:					; AP's will be running here
 
 	; Check for a pending task
 	mov rsi, taskdata
-	shl rax, 4		; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
+	shl rax, 4		; Quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
 	add rsi, rax
-	push rsi
-	lodsq			; load the task code address into RAX
+	lodsq			; Load the task code address into RAX
 	xchg rax, rbx		; Swap RAX and RBX since LODSQ uses RAX
-	lodsq			; load the task data address/data variable into RAX
+	lodsq			; Load the task data address/data variable into RAX
 	xchg rax, rbx		; Swap RAX and RBX again
+	xor rsi, rsi		; Clear RSI since we used it
 
 	; If there is no pending task to complere then go back to sleep
 	cmp rax, 0x0000000000000000
@@ -195,7 +195,10 @@ sleep_ap:					; AP's will be running here
 	call rax
 
 	; Clear the pending task after execution. We will only get here is the task returned successfully.
-	pop rdi
+	call os_smp_get_id	; Get the APIC ID again. We could use the stack to save the id from earlier ...
+	mov rdi, taskdata	; ... but we don't know what the condition of the stack is on return.
+	shl rax, 4
+	add rdi, rax
 	xor rax, rax
 	stosq
 
