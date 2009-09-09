@@ -117,25 +117,20 @@ clear_ap:					; AP's start here after an exception
 	add rsi, 0x20				; ... yet defined. It is safer to find the value directly.
 	lodsd					; Load a 32-bit value. We only want the high 8 bits
 	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
+	mov bl, al				; Copy the APIC ID to BL
 
 	; Find the task in the taskdata
 	mov rdi, taskdata
-	shl rax, 4		; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
+	shl rax, 4				; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
 	add rdi, rax
 
-	; Clear it
-	xor rax, rax
+	; If the BSP had an exception then restart the CLI
+	xor rax, rax				; most likely it was not the BSP so we clear RAX
+	cmp bl, 0x00				; BL holds the APIC ID.. see if it is equal to 0x00 (the BSP)
+	jne clear_ap_store			; If not then jump right to the stosq (RAX was already cleared)
+	mov rax, os_command_line		; If it was the BSP set the CLI to restart	
+clear_ap_store:
 	stosq
-
-	; Clear the local CPU flag
-;	mov rsi, [os_LocalAPICAddress]		; We would call os_smp_get_id here but the stack is not ...
-;	add rsi, 0x20				; ... yet defined. It is safer to find the value directly.
-;	lodsd					; Load a 32-bit value. We only want the high 8 bits
-;	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
-;	mov rdi, cpuflags			; Point RDI to the start of the cpuflags area
-;	add rdi, rax				; Add the APIC ID as an offset
-;	xor rax, rax
-;	stosb					; Write over the existing byte with 0x00
 
 	; We fall through to sleep_ap as align fills the space with No-Ops
 

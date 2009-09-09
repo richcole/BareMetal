@@ -170,17 +170,22 @@ poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
 
-	mov rsi, taskdata
-	mov rcx, 256
-	call os_dump_mem
-	call os_print_newline
+	xor rax, rax
+	xor rbx, rbx
+	xor rcx, rcx
+	xor rdx, rdx
+	div rax
+;	mov rsi, taskdata
+;	mov rcx, 256
+;	call os_dump_mem
+;	call os_print_newline
 	jmp os_command_line
 
-testzone_ap:
-	push rsi
-
-	pop rsi
-	ret
+;testzone_ap:
+;	push rsi
+;
+;	pop rsi
+;	ret
 
 reboot:
 	mov al, 0xD1
