@@ -5,12 +5,12 @@
 
 start:					; Start of program label
 
-find_AP:				; Go though the AP's and find the free ones
-	call os_smp_find_free		; Returns a free AP ID in RAX
+	mov rax, ap_print_hello
+
+set_AP:					; Go though the AP's and find the free ones
+	call os_smp_set_free		; Try to set a free AP to run the ap_print_hello function
 	jc no_more			; If there are none then the Carry flag is set
-	mov rbx, ap_print_hello
-	call os_smp_set_task		; Set the AP to run the print_hello task
-	jmp find_AP			; Check if there are more
+	jmp set_AP			; Check if there are more
 
 no_more:
 	call os_smp_wakeup_all		; Send a "wakeup call" to all AP's

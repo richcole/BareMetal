@@ -186,6 +186,51 @@ os_smp_find_free_not_found:
 
 
 ; -----------------------------------------------------------------------------
+; os_smp_set_free -- 
+;  IN:	Nothing
+; OUT:	RAX = Address of Code
+;	RBX = Address of Data/Variable
+;	Carry flag = Set if a free CPU was not found
+os_smp_set_free:
+	push rsi
+	push rdi
+	push rdx
+	push rcx
+
+	mov rdx, rax				; Save the code address as lodsq will clobber RAX
+	xor rcx, rcx
+	
+	mov rsi, taskdata			; Set RSI to the location of the task data
+os_smp_set_free_load:
+	mov rdi, rsi
+	lodsq					; Load the code value
+	cmp rax, 0x0000000000000000
+	je os_smp_set_free_found		; If NULL then we found a free CPU
+	lodsq					; Load the data value
+	add rcx, 1
+	cmp rcx, 256
+	jne os_smp_set_free_load		; If RCX is equal to 256 then fall through
+	stc					; Set the carry flag as it was a failure
+	jmp os_smp_set_free_end
+	
+os_smp_set_free_found:
+	clc					; Clear the carry flag as it was a success
+	mov rax, rdx				; Put the code address back into RAX
+	stosq					; Store the code address
+	xchg rax, rbx
+	stosq					; Store the data/data address
+	xchg rax, rbx
+
+os_smp_set_free_end:
+	pop rcx
+	pop rdx
+	pop rdi
+	pop rsi
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
 ; os_smp_wait_for_aps -- Wait for all AP's to finish
 ;  IN:	Nothing
 ; OUT:	Nothing. All registers preserved.
@@ -205,8 +250,9 @@ os_smp_check_next:
 	cmp rax, 0x0000000000000000		; If all bits are clear then this AP is idle
 	je os_smp_check_foundfree
 	cmp rax, 0xFFFFFFFFFFFFFFFF		; If all bits are set then this AP is unusable
-	je os_smp_check_foundfree
-	jmp os_smp_check_next
+;	je os_smp_check_foundfree
+;	jmp os_smp_check_next
+	jne os_smp_check_next			; If it was equal we will just fall through to found_free
 	
 os_smp_check_foundfree:
 	add rsi, 16				; Skip to next record

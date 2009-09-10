@@ -80,6 +80,8 @@ kernel_start:
 	jmp os_smp_wakeup_all
 	align 8
 	jmp os_smp_wait_for_aps
+	align 8
+	jmp os_smp_set_free
 	align 16
 
 start:

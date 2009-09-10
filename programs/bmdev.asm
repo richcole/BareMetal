@@ -39,6 +39,7 @@ os_smp_wakeup		equ	0x00000000001000F8	;
 os_smp_find_free	equ	0x0000000000100100	;
 os_smp_wakeup_all	equ	0x0000000000100108	;
 os_smp_wait_for_aps	equ	0x0000000000100110	;
+os_smp_set_free		equ	0x0000000000100118	;
 
 ; =============================================================================
 ; EOF
