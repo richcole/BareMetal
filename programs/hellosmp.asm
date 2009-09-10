@@ -9,10 +9,8 @@ start:					; Start of program label
 
 set_AP:					; Go though the AP's and find the free ones
 	call os_smp_set_free		; Try to set a free AP to run the ap_print_hello function
-	jc no_more			; If there are none then the Carry flag is set
-	jmp set_AP			; Check if there are more
+	jnc set_AP			; If carry was not set then there could be more free AP's
 
-no_more:
 	call os_smp_wakeup_all		; Send a "wakeup call" to all AP's
 	call ap_print_hello		; Once for the BSP to print hello
 	call os_smp_wait_for_aps	; Once the BSP is done wait for all AP's
