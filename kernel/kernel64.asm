@@ -168,25 +168,32 @@ sleep_ap:					; AP's will be running here
 	xor r14, r14
 	xor r15, r15
 
-	; Wait for a interrupt or "wakeup" IPI. No need to spin when there is nothing to do
-	hlt
-
 	; On wakeup find out which CPU we are
 	call os_smp_get_id
 
 	; Check for a pending task
 	mov rsi, taskdata
 	shl rax, 4		; Quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
-	add rsi, rax
-	lodsq			; Load the task code address into RAX
+	add rsi, rax		; RSI now points to the taskdata entry for this CPU
+
+	; Test to see if there was a valid code location
+	mov rax, [rsi]		; Load the task code address into RAX
+	test rax, rax		; Same as a 'cmp rax, 0x0000000000000000' and saves a few bytes	
+	jne continue		; If it was not NULL then there is something to work on
+	
+spin:
+	;pause			; Snooze for a bit
+	hlt			; Wait for a interrupt or "wakeup" IPI. No need to spin when there is nothing to do
+	mov rax, [rsi]		; Load the task code address into RAX
+	test rax, rax		; Same as a 'cmp rax, 0x0000000000000000' and saves a few bytes	
+	je spin			; If it was NULL then there is nothing to work on
+
+continue:	
 	xchg rax, rbx		; Swap RAX and RBX since LODSQ uses RAX
-	lodsq			; Load the task data address/data variable into RAX
+	add rsi, 8		; Increment RSI by the size of a QWORD (8 bytes)
+	mov rax, [rsi]		; Load the task data address/data variable into RAX
 	xchg rax, rbx		; Swap RAX and RBX again
 	xor rsi, rsi		; Clear RSI since we used it
-
-	; If there is no pending task to complere then go back to sleep
-	cmp rax, 0x0000000000000000
-	je sleep_ap		; If it was NULL then there is nothing to work on
 
 	; If there is a pending task then call RAX
 	call rax
