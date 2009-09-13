@@ -136,7 +136,7 @@ next_ap:
 	bt rax, 1			; test to see if this is the BSP (Do not init!)
 	jc skip_ap
 	mov rax, rcx
-	mov rbx, clear_ap
+	mov rbx, ap_clear
 	call os_smp_call
 skip_ap:
 	inc rcx

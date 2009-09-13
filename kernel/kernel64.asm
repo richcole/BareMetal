@@ -107,12 +107,12 @@ start:
 	xor rcx, rcx			; Clear RCX as well since there is no need to pass a data address or variable
 	call os_smp_set_task		; Set it, don't need to wake it up as interrupts are enabled
 
-	jmp sleep_ap
+	jmp ap_sleep
 
 
 align 16
 
-clear_ap:					; AP's start here after an exception
+ap_clear:					; AP's start here after an exception
 
 	; Get local ID without using the stack
 	mov rsi, [os_LocalAPICAddress]		; We would call os_smp_get_id here but the stack is not ...
@@ -129,17 +129,17 @@ clear_ap:					; AP's start here after an exception
 	; If the BSP had an exception then restart the CLI
 	xor rax, rax				; most likely it was not the BSP so we clear RAX
 	cmp bl, 0x00				; BL holds the APIC ID.. see if it is equal to 0x00 (the BSP)
-	jne clear_ap_store			; If not then jump right to the stosq (RAX was already cleared)
+	jne ap_clear_store			; If not then jump right to the stosq (RAX was already cleared)
 	mov rax, os_command_line		; If it was the BSP set the CLI to restart	
-clear_ap_store:
+ap_clear_store:
 	stosq
 
-	; We fall through to sleep_ap as align fills the space with No-Ops
+	; We fall through to ap_sleep as align fills the space with No-Ops
 
 
 align 16
 
-sleep_ap:					; AP's will be running here
+ap_sleep:					; AP's will be running here
 
 	; Reset the stack. Each CPU gets a 1024-byte unique stack location
 	xor rax, rax				; Clear RAX as the high 32 bits may contain data
@@ -196,18 +196,18 @@ continue:
 	xor rsi, rsi		; Clear RSI since we used it
 
 	; If there is a pending task then call RAX
-	call rax
+	call rax		; At this point RAX holds the code location and RBX holds the data address/variable
 
 	; Clear the pending task after execution. We will only get here is the task returned successfully.
 	call os_smp_get_id	; Get the APIC ID again. We could use the stack to save the id from earlier ...
 	mov rdi, taskdata	; ... but we don't know what the condition of the stack is on return.
 	shl rax, 4
-	add rdi, rax
+	add rdi, rax		; RDI points to the proper offset in taskdata
 	xor rax, rax
-	stosq
+	stosq			; Clear it
 
 	; Go back to sleep
-	jmp sleep_ap
+	jmp ap_sleep		; Reset the stack, clear the registers, and wait for something to work on
 
 ; Includes
 %include "init_64.asm"

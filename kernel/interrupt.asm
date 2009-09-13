@@ -292,7 +292,7 @@ exception_gate_main:
 	call os_dump_reg
 
 	sti				; Re-enable interrupts	
-	jmp clear_ap			; jump to AP clear code
+	jmp ap_clear			; jump to AP clear code
 
 
 int_string00 db 'BareMetal OS - CPU ', 0
