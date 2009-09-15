@@ -13,9 +13,9 @@ align 16
 ; -----------------------------------------------------------------------------
 ; os_int_to_string -- Convert a binary interger into an string string
 ;  IN:	RAX = binary integer
-;		RDI = location to store string
+;	RDI = location to store string
 ; OUT:	RDI = pointer to end of string
-;		All other registers preserved
+;	All other registers preserved
 ; Min return value is 0 and max return value is 18446744073709551615 so your
 ; string needs to be able to store at least 21 characters (20 for the number
 ; and 1 for the string terminator).
@@ -26,23 +26,23 @@ os_int_to_string:
 	push rbx
 	push rax
 
-	mov rbx, 10								; base of the decimal system
-	xor rcx, rcx							; number of digits generated
+	mov rbx, 10					; base of the decimal system
+	xor rcx, rcx					; number of digits generated
 os_int_to_string_next_divide:
-	xor rdx, rdx							; RAX extended to (RDX,RAX)
-	div rbx									; divide by the number-base
-	push rdx								; save remainder on the stack
-	inc rcx									; and count this remainder
-	cmp rax, 0x0							; was the quotient zero?
+	xor rdx, rdx					; RAX extended to (RDX,RAX)
+	div rbx						; divide by the number-base
+	push rdx					; save remainder on the stack
+	inc rcx						; and count this remainder
+	cmp rax, 0x0					; was the quotient zero?
 	jne os_int_to_string_next_divide		; no, do another division
 os_int_to_string_next_digit:
-	pop rdx									; else pop recent remainder
-	add dl, '0'								; and convert to a numeral
-	mov [rdi], dl							; store to memory-buffer
+	pop rdx						; else pop recent remainder
+	add dl, '0'					; and convert to a numeral
+	mov [rdi], dl					; store to memory-buffer
 	inc rdi
 	loop os_int_to_string_next_digit		; again for other remainders
 	mov al, 0x00
-	stosb									; Store the null terminator at the end of the string
+	stosb						; Store the null terminator at the end of the string
 
 	pop rax
 	pop rbx
@@ -56,7 +56,7 @@ os_int_to_string_next_digit:
 ; os_string_to_int -- Convert a string into a binary interger
 ;  IN:	RSI = location of string
 ; OUT:	RAX = integer value
-;		All other registers preserved
+;	All other registers preserved
 ; Adapted from http://www.cs.usfca.edu/~cruse/cs210s09/uint2rax.s
 os_string_to_int:
 	push rsi
@@ -64,10 +64,10 @@ os_string_to_int:
 	push rcx
 	push rbx
 
-	xor rax, rax	; initialize accumulator
+	xor rax, rax		; initialize accumulator
 	mov rbx, 10		; decimal-system's radix
 nxdgt:
-	mov cl, [rsi]	; fetch next character
+	mov cl, [rsi]		; fetch next character
 
 	cmp cl, '0'		; char preceeds '0'?
 	jb inval		; yes, not a numeral
@@ -75,8 +75,8 @@ nxdgt:
 	ja inval		; yes, not a numeral
 	
 	mul rbx			; ten times prior sum
-	and rcx, 0xF	; convert char to int
-	add rax, rcx	; add to prior total
+	and rcx, 0xF		; convert char to int
+	add rax, rcx		; add to prior total
 
 	inc rsi			; advance source index
 	jmp nxdgt		; and check another char	
@@ -93,9 +93,9 @@ inval:
 ; -----------------------------------------------------------------------------
 ; os_int_to_hex_string -- Convert an integer to a hex string
 ;  IN:	RAX = Integer value
-;		RDI = location to store string
+;	RDI = location to store string
 ; OUT:	Nothing. All registers preserved
-;		All other registers preserved
+;	All other registers preserved
 os_int_to_hex_string:
 	push rdi
 	push rdx
@@ -103,19 +103,19 @@ os_int_to_hex_string:
 	push rbx
 	push rax
 
-	mov rcx, 16								; number of nibbles. 64 bit = 16 nibbles = 8 bytes
+	mov rcx, 16				; number of nibbles. 64 bit = 16 nibbles = 8 bytes
 os_int_to_hex_string_next_nibble:	
-	rol rax, 4								; next nibble into AL
-	mov bl, al								; copy nibble into BL
-	and rbx, 0x0F							; and convert to word
-	mov dl, [hextable + rbx]				; lookup ascii numeral
+	rol rax, 4				; next nibble into AL
+	mov bl, al				; copy nibble into BL
+	and rbx, 0x0F				; and convert to word
+	mov dl, [hextable + rbx]		; lookup ascii numeral
 	push rax
 	mov al, dl
 	stosb
 	pop rax
 	loop os_int_to_hex_string_next_nibble	; again for next nibble
-	xor rax, rax							; clear RAX to 0
-	stosb									; Store AL to terminate string
+	xor rax, rax				; clear RAX to 0
+	stosb					; Store AL to terminate string
 
 	pop rax
 	pop rbx
@@ -130,7 +130,7 @@ os_int_to_hex_string_next_nibble:
 ; os_hex_string_to_int -- convert up to 8 hexascii to bin
 ;  IN:	RSI = Location of hex asciiz string
 ; OUT:	RAX = binary value of hex string
-;		All other registers preserved
+;	All other registers preserved
 os_hex_string_to_int:
 	push rsi
 	push rcx
@@ -143,21 +143,21 @@ os_hex_string_to_int_loop:
 	mov cl, 4
 	cmp al, 'a'
 	jb os_hex_string_to_int_ok1
-	sub al, 0x20						;convert to upper case if alpha
+	sub al, 0x20				;convert to upper case if alpha
 os_hex_string_to_int_ok1:
-	sub al, '0'							;check if legal
+	sub al, '0'				;check if legal
 	jc os_hex_string_to_int_exit		;jmp if out of range
 	cmp al, 9
 	jle os_hex_string_to_int_got		;jmp if number is 0-9
-	sub al, 7							;convert to number from A-F or 10-15
-	cmp al, 15							;check if legal
+	sub al, 7				;convert to number from A-F or 10-15
+	cmp al, 15				;check if legal
 	ja os_hex_string_to_int_exit		;jmp if illegal hex char
 os_hex_string_to_int_got:
 	shl rbx, cl
 	or bl, al
 	jmp os_hex_string_to_int_loop
 os_hex_string_to_int_exit:
-	mov rax, rbx						; int value stored in RBX, move to RAX
+	mov rax, rbx				; int value stored in RBX, move to RAX
 
 	pop rbx
 	pop rcx
@@ -170,7 +170,7 @@ os_hex_string_to_int_exit:
 ; os_string_length -- Return length of a string
 ;  IN:	RSI = string location
 ; OUT:	RAX = length
-;		All other registers preserved
+;	All other registers preserved
 os_string_length:
 	push rdi
 	push rcx
@@ -194,9 +194,9 @@ os_string_length:
 ; -----------------------------------------------------------------------------
 ; os_find_char_in_string -- Find first location of character in a string
 ;  IN:	RSI = string location
-;		AL = character to find
+;	AL = character to find
 ; OUT:	RAX = location in string, or 0 if char not present
-;		All other registers preserved
+;	All other registers preserved
 os_find_char_in_string:
 	push rsi
 	push rcx
@@ -230,8 +230,8 @@ os_find_char_in_string_notfound:
 ; -----------------------------------------------------------------------------
 ; os_string_charchange -- Change all instances of a character in a string
 ;  IN:	RSI = string location
-;		AL = character to replace
-;		BL = replacement character
+;	AL = character to replace
+;	BL = replacement character
 ; OUT:	All registers preserved
 os_string_charchange:
 	push rsi
@@ -266,7 +266,7 @@ finishit:
 ; -----------------------------------------------------------------------------
 ; os_string_copy -- Copy the contents of one string into another
 ;  IN:	RSI = source
-;		RDI = destination
+;	RDI = destination
 ; OUT:	Nothing. All registers preserved
 ; Note:	It is up to the programmer to ensure that there is sufficient space in the destination
 os_string_copy:
@@ -290,7 +290,7 @@ os_string_copy_more:
 ; -----------------------------------------------------------------------------
 ; os_string_truncate -- Chop string down to specified number of characters
 ;  IN:	RSI = string location
-;		RAX = number of characters
+;	RAX = number of characters
 ; OUT:	Nothing. All registers preserved
 os_string_truncate:
 	push rsi
@@ -306,8 +306,8 @@ os_string_truncate:
 ; -----------------------------------------------------------------------------
 ; os_string_join -- Join two strings into a third string
 ;  IN:	RAX = string one
-;		RBX = string two
-;		RDI = destination string
+;	RBX = string two
+;	RDI = destination string
 ; OUT:	Nothing. All registers preserved
 ; What should it do with the null chars????
 os_string_join:
@@ -383,7 +383,7 @@ os_string_chomp_done:
 ; -----------------------------------------------------------------------------
 ; os_string_strip -- Removes specified character from a string
 ;  IN:	RSI = string location
-;		AL = character to remove
+;	AL = character to remove
 ; OUT:	Nothing. All registers preserved
 os_string_strip:
 	push rsi
@@ -393,17 +393,17 @@ os_string_strip:
 	
 	mov rdi, rsi
 
-	mov bl, al		; copy the char into BL since LODSB and STOSB use AL
+	mov bl, al	; copy the char into BL since LODSB and STOSB use AL
 nextchar:
 	lodsb
 	stosb
 	cmp al, 0x00	; check if we reached the end of the string
-	je finish		; if so bail out
-	cmp al, bl		; check to see if the character we read is the interesting char
+	je finish	; if so bail out
+	cmp al, bl	; check to see if the character we read is the interesting char
 	jne nextchar	; if not skip to the next character
 
-skip:				; if so the fall through to here
-	dec rdi			; decrement RDI so we overwrite on the next pass
+skip:			; if so the fall through to here
+	dec rdi		; decrement RDI so we overwrite on the next pass
 	jmp nextchar
 
 finish:
@@ -418,7 +418,7 @@ finish:
 ; -----------------------------------------------------------------------------
 ; os_string_compare -- See if two strings match
 ;  IN:	RSI = string one
-;		RDI = string two
+;	RDI = string two
 ; OUT:	Carry flag set if same
 os_string_compare:
 	push rsi
@@ -472,7 +472,7 @@ os_string_uppercase_more:
 	cmp byte [rsi], 0x00				; Zero-termination of string?
 	je os_string_uppercase_done			; If so, quit
 
-	cmp byte [rsi], 97					; In the uppercase A to Z range?
+	cmp byte [rsi], 97				; In the uppercase A to Z range?
 	jl os_string_uppercase_noatoz
 	cmp byte [rsi], 122
 	jg os_string_uppercase_noatoz

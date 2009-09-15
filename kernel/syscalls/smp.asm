@@ -186,7 +186,7 @@ os_smp_find_free_not_found:
 
 
 ; -----------------------------------------------------------------------------
-; os_smp_set_free -- 
+; os_smp_set_free -- Set a free CPU to run some code
 ;  IN:	Nothing
 ; OUT:	RAX = Address of Code
 ;	RBX = Address of Data/Variable
@@ -250,8 +250,6 @@ os_smp_check_next:
 	cmp rax, 0x0000000000000000		; If all bits are clear then this AP is idle
 	je os_smp_check_foundfree
 	cmp rax, 0xFFFFFFFFFFFFFFFF		; If all bits are set then this AP is unusable
-;	je os_smp_check_foundfree
-;	jmp os_smp_check_next
 	jne os_smp_check_next			; If it was equal we will just fall through to found_free
 	
 os_smp_check_foundfree:

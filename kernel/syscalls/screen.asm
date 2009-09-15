@@ -96,12 +96,12 @@ os_inc_cursor_done:
 os_dec_cursor:
 	push rax
 
-	mov ah, [screen_cursor_x]		; Get the current cursor location values
+	mov ah, [screen_cursor_x]	; Get the current cursor location values
 	mov al, [screen_cursor_y]
-	cmp ah, 0						; Check if the cursor in located on the first column?
+	cmp ah, 0			; Check if the cursor in located on the first column?
 	jne os_dec_cursor_done
 	
-	dec al							; Wrap the cursor back to the above line
+	dec al				; Wrap the cursor back to the above line
 	mov ah, [screen_cols]
 
 os_dec_cursor_done:
@@ -120,19 +120,19 @@ os_dec_cursor_done:
 os_print_newline:
 	push rax
 
-	mov ah, 0					; Set the cursor x value to 0
+	mov ah, 0			; Set the cursor x value to 0
 	mov al, [screen_cursor_y]	; Grab the cursor y value
-	cmp al, 24					; Compare to see if we are on the last line
+	cmp al, 24			; Compare to see if we are on the last line
 	je os_print_newline_scroll	; If so then we need to scroll the sreen
 	
-	inc al						; If not then we can go ahead an increment the y value
+	inc al				; If not then we can go ahead an increment the y value
 	jmp os_print_newline_done
 	
 os_print_newline_scroll:
 	call os_scroll_screen
 
 os_print_newline_done:
-	call os_move_cursor			; update the cursor
+	call os_move_cursor		; update the cursor
 
 	pop rax
 	ret
@@ -147,14 +147,14 @@ os_print_string:
 	push rsi
 	push rax
 
-	cld							; Clear the direction flag.. we want to increment through the string
+	cld				; Clear the direction flag.. we want to increment through the string
 
 os_print_string_nextchar:
-	lodsb						; Get char from string and store in AL
-	cmp al, 0					; Strings are Zero terminated.
+	lodsb				; Get char from string and store in AL
+	cmp al, 0			; Strings are Zero terminated.
 	je os_print_string_done		; If char is Zero then it is the end of the string
 
-	cmp al, 13					; Check if there was a newline character in the string
+	cmp al, 13			; Check if there was a newline character in the string
 	je os_print_string_newline	; If so then we print a new line
 
 	mov rdi, [screen_cursor_offset]
@@ -226,14 +226,14 @@ os_scroll_screen:
 	push rcx
 	push rax
 
-	cld							; Clear the direction flag.. we want to increment through the string
+	cld				; Clear the direction flag.. we want to increment through the string
 	mov rsi, 0x00000000000B80A0	; start of video text memory for row 2
 	mov rdi, 0x00000000000B8000	; start of video text memory
 	mov rcx, 0x0000000000000780	; Set to repeat 1920 times (80x24)
 	rep movsw
 
 ; now we need to clear the last line in video memory
-	mov ax, 0x0720				;0x00 characteristic	00 actual diplayed character (char 0x20 is a space)
+	mov ax, 0x0720			;0x00 characteristic	00 actual diplayed character (char 0x20 is a space)
 	mov rdi, 0x00000000000B8F00
 	mov rcx, 0x0000000000000050	; Set to repeat 80 times
 	rep stosw

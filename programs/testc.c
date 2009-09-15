@@ -1,7 +1,5 @@
-// gcc -o testc.o -c testc.c -nostdlib -nostartfiles -nodefaultlibs
-// -O2 -fomit-frame-pointer
+// gcc -o testc.o -c testc.c -nostdlib -nostartfiles -nodefaultlibs -O2 -fomit-frame-pointer
 // ld -T app.ld -o testc.bin testc.o
-// Compile with gcc -O3 -fomit-frame-pointer -march=pentium4 -mfpmath=sse -msse2 -o fasta fasta.c
 
 int main(void)
 {
