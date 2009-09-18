@@ -169,12 +169,12 @@ align 16
 poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
-
-	xor rax, rax
-	xor rbx, rbx
-	xor rcx, rcx
-	xor rdx, rdx
-	div rax
+	ud2
+;	xor rax, rax
+;	xor rbx, rbx
+;	xor rcx, rcx
+;	xor rdx, rdx
+;	div rax
 ;	mov rsi, taskdata
 ;	mov rcx, 256
 ;	call os_dump_mem

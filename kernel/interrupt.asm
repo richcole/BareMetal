@@ -269,6 +269,7 @@ exception_gate_19:
 
 align 16
 exception_gate_main:
+	push rax			; Save RAX since os_smp_get_id clobers it
 	mov rsi, int_string00
 	call os_print_string
 	call os_smp_get_id		; Get the local CPU ID and print it
@@ -279,6 +280,7 @@ exception_gate_main:
 	mov rsi, int_string01
 	call os_print_string
 	mov rsi, exc_string00
+	pop rax
 	and rax, 0x00000000000000FF	; Clear out everything in RAX except for AL
 	push rax
 	mov bl, 51

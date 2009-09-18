@@ -56,8 +56,8 @@ make_interrupt_gates:
 	; Set up the exception gates for all of the CPU exceptions
 	mov rcx, 20
 	xor rdi, rdi
-make_real_exception_gates:
 	mov rax, exception_gate_00
+make_real_exception_gates:
 	call create_gate
 	inc rdi
 	add rax, 16			; The exception gates are aligned at 16 bytes
