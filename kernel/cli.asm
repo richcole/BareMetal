@@ -188,8 +188,6 @@ testzone:
 ;	ret
 
 reboot:
-	mov al, 0xD1
-	out 0x64, al
 	mov al, 0xFE
 	out 0x64, al
 	jmp reboot
