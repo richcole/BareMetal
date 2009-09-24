@@ -79,7 +79,7 @@ call os_print_string
 ;get L2 cache info
 mov eax, 0x80000006	; L2/L3 cache info
 cpuid
-mov eax, ecx
+mov eax, ecx		; ecx bits 31 - 16 store unified L2 cache size in KBs
 shr eax, 16
 mov rdi, tstring
 call os_int_to_string

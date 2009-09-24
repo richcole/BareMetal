@@ -14,19 +14,19 @@ align 16
 ; os_check_for_key -- Scans keyboard for input, but doesn't wait
 ;  IN:	Nothing
 ; OUT:	AL = 0 if no key pressed, otherwise ASCII code, other regs preserved
-;		Carry flag is set if there was a keystoke, clear if there was not
+;	Carry flag is set if there was a keystoke, clear if there was not
 os_check_for_key:
 	mov al, [kkey]
 	cmp al, 0
 	je os_check_for_key_nokey
 
 	mov byte [kkey], 0x00	; clear the variable as the keystroke is in AL now
-	stc						; set the carry flag
+	stc			; set the carry flag
 	ret
 
 os_check_for_key_nokey:	
-	xor al, al				; mov al, 0x00
-	clc						; clear the carry flag
+	xor al, al		; mov al, 0x00
+	clc			; clear the carry flag
 	ret
 ; -----------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ os_check_for_key_nokey:
 ;  IN:	Nothing
 ; OUT:	AL = key pressed, other regs preserved
 os_wait_for_key:
-	hlt						; Wait for an interrupt to be triggered. Thanks Dex!
+	hlt			; Wait for an interrupt to be triggered. Thanks Dex!
 	mov al, [kkey]
 	cmp al, 0
 	je os_wait_for_key
@@ -50,7 +50,7 @@ os_wait_for_key:
 ; -----------------------------------------------------------------------------
 ; os_input_string -- Take string from keyboard entry
 ;  IN:	RDI = location where string will be stored
-;		RCX = number of characters to accept
+;	RCX = number of characters to accept
 ; OUT:	RCX = length of string that was inputed (NULL not counted)
 os_input_string:
 	push rdi
@@ -69,7 +69,7 @@ os_input_string_more:
 	cmp al, 0x0E			; Backspace
 	je os_input_string_backspace
 	
-	cmp al, 32				; In ASCII range (32 - 126)?
+	cmp al, 32			; In ASCII range (32 - 126)?
 	jl os_input_string_more
 	cmp al, 126
 	jg os_input_string_more
@@ -85,10 +85,10 @@ os_input_string_backspace:
 	call os_print_char	; Write over the last typed character with the space
 	call os_dec_cursor	; Decremnt the cursor again
 
-	dec rdi					; go back one in the string
+	dec rdi			; go back one in the string
 	mov byte [rdi], 0x00	; NULL out the char
 	
-	dec rcx					; decrement the counter by one
+	dec rcx			; decrement the counter by one
 
 	jmp os_input_string_more
 

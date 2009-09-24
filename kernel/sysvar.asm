@@ -30,7 +30,8 @@ hdbuffer:		equ 0x0000000000070000 ; 32768 bytes = 0x70000 -> 0x77FFF
 hdbuffer1:		equ 0x0000000000078000 ; 32768 bytes = 0x78000 -> 0x7FFFF
 tempstring:		equ 0x0000000000080000 ; 1024 bytes = 0xE300 -> 0xE5FF
 programlocation:	equ 0x0000000000200000 ; Location in memory where programs are loaded (the start of 2M)
-taskdata		equ 0x00000000001FF000 ; Location of task data (4KB before the 2MB mark)
+taskdata:		equ 0x00000000001FF000 ; Location of task data (4KB before the 2MB mark)
+stackbase:		equ 0x0000000000050400 ; Address for the base of the stacks
 ;cpuflags		equ 0x00000000001FEF00 ; 256 bytes
 
 os_LocalAPICAddress	dq 0x0000000000000000

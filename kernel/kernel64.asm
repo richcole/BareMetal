@@ -132,7 +132,7 @@ ap_clear:					; AP's start here after an exception
 	jne ap_clear_store			; If not then jump right to the stosq (RAX was already cleared)
 	mov rax, os_command_line		; If it was the BSP set the CLI to restart	
 ap_clear_store:
-	stosq
+	stosq					; Store 0x0 or the CLI code address depending on what CPU
 
 	; We fall through to ap_sleep as align fills the space with No-Ops
 
@@ -148,7 +148,7 @@ ap_sleep:					; AP's will be running here
 	lodsd					; Load a 32-bit value. We only want the high 8 bits
 	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
 	shl rax, 10				; shift left 10 bits for a 1024byte stack
-	add rax, 0x0000000000050400		; stacks decrement when you "push", start at 1024 bytes in
+	add rax, stackbase			; stacks decrement when you "push", start at 1024 bytes in
 	mov rsp, rax				; Pure64 leaves 0x50000-0x9FFFF free so we use that
 
 	; Clear registers. Gives us a clean slate to work with
