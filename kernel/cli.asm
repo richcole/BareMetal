@@ -169,7 +169,7 @@ align 16
 poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
-	ud2
+;	ud2
 ;	xor rax, rax
 ;	xor rbx, rbx
 ;	xor rcx, rcx

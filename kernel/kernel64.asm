@@ -128,10 +128,10 @@ ap_clear:					; AP's start here after an exception
 
 	; If the BSP had an exception then restart the CLI
 	xor rax, rax				; most likely it was not the BSP so we clear RAX
-	cmp bl, 0x00				; BL holds the APIC ID.. see if it is equal to 0x00 (the BSP)
-	jne ap_clear_store			; If not then jump right to the stosq (RAX was already cleared)
-	mov rax, os_command_line		; If it was the BSP set the CLI to restart	
-ap_clear_store:
+;	cmp bl, 0x00				; BL holds the APIC ID.. see if it is equal to 0x00 (the BSP)
+;	jne ap_clear_store			; If not then jump right to the stosq (RAX was already cleared)
+;	mov rax, os_command_line		; If it was the BSP set the CLI to restart	
+;ap_clear_store:
 	stosq					; Store 0x0 or the CLI code address depending on what CPU
 
 	; We fall through to ap_sleep as align fills the space with No-Ops
