@@ -169,6 +169,23 @@ align 16
 poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
+	mov rcx, 100
+	mov al, '5'
+	call os_print_char
+	call os_delay
+	mov al, '4'
+	call os_print_char
+	call os_delay
+	mov al, '3'
+	call os_print_char
+	call os_delay
+	mov al, '2'
+	call os_print_char
+	call os_delay
+	mov al, '1'
+	call os_print_char
+	call os_delay
+	
 ;	ud2
 ;	xor rax, rax
 ;	xor rbx, rbx

@@ -48,26 +48,28 @@ showprogress1_end:
 	pop rax
 	ret
 
-progress1:	db 0x30 ; '0'
+progress1: db 0x30 ; '0'
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
-; os_delay -- Delay by X microseconds
-; IN:	RCX
-; OUT:	RCX = 0
-; 1 second = 1000000 microseconds
-; 1 milisecond = 1000 microseconds
+; os_delay -- Delay by X milliseconds
+; IN:	RCX = Time in milliseconds
+; 1 second = 100 milliseconds
+; This function depends on the PIT
 os_delay:
+	push rcx
 	push rax
 
-;	mov [delay_timer], rcx
-;os_delay_loop:
-;	mov rax, [delay_timer]
-;	cmp rax, 0
-;	jne os_delay_loop
+	mov rax, [timer_counter_lo]	; Grab the initial timer counter. It increments 100 times a second
+	add rcx, rax			; Add RCX so we get the end time we want
+os_delay_loop:
+	mov rax, [timer_counter_lo]	; Grab the timer couter again
+	cmp rax, rcx			; Compare it against our end time
+	jle os_delay_loop		; Loop if RCX is still lower
 
 	pop rax
+	pop rcx
 	ret
 ; -----------------------------------------------------------------------------
 
