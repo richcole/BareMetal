@@ -53,9 +53,10 @@ progress1: db 0x30 ; '0'
 
 
 ; -----------------------------------------------------------------------------
-; os_delay -- Delay by X milliseconds
-; IN:	RCX = Time in milliseconds
-; 1 second = 100 milliseconds
+; os_delay -- Delay by X
+; IN:	RCX = Time in /100 seconds
+;100 = 1 second
+; 1 second = 1000 milliseconds
 ; This function depends on the PIT
 os_delay:
 	push rcx

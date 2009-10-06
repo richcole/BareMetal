@@ -169,7 +169,7 @@ align 16
 poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
-	mov rcx, 100
+	mov rcx, 1000
 	mov al, '5'
 	call os_print_char
 	call os_delay
