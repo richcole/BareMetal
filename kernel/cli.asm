@@ -185,7 +185,9 @@ testzone:
 	mov al, '1'
 	call os_print_char
 	call os_delay
-	
+	call os_speaker_beep
+	call os_print_newline
+
 ;	ud2
 ;	xor rax, rax
 ;	xor rbx, rbx
