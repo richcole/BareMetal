@@ -30,6 +30,9 @@ interrupt_gate:				; handler for all other interrupts
 
 ; -----------------------------------------------------------------------------
 ; Timer interrupt. IRQ 0x00, INT 0x20
+; Currently this IRQ runs 100 times per second (As defined in Pure64)
+; That gives us a runtime of 184467440737095516 seconds before rollover
+; That translates to ~5,845,545,310 years. Do we really need the "hi" counter?
 timer:
 	push rax
 
