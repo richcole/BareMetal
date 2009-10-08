@@ -54,10 +54,10 @@ progress1: db 0x30 ; '0'
 
 ; -----------------------------------------------------------------------------
 ; os_delay -- Delay by X
-; IN:	RCX = Time in /100 seconds
-;100 = 1 second
-; 1 second = 1000 milliseconds
-; This function depends on the PIT
+; IN:	RCX = Time in hundredths of a second
+; OUT:	All registers preserved
+; A value of 100 in RCX will delay 1 second and a value of 1 will delay 1/100 of a second
+; This function depends on the PIT (IRQ 0) so interrupts must be enabled.
 os_delay:
 	push rcx
 	push rax
