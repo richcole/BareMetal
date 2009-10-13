@@ -115,15 +115,16 @@ cascade:
 
 ; -----------------------------------------------------------------------------
 ; Real-time clock interrupt. IRQ 0x08, INT 0x28
+; http://wiki.osdev.org/RTC
 ; The supervisor lives here
 rtc:
 	push rax
 	
 	call showprogress0		; For debug to see if system is still running
 
-	mov al, 0x0c
-	out 0x70, al
-	in al, 0x71
+	mov al, 0x0c			; Select RTC register C
+	out 0x70, al			; Port 0x70 is the RTC index, and 0x71 is the RTC data
+	in al, 0x71			; Read the value in register C
 
 	mov al, 0x20			; Acknowledge the IRQ
 	out 0xa0, al
