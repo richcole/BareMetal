@@ -17,6 +17,7 @@ align 16
 %include "syscalls/debug.asm"
 %include "syscalls/misc.asm"
 %include "syscalls/smp.asm"
+%include "syscalls/serial.asm"
 
 
 ; =============================================================================

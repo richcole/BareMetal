@@ -82,6 +82,10 @@ kernel_start:
 	jmp os_smp_wait_for_aps
 	align 8
 	jmp os_smp_set_free
+	align 8
+	jmp os_serial_send
+	align 8
+	jmp os_serial_recv
 	align 16
 
 start:
