@@ -32,7 +32,6 @@ tempstring:		equ 0x0000000000080000 ; 1024 bytes = 0xE300 -> 0xE5FF
 programlocation:	equ 0x0000000000200000 ; Location in memory where programs are loaded (the start of 2M)
 taskdata:		equ 0x00000000001FF000 ; Location of task data (4KB before the 2MB mark)
 stackbase:		equ 0x0000000000050400 ; Address for the base of the stacks
-;cpuflags		equ 0x00000000001FEF00 ; 256 bytes
 
 os_LocalAPICAddress	dq 0x0000000000000000
 os_IOAPICAddress	dq 0x0000000000000000
@@ -40,6 +39,7 @@ timer_counter_lo:	dq 0x0000000000000000 ; These timer counters make up the 128-b
 timer_counter_hi:	dq 0x0000000000000000
 stagingarea		dq 0x0000000000000000
 ram_amount:		dw 0x0000
+os_NumCores:		dw 0x0000
 cpu_speed:		dd 0x00000000
 cursorx:		db 0x00		; cursor row location
 cursory:		db 0x00		; cursor column location

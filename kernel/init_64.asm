@@ -103,17 +103,7 @@ cleartaskdata:
 	inc rcx
 	cmp rcx, 512
 	jne cleartaskdata
-	
-	; Clear the CPU flags (256 bytes)
-;	mov rdi, cpuflags
-;	mov rax, 0xFFFFFFFFFFFFFFFF
-;	xor rcx, rcx
-;clearcpuflags:
-;	stosq
-;	inc rcx
-;	cmp rcx, 32
-;	jne clearcpuflags
-	
+
 	;Grab data from Pure64's infomap
 	mov rsi, 0xf000
 	xor rax, rax
@@ -121,6 +111,9 @@ cleartaskdata:
 	mov [os_LocalAPICAddress], rax
 	lodsd
 	mov [os_IOAPICAddress], rax
+	mov rsi, 0xf012
+	lodsw
+	mov [os_NumCores], ax
 
 	; Initialize all AP's to run our sleep code. Skip the BSP
 	xor rax, rax

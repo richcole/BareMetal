@@ -119,8 +119,31 @@ cascade:
 ; The supervisor lives here
 rtc:
 	push rax
+	push rcx
+	push rsi
+	push rdi
 	
 	call showprogress0		; For debug to see if system is still running
+	
+	; Check to make sure that at least one core is running something
+	mov rsi, taskdata
+	xor rcx, rcx
+	mov cx, [os_NumCores]
+check_loop:
+	dec rcx
+	lodsq
+	add rsi, 8
+	cmp rax, 0x0000000000000000
+	jne check_end
+	cmp rcx, 0
+	jne check_loop
+
+	; If we got here then there are no active tasks.. start the CLI
+	mov rdi, taskdata
+	mov rax, os_command_line
+	stosq
+
+check_end:
 
 	mov al, 0x0c			; Select RTC register C
 	out 0x70, al			; Port 0x70 is the RTC index, and 0x71 is the RTC data
@@ -129,7 +152,10 @@ rtc:
 	mov al, 0x20			; Acknowledge the IRQ
 	out 0xa0, al
 	out 0x20, al
-	
+
+	pop rdi
+	pop rsi
+	pop rcx
 	pop rax
 	iretq
 ; -----------------------------------------------------------------------------
@@ -287,7 +313,7 @@ exception_gate_main:
 	pop rax
 	and rax, 0x00000000000000FF	; Clear out everything in RAX except for AL
 	push rax
-	mov bl, 51
+	mov bl, 52
 	mul bl				; AX = AL x BL
 	add rsi, rax			; Use the value in RAX as an offset to get to the right message
 	pop rax
@@ -305,26 +331,26 @@ int_string00 db 'BareMetal OS - CPU ', 0
 int_string01 db ' - ', 0
 ; Strings for the error messages
 exc_string db 'Unknown Fatal Exception!', 0
-exc_string00 db 'Interrupt 0 - Divide Error Exception (#DE)        ', 0
-exc_string01 db 'Interrupt 1 - Debug Exception (#DB)               ', 0
-exc_string02 db 'Interrupt 2 - NMI Interrupt                       ', 0
-exc_string03 db 'Interrupt 3 - Breakpoint Exception (#BP)          ', 0
-exc_string04 db 'Interrupt 4 - Overflow Exception (#OF)            ', 0
-exc_string05 db 'Interrupt 5 - BOUND Range Exceeded Exception (#BR)', 0
-exc_string06 db 'Interrupt 6 - Invalid Opcode Exception (#UD)      ', 0
-exc_string07 db 'Interrupt 7 - Device Not Available Exception (#NM)', 0
-exc_string08 db 'Interrupt 8 - Double Fault Exception (#DF)        ', 0
-exc_string09 db 'Interrupt 9 - Coprocessor Segment Overrun         ', 0	; No longer generated on new CPU's
-exc_string10 db 'Interrupt 10 - Invalid TSS Exception (#TS)        ', 0
-exc_string11 db 'Interrupt 11 - Segment Not Present (#NP)          ', 0
-exc_string12 db 'Interrupt 12 - Stack Fault Exception (#SS)        ', 0
-exc_string13 db 'Interrupt 13 - General Protection Exception (#GP) ', 0
-exc_string14 db 'Interrupt 14 - Page-Fault Exception (#PF)         ', 0
-exc_string15 db 'Interrupt 15 - Undefined                          ', 0
-exc_string16 db 'Interrupt 16 - x87 FPU Floating-Point Error (#MF) ', 0
-exc_string17 db 'Interrupt 17 - Alignment Check Exception (#AC)    ', 0
-exc_string18 db 'Interrupt 18 - Machine-Check Exception (#MC)      ', 0
-exc_string19 db 'Interrupt 19 - SIMD Floating-Point Exception (#XM)', 0
+exc_string00 db 'Interrupt 00 - Divide Error Exception (#DE)        ', 0
+exc_string01 db 'Interrupt 01 - Debug Exception (#DB)               ', 0
+exc_string02 db 'Interrupt 02 - NMI Interrupt                       ', 0
+exc_string03 db 'Interrupt 03 - Breakpoint Exception (#BP)          ', 0
+exc_string04 db 'Interrupt 04 - Overflow Exception (#OF)            ', 0
+exc_string05 db 'Interrupt 05 - BOUND Range Exceeded Exception (#BR)', 0
+exc_string06 db 'Interrupt 06 - Invalid Opcode Exception (#UD)      ', 0
+exc_string07 db 'Interrupt 07 - Device Not Available Exception (#NM)', 0
+exc_string08 db 'Interrupt 08 - Double Fault Exception (#DF)        ', 0
+exc_string09 db 'Interrupt 09 - Coprocessor Segment Overrun         ', 0	; No longer generated on new CPU's
+exc_string10 db 'Interrupt 10 - Invalid TSS Exception (#TS)         ', 0
+exc_string11 db 'Interrupt 11 - Segment Not Present (#NP)           ', 0
+exc_string12 db 'Interrupt 12 - Stack Fault Exception (#SS)         ', 0
+exc_string13 db 'Interrupt 13 - General Protection Exception (#GP)  ', 0
+exc_string14 db 'Interrupt 14 - Page-Fault Exception (#PF)          ', 0
+exc_string15 db 'Interrupt 15 - Undefined                           ', 0
+exc_string16 db 'Interrupt 16 - x87 FPU Floating-Point Error (#MF)  ', 0
+exc_string17 db 'Interrupt 17 - Alignment Check Exception (#AC)     ', 0
+exc_string18 db 'Interrupt 18 - Machine-Check Exception (#MC)       ', 0
+exc_string19 db 'Interrupt 19 - SIMD Floating-Point Exception (#XM) ', 0
 
 
 ; =============================================================================

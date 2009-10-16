@@ -105,14 +105,6 @@ start:
 	call os_move_cursor
 	call os_show_cursor
 
-	; assign the command line "program" to CPU 0
-	xor rax, rax			; Clear RAX to 0
-	mov rbx, os_command_line	; Set RBX to the memory address of the command line
-	xor rcx, rcx			; Clear RCX as well since there is no need to pass a data address or variable
-	call os_smp_set_task		; Set it, don't need to wake it up as interrupts are enabled
-
-	jmp ap_sleep
-
 
 align 16
 
@@ -125,18 +117,12 @@ ap_clear:					; AP's start here after an exception
 	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
 	mov bl, al				; Copy the APIC ID to BL
 
-	; Find the task in the taskdata
+	; Find the task in the taskdata and clear it
 	mov rdi, taskdata
 	shl rax, 4				; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
 	add rdi, rax
-
-	; If the BSP had an exception then restart the CLI
-	xor rax, rax				; most likely it was not the BSP so we clear RAX
-;	cmp bl, 0x00				; BL holds the APIC ID.. see if it is equal to 0x00 (the BSP)
-;	jne ap_clear_store			; If not then jump right to the stosq (RAX was already cleared)
-;	mov rax, os_command_line		; If it was the BSP set the CLI to restart	
-;ap_clear_store:
-	stosq					; Store 0x0 or the CLI code address depending on what CPU
+	xor rax, rax
+	stosq
 
 	; We fall through to ap_sleep as align fills the space with No-Ops
 

@@ -66,6 +66,10 @@ os_command_line:
 	call os_string_compare
 	jc near debug
 
+	mov rdi, exit_string		; 'EXIT' entered?
+	call os_string_compare
+	jc near exit
+
 	mov al, '.'
 	call os_find_char_in_string	; User entered dot in filename?
 	cmp rax, 0
@@ -190,7 +194,7 @@ testzone:
 ;	call os_speaker_beep
 ;	call os_print_newline
 
-;	ud2
+	ud2
 ;	xor rax, rax
 ;	xor rbx, rbx
 ;	xor rcx, rcx
@@ -217,6 +221,9 @@ debug:
 	call os_dump_reg
 	jmp os_command_line
 
+exit:
+	ret
+
 ; Strings
 	help_text		db 'Built-in commands: CLS, DATE, DEBUG, DIR, HELP, REBOOT, TIME, VER', 13, 0
 	not_found_msg		db 'Command or program not found', 13, 0
@@ -231,6 +238,7 @@ debug:
 	testzone_string		db 'TESTZONE', 0
 	reboot_string		db 'REBOOT', 0
 	debug_string		db 'DEBUG', 0
+	exit_string		db 'EXIT', 0
 
 ; =============================================================================
 ; EOF
