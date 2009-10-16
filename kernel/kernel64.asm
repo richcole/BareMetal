@@ -108,48 +108,47 @@ start:
 
 align 16
 
-ap_clear:					; AP's start here after an exception
+ap_clear:				; AP's start here on first start and after an exception
 
-	; Get local ID without using the stack
-	mov rsi, [os_LocalAPICAddress]		; We would call os_smp_get_id here but the stack is not ...
-	add rsi, 0x20				; ... yet defined. It is safer to find the value directly.
-	lodsd					; Load a 32-bit value. We only want the high 8 bits
-	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
-	mov bl, al				; Copy the APIC ID to BL
+	; Get local ID of the core without using the stack
+	mov rsi, [os_LocalAPICAddress]	; We would call os_smp_get_id here but the stack is not ...
+	add rsi, 0x20			; ... yet defined. It is safer to find the value directly.
+	lodsd				; Load a 32-bit value. We only want the high 8 bits
+	shr rax, 24			; Shift to the right and AL now holds the CPU's APIC ID
 
-	; Find the task in the taskdata and clear it
-	mov rdi, taskdata
-	shl rax, 4				; quickly multiply RAX by 16 as each record (code+data) is 16 bytes (64bits x2)
-	add rdi, rax
-	xor rax, rax
-	stosq
+	; Find the task for this core in the taskdata and clear it
+	mov rdi, taskdata		; Point RDI to point to the start of the task data
+	shl rax, 4			; Quickly multiply the APIC ID by 16 (task data record size)
+	add rdi, rax			; Add the CPU ID offset to RDI
+	xor rax, rax			; Clear RAX to 0x0
+	stosq				; And store it to the task data
 
 	; We fall through to ap_sleep as align fills the space with No-Ops
 
 
 align 16
 
-ap_sleep:					; AP's will be running here
+ap_sleep:				; AP's will normally be running here
 
 	; Reset the stack. Each CPU gets a 1024-byte unique stack location
-	xor rax, rax				; Clear RAX as the high 32 bits may contain data
-	mov rsi, [os_LocalAPICAddress]		; We would call os_smp_get_id here but the stack is not ...
-	add rsi, 0x20				; ... yet defined. It is safer to find the value directly.
-	lodsd					; Load a 32-bit value. We only want the high 8 bits
-	shr rax, 24				; Shift to the right and AL now holds the CPU's APIC ID
-	shl rax, 10				; shift left 10 bits for a 1024byte stack
-	add rax, stackbase			; stacks decrement when you "push", start at 1024 bytes in
-	mov rsp, rax				; Pure64 leaves 0x50000-0x9FFFF free so we use that
+	xor rax, rax			; Clear RAX as the high 32 bits may contain data
+	mov rsi, [os_LocalAPICAddress]	; We would call os_smp_get_id here but the stack is not ...
+	add rsi, 0x20			; ... yet defined. It is safer to find the value directly.
+	lodsd				; Load a 32-bit value. We only want the high 8 bits
+	shr rax, 24			; Shift to the right and AL now holds the CPU's APIC ID
+	shl rax, 10			; shift left 10 bits for a 1024byte stack
+	add rax, stackbase		; stacks decrement when you "push", start at 1024 bytes in
+	mov rsp, rax			; Pure64 leaves 0x50000-0x9FFFF free so we use that
 
 	; Clear registers. Gives us a clean slate to work with
-	xor rax, rax				; aka r0
-	xor rbx, rbx				; aka r3
-	xor rcx, rcx				; aka r1
-	xor rdx, rdx				; aka r2
-	xor rsi, rsi				; aka r6
-	xor rdi, rdi				; aka r7
-	xor rbp, rbp				; aka r5
-	xor r8, r8				; We skip RSP (aka r4) as it was previously set
+	xor rax, rax			; aka r0
+	xor rbx, rbx			; aka r3
+	xor rcx, rcx			; aka r1
+	xor rdx, rdx			; aka r2
+	xor rsi, rsi			; aka r6
+	xor rdi, rdi			; aka r7
+	xor rbp, rbp			; aka r5
+	xor r8, r8			; We skip RSP (aka r4) as it was previously set
 	xor r9, r9
 	xor r10, r10
 	xor r11, r11
