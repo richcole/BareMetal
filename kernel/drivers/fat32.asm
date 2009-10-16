@@ -213,8 +213,8 @@ os_find_file_done:
 	pop rsi
 ret
 
-filetofind times 12 db 1 ; stores the name of the file we are looking for
-tempfilename times 12 db 2 ; stores the temporary file name.. we will compare it to the file we want to find.
+filetofind: times 12 db 1 ; stores the name of the file we are looking for
+tempfilename: times 12 db 2 ; stores the temporary file name.. we will compare it to the file we want to find.
 ;os_find_file_nextcluster dd 0
 ; -----------------------------------------------------------------------------
 
@@ -383,7 +383,7 @@ os_fat32_filename_convert_end:
 	pop rsi
 	ret
 
-	temp_dest_string	times 12 db 0	; 8 (name) + 3 (extension) + 1
+	temp_dest_string: times 12 db 0	; 8 (name) + 3 (extension) + 1
 ; -----------------------------------------------------------------------------
 
 
@@ -410,17 +410,17 @@ os_fat32_load_file:
 
 ; getdriveinfo
 
-fat32_bytespersector:		dw 0 ; This will most likely be set to 512. All IDE drives have 512byte sectors
-fat32_sectorspercluster:	db 0 ; This will depend on the drive size. Possible values are 1, 2, 4, 8, 16, or 32
-fat32_reservedsectors:		dw 0 ; After the boot sector FAT keeps a number of sectors reserved for no apparent use
-fat32_numoffats:			db 0 ; This will most likely be 2. We will be using the first one.. dunno about the second
-fat32_totalsectors:			dd 0 ; How many sectors on the drive
-fat32_sectorsperfat: 		dd 0 ; How many sectors does the FAT use
-fat32_rootcluster:			dd 0 ; Where the root cluster is stored. This is the first sector where file names and locations are stored
-fat32_FatStart:				dd 0 ; FAT starts here. Chain information is stored at this location, sector value
-fat32_ClusterStart:			dd 0 ; Data Clusters start here. ; rename to Data Start?
-fat32_FileEntriesPerCluster	dd 0 ; How many file entries are there per cluster
-fat32_WordsPerCluster		dd 0 ; How many words (16-bit) are in a cluster
+fat32_bytespersector: dw 0 ; This will most likely be set to 512. All IDE drives have 512byte sectors
+fat32_sectorspercluster: db 0 ; This will depend on the drive size. Possible values are 1, 2, 4, 8, 16, or 32
+fat32_reservedsectors: dw 0 ; After the boot sector FAT keeps a number of sectors reserved for no apparent use
+fat32_numoffats: db 0 ; This will most likely be 2. We will be using the first one.. dunno about the second
+fat32_totalsectors: dd 0 ; How many sectors on the drive
+fat32_sectorsperfat: dd 0 ; How many sectors does the FAT use
+fat32_rootcluster: dd 0 ; Where the root cluster is stored. This is the first sector where file names and locations are stored
+fat32_FatStart: dd 0 ; FAT starts here. Chain information is stored at this location, sector value
+fat32_ClusterStart: dd 0 ; Data Clusters start here. ; rename to Data Start?
+fat32_FileEntriesPerCluster dd 0 ; How many file entries are there per cluster
+fat32_WordsPerCluster dd 0 ; How many words (16-bit) are in a cluster
 
 ; =============================================================================
 ; EOF

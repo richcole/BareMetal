@@ -6,8 +6,8 @@
 ; =============================================================================
 
 
-[BITS 64]
-[ORG 0x0000000000100000]
+USE64
+ORG 0x0000000000100000
 
 kernel_start:
 	jmp start		; Skip over the function call index
