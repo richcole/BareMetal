@@ -54,7 +54,7 @@ os_wait_for_key:
 ; OUT:	RCX = length of string that was inputed (NULL not counted)
 os_input_string:
 	push rdi
-	push rdx	; counter to keep track of max accepted characters
+	push rdx			; counter to keep track of max accepted characters
 	push rax
 	
 	mov rdx, rcx
@@ -74,35 +74,32 @@ os_input_string_more:
 	cmp al, 126
 	jg os_input_string_more
 
-	jmp os_input_string_goodchar
-
-os_input_string_backspace:
-	cmp rcx, 0		; backspace at the beginning? get a new char
-	je os_input_string_more
-
-	call os_dec_cursor	; Decrement the cursor
-	mov al, 0x20		; 0x20 is the character for a space
-	call os_print_char	; Write over the last typed character with the space
-	call os_dec_cursor	; Decremnt the cursor again
-
-	dec rdi			; go back one in the string
-	mov byte [rdi], 0x00	; NULL out the char
-	
-	dec rcx			; decrement the counter by one
-
+	cmp rcx, rdx			; Check if we have reached the max number of chars
+	je os_input_string_more		; Jump if we have (should beep as well)
+	stosb				; Store AL at RDI and increment RDI by 1
+	inc rcx				; increment the couter
+	call os_print_char		; display char
 	jmp os_input_string_more
 
-os_input_string_goodchar:
-	cmp rcx, rdx			; Check if we have reached the max number of chars
-	je os_input_string_more	; Jump if we have
-	stosb						; Store AL at RDI and increment RDI by 1
-	inc rcx						; increment the couter
-	call os_print_char			; display char
+os_input_string_backspace:
+	cmp rcx, 0			; backspace at the beginning? get a new char
+	je os_input_string_more
+
+	call os_dec_cursor		; Decrement the cursor
+	mov al, 0x20			; 0x20 is the character for a space
+	call os_print_char		; Write over the last typed character with the space
+	call os_dec_cursor		; Decremnt the cursor again
+
+	dec rdi				; go back one in the string
+	mov byte [rdi], 0x00		; NULL out the char
+	
+	dec rcx				; decrement the counter by one
+
 	jmp os_input_string_more
 
 os_input_string_done:
 	mov al, 0x00
-	stosb					; We NULL terminate the string
+	stosb				; We NULL terminate the string
 
 	pop rax
 	pop rdx
