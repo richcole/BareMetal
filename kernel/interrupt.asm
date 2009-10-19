@@ -39,7 +39,7 @@ timer:
 ;	call showprogress0		; For debug to see if system is still running
 
 	add qword [timer_counter_lo], 1	; 128-bit counter started at bootup
-	adc qword [timer_counter_hi], 0	; If 'lo' overflowed then 1 will be added to 'hi'
+;	adc qword [timer_counter_hi], 0	; If 'lo' overflowed then 1 will be added to 'hi'
 
 	mov al, 20h			; Acknowledge the IRQ
 	out 20h, al
@@ -115,6 +115,7 @@ cascade:
 
 ; -----------------------------------------------------------------------------
 ; Real-time clock interrupt. IRQ 0x08, INT 0x28
+; Currently this IRQ runs 8 times per second (As defined in init_64.asm)
 ; http://wiki.osdev.org/RTC
 ; The supervisor lives here
 rtc:
