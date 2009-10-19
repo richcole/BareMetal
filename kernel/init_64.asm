@@ -84,10 +84,13 @@ make_real_exception_gates:
 	mov rax, ap_call
 	call create_gate
 
-	;Set up RTC
+	; Set up RTC
+	; Rate defines how often the RTC interrupt is triggered
+	; Rate is a 4-bit value from 1 to 15. 1 = 32768Hz, 6 = 1024Hz, 15 = 2Hz
+	; RTC value must stay at 32.768KHz or the computer will not keep the correct time
 	mov al, 0x0a
 	out 0x70, al
-	mov al, 00100110b ; RTC@32.768KHz, Rate@1024MHz
+	mov al, 00101101b ; RTC@32.768KHz (0010), Rate@8Hz (1101)
 	out 0x71, al
 	mov al, 0x0b
 	out 0x70, al
