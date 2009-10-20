@@ -40,6 +40,9 @@ os_smp_find_free	equ	0x0000000000100100	;
 os_smp_wakeup_all	equ	0x0000000000100108	;
 os_smp_wait_for_aps	equ	0x0000000000100110	;
 os_smp_set_free		equ	0x0000000000100118	;
+os_serial_send		equ	0x0000000000100120	;
+os_serial_recv		equ	0x0000000000100128	;
+
 
 ; =============================================================================
 ; EOF

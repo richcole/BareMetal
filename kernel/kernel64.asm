@@ -169,7 +169,7 @@ ap_sleep:				; AP's will normally be running here
 	mov rax, [rsi]		; Load the task code address into RAX
 	test rax, rax		; Same as a 'cmp rax, 0x0000000000000000' and saves a few bytes	
 	jne continue		; If it was not NULL then there is something to work on
-	
+
 spin:
 	;pause			; Snooze for a bit
 	hlt			; Wait for a interrupt or "wakeup" IPI. No need to spin when there is nothing to do
