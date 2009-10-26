@@ -13,42 +13,84 @@ align 16
 ; -----------------------------------------------------------------------------
 ; Show a incrementing digit on the screen... as long as it is incrementing the system is working (not hung)
 ; After 9 it wraps back to 0
-showprogress0:
+timer_debug:
+	push rdi
 	push rax
-	mov al, [progress0]
-	mov [0x00000000000B809E], al		; we write the digit to the top right corner
+
+	mov rdi, 0x00000000000B809C
+	mov al, 'T'
+	stosb
+	inc rdi
+	mov al, [timer_debug_counter]
+	stosb
 	inc al
 	cmp al, 0x3A ; 0x39 is '9'
-	jne showprogress0_end
+	jne timer_debug_end
 	mov al, 0x30
 
-showprogress0_end:
-	mov [progress0], al
+timer_debug_end:
+	mov [timer_debug_counter], al
 	pop rax
+	pop rdi
 	ret
 
-progress0:	db 0x30 ; '0'
+timer_debug_counter:	db 0x30 ; '0'
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
 ; Show a incrementing digit on the screen... as long as it is incrementing the system is working (not hung)
 ; After 9 it wraps back to 0
-showprogress1:
+keyboard_debug:
+	push rdi
 	push rax
-	mov al, [progress1]
-	mov [0x00000000000B809C], al		; we write the digit to the top right corner
+
+	mov rdi, 0x00000000000B8090
+	mov al, 'K'
+	stosb
+	inc rdi
+	mov al, [keyboard_debug_counter]
+	stosb
 	inc al
 	cmp al, 0x3A ; 0x39 is '9'
-	jne showprogress1_end
+	jne keyboard_debug_end
 	mov al, 0x30
 
-showprogress1_end:
-	mov [progress1], al
+keyboard_debug_end:
+	mov [keyboard_debug_counter], al
 	pop rax
+	pop rdi
 	ret
 
-progress1: db 0x30 ; '0'
+keyboard_debug_counter:	db 0x30 ; '0'
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; Show a incrementing digit on the screen... as long as it is incrementing the system is working (not hung)
+; After 9 it wraps back to 0
+clock_debug:
+	push rdi
+	push rax
+
+	mov rdi, 0x00000000000B8096
+	mov al, 'C'
+	stosb
+	inc rdi
+	mov al, [clock_debug_counter]
+	stosb
+	inc al
+	cmp al, 0x3A ; 0x39 is '9'
+	jne clock_debug_end
+	mov al, 0x30
+
+clock_debug_end:
+	mov [clock_debug_counter], al
+	pop rax
+	pop rdi
+	ret
+
+clock_debug_counter: db 0x30 ; '0'
 ; -----------------------------------------------------------------------------
 
 

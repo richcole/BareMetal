@@ -36,7 +36,7 @@ interrupt_gate:				; handler for all other interrupts
 timer:
 	push rax
 
-;	call showprogress0		; For debug to see if system is still running
+	call timer_debug		; For debug to see if system is still running
 
 	add qword [timer_counter_lo], 1	; 128-bit counter started at bootup
 ;	adc qword [timer_counter_hi], 0	; If 'lo' overflowed then 1 will be added to 'hi'
@@ -54,6 +54,8 @@ timer:
 keyboard:
 	push rax
 	push rbx
+
+	call keyboard_debug		; For debug to see if system is still running
 
 	mov al, 0xad
 	out 0x64, al			; disable keyboard
@@ -124,7 +126,7 @@ rtc:
 	push rsi
 	push rdi
 	
-	call showprogress0		; For debug to see if system is still running
+	call clock_debug		; For debug to see if system is still running
 	
 	; Check to make sure that at least one core is running something
 	mov rsi, taskdata
