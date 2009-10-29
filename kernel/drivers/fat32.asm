@@ -13,7 +13,7 @@ align 16
 ; -----------------------------------------------------------------------------
 ; readcluster -- Reads a cluster from the hard drive
 ; IN:	EBX = cluster # to read
-;		RDI = memory location to store at least 32KB
+;	RDI = memory location to store at least 32KB
 ; OUT:  EBX = next cluster #
 readcluster:
 	push rdx
@@ -31,8 +31,8 @@ readcluster:
 	dec rbx
 	mov rax, rbx
 	movzx rdx, byte [fat32_sectorspercluster]
-	mul	rdx ; RDX:RAX = RAX * RDX
-	add	rax, [fat32_ClusterStart]
+	mul rdx ; RDX:RAX = RAX * RDX
+	add rax, [fat32_ClusterStart]
 	mov rbx, rax
 	; rbx now contains the starting sector for this cluster
 
@@ -72,7 +72,7 @@ readcluster_wait:
 
 	movzx rax, byte [fat32_sectorspercluster]
 	mov rdx, 256
-	mul	rdx				; RDX:RAX = RAX * RDX
+	mul rdx				; RDX:RAX = RAX * RDX
 	mov rcx, rax		; One sector is 512 bytes but we are reading 2 bytes at a time. We need to read fat32_sectorspercluster * 256 words
 	; TODO move this to a global variable
 	mov dx, 1f0h		; Data port - data comes in and out of here.
