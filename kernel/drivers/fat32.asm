@@ -36,47 +36,13 @@ readcluster:
 	mov rbx, rax
 	; rbx now contains the starting sector for this cluster
 
-	mov dx, 1f2h		; Sector count Port 7:0
-	movzx rax, byte [fat32_sectorspercluster]	; Read X sectors
-	out dx, al
-
-	mov dx, 1f3h		; LBA Low Port 7:0
-	mov al, bl
-	out dx, al
-
-	mov dx, 1f4h		; LBA Mid Port 15:8
-	shr rbx, 8
-	mov al, bl
-	out dx, al
-
-	mov dx, 1f5h		; LBA High Port 23:16
-	shr rbx, 8
-	mov al, bl
-	out dx, al
-
-	mov dx, 1f6h		; Device Port Bit 6 set for LBA mode, Bit 4 for device (0 = master, 1 = slave), Bits 3-0 for LBA "Extra High" (27:24)
-	shr rbx, 8
-	mov al, bl
-	and al, 00001111b 	; clear bits 4-7 just to be safe
-	or al, 01000000b	; Turn bit 6 on since we want to use LBA addressing
-	out dx, al
-
-	mov dx, 1f7h		; Command Port
-	mov al, 20h			; Read. 24 if LBA48
-	out dx, al
-
-readcluster_wait:
-	in al, dx
-	test al, 8			; This means the sector buffer requires servicing.
-	jz readcluster_wait	; Don't continue until the sector buffer is ready.
-
-	movzx rax, byte [fat32_sectorspercluster]
-	mov rdx, 256
-	mul rdx				; RDX:RAX = RAX * RDX
-	mov rcx, rax		; One sector is 512 bytes but we are reading 2 bytes at a time. We need to read fat32_sectorspercluster * 256 words
-	; TODO move this to a global variable
-	mov dx, 1f0h		; Data port - data comes in and out of here.
-	rep insw			; Read data to the address starting at RDI
+	movzx rcx, byte [fat32_sectorspercluster]	; Read X sectors
+readcluster_nextsector:
+	call readsector		; Read the sectors one-by-one
+	inc rbx
+	dec rcx
+	cmp rcx, 0
+	jne readcluster_nextsector
 
 	; FIX THIS!!!!!
 	; check with the fat if this is the end of the cluster chain. Return the value in rbx. FFFFFFF8 if end according to FAT32 spec.
