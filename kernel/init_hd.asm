@@ -15,7 +15,7 @@ hd_setup:
 ; Check if drive supports LBA48
 
 ; Read first sector into memory
-mov rbx, 0
+mov rax, 0
 mov rdi, hdbuffer
 push rdi
 call readsector

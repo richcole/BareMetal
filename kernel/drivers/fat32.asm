@@ -20,7 +20,6 @@ readcluster:
 	push rcx
 	push rax
 
-;	call os_dump_reg	
 	and rbx, 0x000000000FFFFFFF	; clear the top 36 bits since we don't need them.
 	mov [tempcluster], ebx ; store the cluster number we are about to read. We will use this value later on to calculate where the next cluster is (if there is one)
 
@@ -32,14 +31,12 @@ readcluster:
 	mov rax, rbx
 	movzx rdx, byte [fat32_sectorspercluster]
 	mul rdx ; RDX:RAX = RAX * RDX
-	add rax, [fat32_ClusterStart]
-	mov rbx, rax
-	; rbx now contains the starting sector for this cluster
+	add rax, [fat32_ClusterStart]	; rax now contains the starting sector for this cluster
 
 	movzx rcx, byte [fat32_sectorspercluster]	; Read X sectors
 readcluster_nextsector:
 	call readsector		; Read the sectors one-by-one
-	inc rbx
+	inc rax
 	dec rcx
 	cmp rcx, 0
 	jne readcluster_nextsector
@@ -50,12 +47,9 @@ readcluster_nextsector:
 	push rdi
 	push rsi
 	
-	mov rbx, [fat32_FatStart]
+	mov rax, [fat32_FatStart]
 	mov rdi, hdbuffer1
 	call readsector ; the root cluster is now in memory at RDI
-
-;	mov rsi, hdbuffer1
-;	call os_dump_mem
 
 	xor rbx, rbx
 	mov ebx, [tempcluster]		; ebx now stores the cluster number that we just read
