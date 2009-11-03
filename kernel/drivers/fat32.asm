@@ -66,9 +66,6 @@ readcluster_nextsector:
 
 	mov ebx, eax				; ebx now stores the cluster number that we just read
 	and rbx, 0x000000000FFFFFFF	; clear the top 36 bits since we don't need them.
-;	xor rax, rax
-;	call os_dump_reg
-;	call os_print_newline
 	
 readcluster_bailout:
 
@@ -259,91 +256,6 @@ os_fat32_get_file_list_done:
 	
 ;os_fat32_get_file_list_nextcluster: dd 0x00000000
 ;poo db 'poo: ', 0
-; -----------------------------------------------------------------------------
-
-
-; -----------------------------------------------------------------------------
-; os_fat32_filename_convert -- Change "TEST.BIN" into "TEST    BIN" as per FAT32
-; IN:	RSI = filename string
-; OUT:	carry set if invalid
-; This function modifies the string in RSI. Make a copy if you need it.
-os_fat32_filename_convert:
-	push rsi
-	push rdi
-	push rdx
-	push rcx
-	push rax
-
-;	call os_string_chomp
-	call os_string_length
-	cmp rax, 12			; Bigger than name + dot + extension?
-	jg os_fat32_filename_convert_failure			; Fail if so
-
-	cmp rax, 0
-	je os_fat32_filename_convert_failure			; Similarly, fail if zero-char string
-
-	mov rdx, rax			; Store string length for now
-
-	mov rdi, temp_dest_string
-	call os_string_copy	; make a local copy of the string
-	xchg rsi, rdi	; switch the contents of src and dest
-	
-	mov rcx, 0
-copy_loop:
-	lodsb
-	cmp al, '.'
-	je found_extension
-	stosb
-	inc rcx
-	cmp rcx, rdx
-	jg os_fat32_filename_convert_failure
-	jmp copy_loop
-
-found_extension:
-	cmp rcx, 0
-	je os_fat32_filename_convert_failure			; Fail if extension dot is first char
-
-	cmp rcx, 8
-	je do_extension		; Skip spaces if first bit is 8 chars
-
-	; Now it's time to pad out the rest of the first part of the filename
-	; with spaces, if necessary
-
-add_spaces:
-	mov byte [rdi], ' '
-	inc rdi
-	inc rcx
-	cmp rcx, 8
-	jl add_spaces
-
-	; Finally, copy over the extension
-	; This needs work as it does not factor for 1 or 2 letter extensions
-do_extension:
-;	lodsb				; 3 characters
-;	stosb
-;	lodsb
-;	stosb
-;	lodsb
-;	stosb
-
-	mov byte [rdi], 0x00		; Zero-terminate filename
-	
-os_fat32_filename_convert_success:
-	clc				; Clear carry for success
-	jmp os_fat32_filename_convert_end
-
-os_fat32_filename_convert_failure:
-	stc				; Set carry for failure
-
-os_fat32_filename_convert_end:
-	pop rax
-	pop rcx
-	pop rdx
-	pop rdi
-	pop rsi
-	ret
-
-	temp_dest_string: times 12 db 0	; 8 (name) + 3 (extension) + 1
 ; -----------------------------------------------------------------------------
 
 
