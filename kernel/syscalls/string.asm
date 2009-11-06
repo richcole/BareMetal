@@ -71,7 +71,7 @@ nxdgt:
 
 	cmp cl, '0'		; char preceeds '0'?
 	jb inval		; yes, not a numeral
-	cmp	cl, '9'		; char follows '9'?
+	cmp cl, '9'		; char follows '9'?
 	ja inval		; yes, not a numeral
 	
 	mul rbx			; ten times prior sum
@@ -469,15 +469,15 @@ os_string_uppercase:
 	push rsi
 
 os_string_uppercase_more:
-	cmp byte [rsi], 0x00				; Zero-termination of string?
-	je os_string_uppercase_done			; If so, quit
+	cmp byte [rsi], 0x00		; Zero-termination of string?
+	je os_string_uppercase_done	; If so, quit
 
-	cmp byte [rsi], 97				; In the uppercase A to Z range?
+	cmp byte [rsi], 97		; In the uppercase A to Z range?
 	jl os_string_uppercase_noatoz
 	cmp byte [rsi], 122
 	jg os_string_uppercase_noatoz
 
-	sub byte [rsi], 0x20				; If so, convert input char to lowercase
+	sub byte [rsi], 0x20		; If so, convert input char to lowercase
 
 	inc rsi
 	jmp os_string_uppercase_more
@@ -501,7 +501,7 @@ os_string_lowercase:
 
 os_string_lowercase_more:
 	cmp byte [rsi], 0x00		; Zero-termination of string?
-	je os_string_lowercase_done			; If so, quit
+	je os_string_lowercase_done	; If so, quit
 
 	cmp byte [rsi], 65		; In the lowercase A to Z range?
 	jl os_string_lowercase_noatoz

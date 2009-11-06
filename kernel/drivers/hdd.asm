@@ -21,7 +21,7 @@ readsector:
 	push rdx
 	push rcx
 	push rax
-	
+
 	push rax		; Save RAX since we are about to overwrite it
 	mov dx, 0x01F2		; Sector count Port 7:0
 	mov al, 1		; Read one sector, a value of 0 here will read 256 sectors
