@@ -16,7 +16,7 @@ align 16
 ;	RDI - (memory location to store at least 32KB)
 ; OUT:	AX - (next cluster)
 ;	RDI - points one byte after the last byte read
-readcluster: ; 0x8c52
+readcluster:
 	push rsi
 	push rdx
 	push rcx
@@ -80,8 +80,8 @@ ret
 
 ; -----------------------------------------------------------------------------
 ; findfile -- 
-; IN: RSI(Pointer to file name, must be in 'FILENAMEEXT" format)
-; OUT: AX(Staring cluster), 0x0 if not found
+; IN:	RSI(Pointer to file name, must be in 'FILENAMEEXT" format)
+; OUT:	AX(Staring cluster), 0x0 if not found
 ; Notes: Only searches the root sector.. not the following sectors.
 findfile:
 	push rsi
@@ -123,6 +123,92 @@ findfile_done:
 	pop rdi
 	pop rsi
 ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_fat16_get_file_list -- Generate a list of files on disk
+; IN:	RDI = location to store list
+; OUT:	RDI = pointer to end of list
+os_fat16_get_file_list:
+	push rsi
+	push rdi
+	push rcx
+	push rax
+
+	xor rax, rax
+	mov eax, [fat16_RootStart]	; eax points to the first sector of the root
+	push rdi
+	mov rdi, hdbuffer1
+	mov rsi, rdi
+	call readsector
+	pop rdi
+
+	push rsi
+	mov rsi, dir_title_string
+	call os_string_length
+	call os_string_copy
+	add rdi, rax
+	pop rsi
+	
+	; RDI = location of string
+	; RSI = buffer that contains the cluster
+
+	; start reading
+os_fat16_get_file_list_read:
+	cmp byte [rsi], 0x00 ; end of records
+	je os_fat32_get_file_list_done
+	cmp byte [rsi], 0xE5 ; unused record
+	je os_fat32_get_file_list_skip
+
+	mov al, [rsi + 8]		; Grab the attribute byte
+	bt ax, 5			; check if bit 3 is set (volume label)
+	jc os_fat32_get_file_list_skip	; if so skip the entry
+
+	; copy the string
+	xor rcx, rcx
+	xor rax, rax
+copyname:
+	mov al, [rsi+rcx]
+	stosb	; Store to RDI
+	inc rcx
+	cmp rcx, 8
+	jne copyname
+	
+	mov al, ' ' ; Store a space as the separtator
+	stosb
+	
+	mov al, [rsi+8]
+	stosb
+	mov al, [rsi+9]
+	stosb
+	mov al, [rsi+10]
+	stosb
+
+	mov al, ' ' ; Store a space as the separtator
+	stosb
+
+	mov eax, [rsi+0x1C]
+	call os_int_to_string
+	dec rdi
+	mov al, 13
+	stosb
+	
+os_fat32_get_file_list_skip:
+	add rsi, 32
+	jmp os_fat16_get_file_list_read
+
+os_fat32_get_file_list_done:
+	mov al, 0x00
+	stosb
+	
+	pop rax
+	pop rcx
+	pop rdi
+	pop rsi
+ret
+
+dir_title_string: db "Name     Ext Size", 13, "====================", 13, 0
 ; -----------------------------------------------------------------------------
 
 

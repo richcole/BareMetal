@@ -146,11 +146,9 @@ print_ver:
 	jmp os_command_line
 
 dir:
-;	mov rdi, tempstring
-;	push rdi
-;	call os_fat32_get_file_list
-;	pop rsi
-;	call os_print_string
+	mov rdi, tempstring
+	call os_fat16_get_file_list
+	call os_print_string
 	jmp os_command_line
 
 date:
