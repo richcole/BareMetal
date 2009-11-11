@@ -10,55 +10,64 @@ db 'DEBUG: INIT_HDD '
 align 16
 
 
-hd_setup:
+hdd_setup:
 
 ; Check if drive supports LBA48
 
 ; Read first sector into memory
-mov rax, 0
-mov rdi, hdbuffer
-push rdi
-call readsector
-pop rdi
+	xor rax, rax
+	mov rdi, hdbuffer
+	push rdi
+	call readsector
+	pop rdi
 
-;get the values we need to start using fat32
-xor rax, rax
-mov ax, [rdi+0x0b]
-mov [fat32_bytespersector], ax ; will probably be 512
-mov al, [rdi+0x0d]
-mov [fat32_sectorspercluster], al
-mov ax, [rdi+0x0e]
-mov [fat32_reservedsectors], ax
-mov [fat32_FatStart], eax
-mov al, [rdi+0x10]
-mov [fat32_numoffats], al ; will probably be 2
-mov eax, [rdi+0x20]
-mov [fat32_totalsectors], eax
-mov eax, [rdi+0x24]
-mov [fat32_sectorsperfat], eax
-mov eax, [rdi+0x2c]
-mov [fat32_rootcluster], eax
+;get the values we need to start using fat16
+	mov ax, [rdi+0x0b]
+	mov [fat16_BytesPerSector], ax		; This will probably be 512
+	mov al, [rdi+0x0d]
+	mov [fat16_SectorsPerCluster], al	; This will be 128 or less (Max cluster size is 64KiB)
+	mov ax, [rdi+0x0e]
+	mov [fat16_ReservedSectors], ax
+	mov [fat16_FatStart], eax
+	mov al, [rdi+0x10]
+	mov [fat16_Fats], al			; This will probably be 2
+	mov ax, [rdi+0x11]
+	mov [fat16_RootDirEnts], ax
+	mov ax, [rdi+0x16]
+	mov [fat16_SectorsPerFat], ax
 
-xor rax, rax
-mov eax, [fat32_totalsectors]
-mov [hd1_maxlba], rax
-shr rax, 11 ; rax = rax * 512 / 1048576
-mov [hd1_size], eax ; in megabytes
+;find out how many sectors are on the disk
+	xor eax, eax
+	mov ax, [rdi+0x13]
+	cmp ax, 0x0000
+	jne lessthan65536sectors
+	mov eax, [rdi+0x20]
+lessthan65536sectors:
+	mov [fat16_TotalSectors], eax
 
-xor rax, rax
-xor rbx, rbx
-xor rdx, rdx
-mov eax, [fat32_sectorsperfat]
-mov bl, [fat32_numoffats]
-mul ebx ;EDX:EAX = EAX * EBX
-mov bx, [fat32_reservedsectors]
-add eax, ebx
-mov [fat32_ClusterStart], eax ; fat32_reservedsectors + (fat32_numoffats * fat32_sectorsperfat)
+;calculate the size in MiB
+	xor rax, rax
+	mov eax, [fat16_TotalSectors]
+	mov [hd1_maxlba], rax
+	shr rax, 11 ; rax = rax * 512 / 1048576
+	mov [hd1_size], eax ; in mebibytes
+
+; Create a string of the harddrive size
+	mov rdi, hdtempstring
+	call os_int_to_string
+
+	xor rax, rax
+	xor rbx, rbx
+	mov ax, [fat16_SectorsPerFat]
+	shl ax, 1	; quick multiply by two
+	add ax, [fat16_ReservedSectors]
+	mov [fat16_RootStart], eax
+	mov bx, [fat16_RootDirEnts]
+	shr ebx, 4	; bx = (bx * 32) / 512
+	add ebx, eax	; BX now holds the datastart sector number
+	mov [fat16_DataStart], ebx
 
 ret
-
-temphdstring: times 10 db 0
-
 
 ; =============================================================================
 ; EOF

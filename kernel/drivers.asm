@@ -11,7 +11,7 @@ align 16
 
 
 %include "drivers/hdd.asm"
-%include "drivers/fat32.asm"
+%include "drivers/fat16.asm"
 %include "drivers/pci.asm"
 
 ; =============================================================================

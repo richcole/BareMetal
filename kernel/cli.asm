@@ -105,17 +105,17 @@ suffix:
 	mov byte [rsi], 0		; Zero-terminate string
 
 full_name:
-	mov rbx, tempstring
+	mov rsi, tempstring
 
 	call findfile			; Fuction will return the starting cluster value in ebx or 0 if not found
-	cmp ebx, 0			; If ebx is 0 then the file was not found
+	cmp ax, 0x0000			; If ebx is 0 then the file was not found
 	je fail				; bail out if the file was not found
 
 	mov rdi, programlocation	; We load the program to this location in memory (currently 0x00100000 : at the 2MB mark)
-	readfile_getdata:
+readfile_getdata:
 	call readcluster		; store in memory
-	cmp ebx, 0x0FFFFFFF
-	jl readfile_getdata		; Are there more clusters? If so then read again.. if not fall through.
+	cmp ax, 0xFFFF
+	jne readfile_getdata		; Are there more clusters? If so then read again.. if not fall through.
 
 	call programlocation		; 0x00100000 : at the 2MB mark
 
@@ -146,11 +146,11 @@ print_ver:
 	jmp os_command_line
 
 dir:
-	mov rdi, tempstring
-	push rdi
-	call os_fat32_get_file_list
-	pop rsi
-	call os_print_string
+;	mov rdi, tempstring
+;	push rdi
+;	call os_fat32_get_file_list
+;	pop rsi
+;	call os_print_string
 	jmp os_command_line
 
 date:

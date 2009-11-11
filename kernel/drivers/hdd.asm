@@ -24,7 +24,7 @@ readsector:
 
 	push rax		; Save RAX since we are about to overwrite it
 	mov dx, 0x01F2		; Sector count Port 7:0
-	mov al, 1		; Read one sector, a value of 0 here will read 256 sectors
+	mov al, 1		; Read one sector, a value of 0 here would read 256 sectors
 	out dx, al
 	pop rax			; Restore RAX which is our sector number
 
@@ -54,11 +54,12 @@ readsector_wait:		; VERIFY THIS
 	test al, 8		; This means the sector buffer requires servicing.
 	jz readsector_wait	; Don't continue until the sector buffer is ready.
 
-	mov cx, 256		; One sector is 512 bytes but we are reading 2 bytes at a time
+	mov rcx, 256		; One sector is 512 bytes but we are reading 2 bytes at a time
 	mov dx, 0x01F0		; Data port - data comes in and out of here.
 	rep insw		; Read data to the address starting at RDI
 
 	pop rax
+	add rax, 1		; Point to the next sector
 	pop rcx
 	pop rdx
 ret
@@ -109,19 +110,16 @@ writesector_wait:		; VERIFY THIS
 	test al, 8		; This means the sector buffer requires servicing.
 	jz writesector_wait	; Don't continue until the sector buffer is ready.
 
-	mov cx, 256		; One sector is 512 bytes but we are writing 2 bytes at a time
+	mov rcx, 256		; One sector is 512 bytes but we are writing 2 bytes at a time
 	mov dx, 0x01F0		; Data port - data comes in and out of here.
 	rep outsw		; Write data from the address starting at RSI
 
 	pop rax
+	add rax, 1		; Point to the next sector
 	pop rcx
 	pop rdx
 ret
 ; -----------------------------------------------------------------------------
-
-
-;hdd_primary_controller		dw 0x01F0
-;hdd_secondary_controller	dw 0x0170
 
 
 ; =============================================================================

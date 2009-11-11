@@ -24,6 +24,7 @@ hd1_enable:		db 0 ; 1 if the drive is there and enabled
 hd1_lba48:		db 0 ; 1 if LBA48 is allowed
 hd1_size:		dd 0x00000000 ; size in MiB
 hd1_maxlba:		dq 0x0000000000000000 ; we need at least a 64-bit value since at most it will hold a 48-bit value
+hdtempstring:		times 8 db 0
 
 ; Memory addresses
 hdbuffer:		equ 0x0000000000070000 ; 32768 bytes = 0x70000 -> 0x77FFF
@@ -52,6 +53,18 @@ screen_cols 		db 80 ; y
 screen_cursor_x		db 0x00
 screen_cursor_y		db 0x00
 screen_cursor_offset	dq 0x0000000000000000
+
+; File System
+fat16_BytesPerSector:		dw 0x0000
+fat16_SectorsPerCluster:	db 0x00
+fat16_ReservedSectors:		dw 0x0000
+fat16_FatStart:			dd 0x00000000
+fat16_Fats:			db 0x00
+fat16_SectorsPerFat:		dw 0x0000
+fat16_TotalSectors:		dd 0x00000000
+fat16_RootDirEnts:		dw 0x0000
+fat16_DataStart:		dd 0x00000000
+fat16_RootStart:		dd 0x00000000
 
 keylayoutlower:
 db 0, '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0x0e, 0, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 0x1c, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 0, 0, 0, 0, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, 0, 0, ' ', 0

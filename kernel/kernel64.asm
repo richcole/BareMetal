@@ -92,7 +92,7 @@ start:
 
 	call init_64		; After this point we are in a working 64-bit enviroment
 
-	call hd_setup		; gather information about the harddrive and set it up
+	call hdd_setup		; gather information about the harddrive and set it up
 
 ;	call init_pci
 
