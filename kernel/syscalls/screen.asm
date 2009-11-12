@@ -183,6 +183,30 @@ os_print_char:
 
 	mov rdi, [screen_cursor_offset]
 	stosb
+	push ax
+	mov al, 0x07		; Default of light grey on black
+	stosb
+	pop ax
+	call os_inc_cursor
+
+	pop rdi
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_print_char_with_color -- Displays a char with color
+;  IN:	AL = char to display
+;	BL = color
+; OUT:	Nothing. All registers preserved
+os_print_char_with_color:
+	push rdi
+
+	mov rdi, [screen_cursor_offset]
+	stosb
+	xchg al, bl
+	stosb
+	xchg al, bl
 	call os_inc_cursor
 
 	pop rdi
