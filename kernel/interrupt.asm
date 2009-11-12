@@ -37,10 +37,7 @@ timer:
 	push rax
 
 	call timer_debug		; For debug to see if system is still running
-
-	add qword [timer_counter_lo], 1	; 128-bit counter started at bootup
-;	adc qword [timer_counter_hi], 0	; If 'lo' overflowed then 1 will be added to 'hi'
-
+	add qword [timer_counter], 1	; 64-bit counter started at bootup
 	mov al, 20h			; Acknowledge the IRQ
 	out 20h, al
 
@@ -91,8 +88,7 @@ keyup:
 
 donekey:
 	mov al, 0xae
-	out 0x64, al ; enable keyboard
-
+	out 0x64, al			; Enable keyboard
 	mov al, 20h			; Acknowledge the IRQ
 	out 20h, al
 
@@ -147,11 +143,9 @@ check_loop:
 	stosq
 
 check_end:
-
 	mov al, 0x0c			; Select RTC register C
 	out 0x70, al			; Port 0x70 is the RTC index, and 0x71 is the RTC data
 	in al, 0x71			; Read the value in register C
-
 	mov al, 0x20			; Acknowledge the IRQ
 	out 0xa0, al
 	out 0x20, al
@@ -169,12 +163,12 @@ check_end:
 ap_wakeup:
 	push rdi
 	push rax
-	
+
 	mov rdi, [os_LocalAPICAddress]	; Acknowledge the IPI
 	add rdi, 0xB0
 	xor rax, rax
 	stosd
-	
+
 	pop rax
 	pop rdi
 
@@ -328,7 +322,6 @@ exception_gate_main:
 	call os_print_newline
 	call os_dump_reg
 
-;	sti				; Re-enable interrupts	
 	jmp ap_clear			; jump to AP clear code
 
 

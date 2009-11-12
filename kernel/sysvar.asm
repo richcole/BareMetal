@@ -27,17 +27,16 @@ hd1_maxlba:		dq 0x0000000000000000 ; we need at least a 64-bit value since at mo
 hdtempstring:		times 8 db 0
 
 ; Memory addresses
-hdbuffer:		equ 0x0000000000070000 ; 32768 bytes = 0x70000 -> 0x77FFF
-hdbuffer1:		equ 0x0000000000078000 ; 32768 bytes = 0x78000 -> 0x7FFFF
-tempstring:		equ 0x0000000000080000 ; 1024 bytes = 0xE300 -> 0xE5FF
-programlocation:	equ 0x0000000000200000 ; Location in memory where programs are loaded (the start of 2M)
-taskdata:		equ 0x00000000001FF000 ; Location of task data (4KB before the 2MB mark)
-stackbase:		equ 0x0000000000050400 ; Address for the base of the stacks
+hdbuffer:		equ 0x0000000000070000	; 32768 bytes = 0x70000 -> 0x77FFF
+hdbuffer1:		equ 0x0000000000078000	; 32768 bytes = 0x78000 -> 0x7FFFF
+tempstring:		equ 0x0000000000080000	; 1024 bytes = 0xE300 -> 0xE5FF
+programlocation:	equ 0x0000000000200000	; Location in memory where programs are loaded (the start of 2M)
+taskdata:		equ 0x00000000001FF000	; Location of task data (4KB before the 2MB mark)
+stackbase:		equ 0x0000000000050400	; Address for the base of the stacks
 
 os_LocalAPICAddress	dq 0x0000000000000000
 os_IOAPICAddress	dq 0x0000000000000000
-timer_counter_lo:	dq 0x0000000000000000 ; These timer counters make up the 128-bit system counter
-timer_counter_hi:	dq 0x0000000000000000
+timer_counter:		dq 0x0000000000000000	; 64-bit system counter
 stagingarea		dq 0x0000000000000000
 ram_amount:		dw 0x0000
 os_NumCores:		dw 0x0000

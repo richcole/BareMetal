@@ -104,10 +104,10 @@ os_delay:
 	push rcx
 	push rax
 
-	mov rax, [timer_counter_lo]	; Grab the initial timer counter. It increments 100 times a second
+	mov rax, [timer_counter]	; Grab the initial timer counter. It increments 100 times a second
 	add rcx, rax			; Add RCX so we get the end time we want
 os_delay_loop:
-	mov rax, [timer_counter_lo]	; Grab the timer couter again
+	mov rax, [timer_counter]	; Grab the timer couter again
 	cmp rax, rcx			; Compare it against our end time
 	jle os_delay_loop		; Loop if RCX is still lower
 
