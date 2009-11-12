@@ -303,13 +303,14 @@ exception_gate_19:
 align 16
 exception_gate_main:
 	push rax			; Save RAX since os_smp_get_id clobers it
+	mov bl, 0x04
 	mov rsi, int_string00
-	call os_print_string
+	call os_print_string_with_color
 	call os_smp_get_id		; Get the local CPU ID and print it
 	mov rdi, tempstring
 	mov rsi, rdi
 	call os_int_to_string
-	call os_print_string
+	call os_print_string_with_color
 	mov rsi, int_string01
 	call os_print_string
 	mov rsi, exc_string00
@@ -320,13 +321,14 @@ exception_gate_main:
 	mul bl				; AX = AL x BL
 	add rsi, rax			; Use the value in RAX as an offset to get to the right message
 	pop rax
-	call os_print_string
+	mov bl, 0x03
+	call os_print_string_with_color
 	xor rax, rax
 	pop rax				; The processor puts an error code on the stack, get it and print it
 	call os_print_newline
 	call os_dump_reg
 
-	sti				; Re-enable interrupts	
+;	sti				; Re-enable interrupts	
 	jmp ap_clear			; jump to AP clear code
 
 

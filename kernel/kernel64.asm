@@ -139,6 +139,7 @@ ap_sleep:				; AP's will normally be running here
 	shl rax, 10			; shift left 10 bits for a 1024byte stack
 	add rax, stackbase		; stacks decrement when you "push", start at 1024 bytes in
 	mov rsp, rax			; Pure64 leaves 0x50000-0x9FFFF free so we use that
+	sti				; Re-enable interrupts
 
 	; Clear registers. Gives us a clean slate to work with
 	xor rax, rax			; aka r0

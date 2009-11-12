@@ -12,7 +12,7 @@ align 16
 
 os_command_line:
 	mov al, '>'			; Prompt for input
-	mov bl, 0x04			; Black background, Red text
+	mov bl, 0x0C			; Black background, Light Red text
 	call os_print_char_with_color
 	mov al, ' '
 	call os_print_char
