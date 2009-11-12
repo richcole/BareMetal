@@ -33,8 +33,6 @@ timer_debug_end:
 	pop rax
 	pop rdi
 	ret
-
-timer_debug_counter:	db 0x30 ; '0'
 ; -----------------------------------------------------------------------------
 
 
@@ -61,8 +59,6 @@ keyboard_debug_end:
 	pop rax
 	pop rdi
 	ret
-
-keyboard_debug_counter:	db 0x30 ; '0'
 ; -----------------------------------------------------------------------------
 
 
@@ -89,8 +85,6 @@ clock_debug_end:
 	pop rax
 	pop rdi
 	ret
-
-clock_debug_counter: db 0x30 ; '0'
 ; -----------------------------------------------------------------------------
 
 

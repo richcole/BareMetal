@@ -10,7 +10,7 @@ db 'DEBUG: SYSVAR   '
 align 16
 
 
-%DEFINE BAREMETALOS_VER 'v0.4 (September 15, 2009)'
+%DEFINE BAREMETALOS_VER 'v0.4.5 (November 12, 2009)'
 %DEFINE BAREMETALOS_API_VER 1
 
 ; Strings
@@ -45,7 +45,11 @@ cursorx:		db 0x00		; cursor row location
 cursory:		db 0x00		; cursor column location
 hextable: 		db '0123456789ABCDEF'
 scancode:		db 0x00
-kkey:			db 0x00
+key:			db 0x00
+timer_debug_counter:	db 0x30 ; '0'
+keyboard_debug_counter:	db 0x30 ; '0'
+clock_debug_counter:	db 0x30 ; '0'
+
 
 screen_rows 		db 25 ; x
 screen_cols 		db 80 ; y

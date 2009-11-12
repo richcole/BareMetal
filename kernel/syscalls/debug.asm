@@ -33,7 +33,6 @@ os_dump_reg:
 	push rax
 
 	mov byte [os_dump_reg_stage], 0x00	; Reset the stage to 0 since we are starting
-
 again:
 	mov rsi, os_dump_reg_string00
 	xor rax, rax
@@ -43,10 +42,8 @@ again:
 	mul bl		; ax = bl x al
 	add rsi, rax
 	call os_print_string			; Print the register name
-
 	pop rax							; Pop the next register from the stack
 	call os_dump_rax				; Print the hex string vale of RAX
-
 	inc byte [os_dump_reg_stage]
 	cmp byte [os_dump_reg_stage], 0x10
 	jne again
@@ -105,7 +102,7 @@ os_dump_rax:
 	push rsi
 	push rdi
 
-	mov rdi, os_dump_rax_tstring
+	mov rdi, tempstring
 	mov rsi, rdi
 	call os_int_to_hex_string
 	call os_print_string
@@ -113,15 +110,13 @@ os_dump_rax:
 	pop rdi
 	pop rsi
 ret
-
-os_dump_rax_tstring:	times 17 db 0	; A 64-bit hex string is 16 chars + 1 NULL
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
 ; os_get_ip -- Dump content of RIP into RAX
 ;  IN:	Nothing
-; OUT:	RAX, RIP
+; OUT:	RAX = RIP
 os_get_ip:
 	mov rax, qword [rsp]
 ret

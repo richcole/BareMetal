@@ -99,10 +99,12 @@ make_real_exception_gates:
 
 	; Clear the task data (4096 bytes, each CPU uses 16 bytes)
 	mov rdi, taskdata
-	mov rax, 0xFFFFFFFFFFFFFFFF	;xor rax, rax
+	mov rax, 0xFFFFFFFFFFFFFFFF
+	xor rbx, rbx
 	xor rcx, rcx
 cleartaskdata:
 	stosq
+	xchg rax, rbx
 	inc rcx
 	cmp rcx, 512
 	jne cleartaskdata
@@ -161,10 +163,9 @@ create_gate:
 	push rax
 	
 	shl rdi, 4	; quickly multiply rdi by 16
-
 	stosw		; store the low word (15..0)
 	shr rax, 16
-	add rdi, 4
+	add rdi, 4	; skip the gate marker
 	stosw		; store the high word (31..16)
 	shr rax, 32
 	stosd		; store the high dword (63..32)

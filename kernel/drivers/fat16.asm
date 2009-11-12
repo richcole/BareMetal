@@ -150,20 +150,20 @@ os_fat16_get_file_list:
 	call os_string_copy
 	add rdi, rax
 	pop rsi
-	
+
 	; RDI = location of string
 	; RSI = buffer that contains the cluster
 
 	; start reading
 os_fat16_get_file_list_read:
 	cmp byte [rsi], 0x00 ; end of records
-	je os_fat32_get_file_list_done
+	je os_fat16_get_file_list_done
 	cmp byte [rsi], 0xE5 ; unused record
-	je os_fat32_get_file_list_skip
+	je os_fat16_get_file_list_skip
 
 	mov al, [rsi + 8]		; Grab the attribute byte
 	bt ax, 5			; check if bit 3 is set (volume label)
-	jc os_fat32_get_file_list_skip	; if so skip the entry
+	jc os_fat16_get_file_list_skip	; if so skip the entry
 
 	; copy the string
 	xor rcx, rcx
@@ -174,10 +174,10 @@ copyname:
 	inc rcx
 	cmp rcx, 8
 	jne copyname
-	
+
 	mov al, ' ' ; Store a space as the separtator
 	stosb
-	
+
 	mov al, [rsi+8]
 	stosb
 	mov al, [rsi+9]
@@ -193,15 +193,15 @@ copyname:
 	dec rdi
 	mov al, 13
 	stosb
-	
-os_fat32_get_file_list_skip:
+
+os_fat16_get_file_list_skip:
 	add rsi, 32
 	jmp os_fat16_get_file_list_read
 
-os_fat32_get_file_list_done:
+os_fat16_get_file_list_done:
 	mov al, 0x00
 	stosb
-	
+
 	pop rax
 	pop rcx
 	pop rdi

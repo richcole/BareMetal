@@ -24,7 +24,6 @@ os_move_cursor:
 	mov [screen_cursor_x], ah
 	mov [screen_cursor_y], al
 	push rax
-
 	and rax, 0x000000000000FFFF	; only keep the low 16 bits
 	;calculate the new offset
 	mov cl, 80
@@ -33,10 +32,8 @@ os_move_cursor:
 	mov bl, [screen_cursor_x]
 	add ax, bx
 	shl ax, 1			; multiply by 2
-
 	add rax, 0x00000000000B8000
 	mov [screen_cursor_offset], rax
-
 	pop rax				; Move the hardware cursor
 	mov bh, ah
 	mov bl, al

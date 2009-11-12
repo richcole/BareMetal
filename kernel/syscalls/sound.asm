@@ -19,14 +19,12 @@ os_speaker_tone:
 	push rcx
 
 	mov cx, ax		; Store note value for now
-
 	mov al, 182
-	out 0x43, al	; System timers..
+	out 0x43, al		; System timers..
 	mov ax, cx		; Set up frequency
 	out 0x42, al
 	mov al, ah		; 64-bit mode.... AH allowed????
 	out 0x42, al
-
 	in al, 0x61		; Switch PC speaker on
 	or al, 0x03
 	out 0x61, al
@@ -63,7 +61,7 @@ os_speaker_beep:
 
 	mov rax, 0x0000000000000C80
 	call os_speaker_tone
-	mov rcx, 25	; a quarter of a second
+	mov rcx, 25		; A quarter of a second
 	call os_delay
 	call os_speaker_off
 
@@ -71,6 +69,7 @@ os_speaker_beep:
 	pop rax
 	ret
 ; -----------------------------------------------------------------------------
+
 
 ; =============================================================================
 ; EOF

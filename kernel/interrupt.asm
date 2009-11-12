@@ -56,7 +56,6 @@ keyboard:
 
 	mov al, 0xad
 	out 0x64, al			; disable keyboard
-
 	in al, 0x61			; get the scancode
 	mov [scancode], al		; store the scancode
 	xor al, 0x80			; next five lines are for acknowledging the scancode
@@ -64,10 +63,8 @@ keyboard:
 	mov al, [scancode]
 	and al, 0x7f
 	out 0x61, al
-
 	xor eax, eax
 	in al, 0x60			; get the key
-
 	test al, 0x80
 	jz keydown
 	jmp keyup
@@ -76,8 +73,8 @@ keydown:
 	mov ebx, keylayoutlower
 	add ebx, eax
 	mov bl, [ebx]
-	mov [kkey], bl
-	mov al, [kkey]
+	mov [key], bl
+	mov al, [key]
 	jmp donekey
 
 keyup:
@@ -136,7 +133,6 @@ check_loop:
 	jne check_end
 	cmp rcx, 0
 	jne check_loop
-
 	; If we got here then there are no active tasks.. start the CLI
 	mov rdi, taskdata
 	mov rax, os_command_line
@@ -171,7 +167,6 @@ ap_wakeup:
 
 	pop rax
 	pop rdi
-
 	iretq				; Return from the IPI.
 ; -----------------------------------------------------------------------------
 
@@ -180,14 +175,11 @@ ap_wakeup:
 ; Modifies the running CPUs stack so after the iretq it jumps to the code address in stagingarea
 ap_call:
 	mov rax, [stagingarea]		; Grab the code address from the staging area
-
 	mov [rsp], rax			; Overwrite the return address on the CPU's stack
-
 	mov rdi, [os_LocalAPICAddress]	; Acknowledge the IPI
 	add rdi, 0xB0
 	xor rax, rax
 	stosd
-
 	iretq				; Return from the IPI. CPU will execute code at the address that was in stagingarea
 ; -----------------------------------------------------------------------------
 

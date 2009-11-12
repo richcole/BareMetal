@@ -108,7 +108,7 @@ start:
 
 align 16
 
-ap_clear:				; AP's start here on first start and after an exception
+ap_clear:				; BSP and AP's start here on first start and after an exception
 
 	; Get local ID of the core without using the stack
 	mov rsi, [os_LocalAPICAddress]	; We would call os_smp_get_id here but the stack is not ...
@@ -209,6 +209,7 @@ continue:
 %include "cli.asm"
 
 times 8192-($-$$) db 0		; Set the compiled binary to at least this size in bytes
+
 
 ; =============================================================================
 ; EOF

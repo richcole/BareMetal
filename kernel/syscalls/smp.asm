@@ -24,16 +24,12 @@ os_smp_call:
 	push rax
 
 	mov [stagingarea], rbx
-
 	mov rdi, [os_LocalAPICAddress]
-
 	push rdi
 	add rdi, 0x0310
 	shl rax, 24		; AL holds the CPU #, shift left 24 bits to get it into 31:24, 23:0 are reserved
 	stosd
-
 	xor rax, rax
-
 	pop rdi
 	add rdi, 0x0300
 	mov al, 0x81
@@ -54,16 +50,13 @@ os_smp_call:
 os_smp_wakeup:
 	push rdi
 	push rax
-	
-	mov rdi, [os_LocalAPICAddress]	; Load the address of the LAPIC from memory
 
+	mov rdi, [os_LocalAPICAddress]	; Load the address of the LAPIC from memory
 	push rdi		; Save the RDI register so we don't need to load from memory twice
 	add rdi, 0x0310
 	shl rax, 24		; AL holds the CPU #, shift left 24 bits to get it into 31:24, 23:0 are reserved
 	stosd
-	
 	xor rax, rax
-
 	pop rdi			; Restore RDI from the stack. Saves a second memory load
 	add rdi, 0x0300
 	mov al, 0x80		; 0x80 is our wakeup interrupt
@@ -85,14 +78,11 @@ os_smp_wakeup_all:
 	push rax
 
 	mov rdi, [os_LocalAPICAddress]	; Load the address of the LAPIC from memory
-
 	push rdi		; Save the RDI register so we don't need to load from memory twice
 	add rdi, 0x0310
 	xor rax, rax		; Nothing needed here
 	stosd
-	
 	xor rax, rax
-
 	pop rdi			; Restore RDI from the stack. Saves a second memory load
 	add rdi, 0x0300
 	mov eax, 0x000C0080	; 0x0C for all except self, 0x80 is our wakeup interrupt
@@ -156,7 +146,7 @@ os_smp_find_free:
 	push rcx
 
 	xor rcx, rcx
-	
+
 	mov rsi, taskdata			; Set RSI to the location of the task data
 os_smp_find_free_load:
 	lodsq					; Load the code value
@@ -167,7 +157,7 @@ os_smp_find_free_load:
 	cmp rcx, 256
 	je os_smp_find_free_not_found
 	jmp os_smp_find_free_load
-	
+
 os_smp_find_free_found:
 	mov rax, rcx				; Copy the APIC ID to RAX
 	clc					; Clear the carry flag as it was a success
@@ -175,10 +165,10 @@ os_smp_find_free_found:
 	pop rcx
 	pop rsi
 	ret
-	
+
 os_smp_find_free_not_found:
 	stc					; Set the carry flag as it was a failure
-	
+
 	pop rcx
 	pop rsi
 	ret
@@ -199,7 +189,6 @@ os_smp_set_free:
 
 	mov rdx, rax				; Save the code address as lodsq will clobber RAX
 	xor rcx, rcx
-	
 	mov rsi, taskdata			; Set RSI to the location of the task data
 os_smp_set_free_load:
 	mov rdi, rsi
@@ -212,7 +201,7 @@ os_smp_set_free_load:
 	jne os_smp_set_free_load		; If RCX is equal to 256 then fall through
 	stc					; Set the carry flag as it was a failure
 	jmp os_smp_set_free_end
-	
+
 os_smp_set_free_found:
 	clc					; Clear the carry flag as it was a success
 	mov rax, rdx				; Put the code address back into RAX
@@ -246,15 +235,13 @@ os_smp_wait_for_aps:
 os_smp_check_next:
 	sub rsi, 8
 	lodsq					; Load the code value
-
 	cmp rax, 0x0000000000000000		; If all bits are clear then this AP is idle
 	je os_smp_check_foundfree
 	cmp rax, 0xFFFFFFFFFFFFFFFF		; If all bits are set then this AP is unusable
 	jne os_smp_check_next			; If it was equal we will just fall through to found_free
-	
+
 os_smp_check_foundfree:
 	add rsi, 16				; Skip to next record
-	
 	add rcx, 1
 	cmp rcx, 255
 	jne os_smp_check_next

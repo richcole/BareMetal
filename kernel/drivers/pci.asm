@@ -11,7 +11,6 @@ align 16
 
 
 init_pci:
-
 	xor rcx, rcx
 
 ;poo123:
@@ -157,6 +156,6 @@ pciclass04 db '[Multimedia  ] ', 0
 pciclass05 db '[Memory      ] ', 0
 pciclass06 db '[Bridge      ] ', 0
 
-;
+
 ; =============================================================================
 ; EOF

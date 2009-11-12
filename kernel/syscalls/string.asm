@@ -64,24 +64,21 @@ os_string_to_int:
 	push rcx
 	push rbx
 
-	xor rax, rax		; initialize accumulator
-	mov rbx, 10		; decimal-system's radix
-nxdgt:
-	mov cl, [rsi]		; fetch next character
-
-	cmp cl, '0'		; char preceeds '0'?
-	jb inval		; yes, not a numeral
-	cmp cl, '9'		; char follows '9'?
-	ja inval		; yes, not a numeral
+	xor rax, rax			; initialize accumulator
+	mov rbx, 10			; decimal-system's radix
+os_string_to_int_next_digit:
+	mov cl, [rsi]			; fetch next character
+	cmp cl, '0'			; char preceeds '0'?
+	jb os_string_to_int_invalid	; yes, not a numeral
+	cmp cl, '9'			; char follows '9'?
+	ja os_string_to_int_invalid	; yes, not a numeral
+	mul rbx				; ten times prior sum
+	and rcx, 0xF			; convert char to int
+	add rax, rcx			; add to prior total
+	inc rsi				; advance source index
+	jmp os_string_to_int_next_digit	; and check another char
 	
-	mul rbx			; ten times prior sum
-	and rcx, 0xF		; convert char to int
-	add rax, rcx		; add to prior total
-
-	inc rsi			; advance source index
-	jmp nxdgt		; and check another char	
-inval:
-
+os_string_to_int_invalid:
 	pop rbx
 	pop rcx
 	pop rdx
@@ -202,7 +199,6 @@ os_find_char_in_string:
 	push rcx
 
 	mov rcx, 1		; Counter -- start at first char
-
 os_find_char_in_string_more:
 	cmp byte [rsi], al
 	je os_find_char_in_string_done
@@ -240,21 +236,19 @@ os_string_charchange:
 	push rax
 
 	mov cl, al
-
-loopit:
+os_string_charchange_loop:
 	mov byte al, [rsi]
 	cmp al, 0
-	je finishit
+	je os_string_charchange_done
 	cmp al, cl
-	jne nochange
-
+	jne os_string_charchange_nochange
 	mov byte [rsi], bl
 
-nochange:
+os_string_charchange_nochange:
 	inc rsi
-	jmp loopit
+	jmp os_string_charchange_loop
 
-finishit:
+os_string_charchange_done:
 	pop rax
 	pop rbx
 	pop rcx
@@ -318,11 +312,8 @@ os_string_join:
 
 	mov rsi, rax		; Copy first string to location in RDI
 	call os_string_copy
-
 	call os_string_length	; Get length of first string
-
 	add rdi, rax		; Position at end of first string
-
 	mov rsi, rbx		; Add second string onto it
 	call os_string_copy
 
@@ -343,34 +334,34 @@ os_string_chomp:
 	push rdi
 	push rax
 
-	mov rdi, rsi	; RDI will point to the start of the string
-	push rdi		; while RSI will point to the "actual" start (without the spaces)
+	mov rdi, rsi			; RDI will point to the start of the string
+	push rdi			; while RSI will point to the "actual" start (without the spaces)
 	call os_string_length
 	add rdi, rax
 
-os_string_chomp_findend:	; we start at the end of the string and move backwards until we don't find a space
+os_string_chomp_findend:		; we start at the end of the string and move backwards until we don't find a space
 	dec rdi
 	cmp byte [rdi], ' '
 	je os_string_chomp_findend
 
-	inc rdi					; we found the real end of the string so null terminate it
+	inc rdi				; we found the real end of the string so null terminate it
 	mov byte [rdi], 0x00
 	pop rdi
 
-os_string_chomp_start_count:	; read through string until we find a non-space character
+os_string_chomp_start_count:		; read through string until we find a non-space character
 	cmp byte [rsi], ' '
-	jne copyit
+	jne os_string_chomp_copy
 	inc rsi
 	jmp os_string_chomp_start_count
 
 ; At this point RSI points to the actual start of the string (minus the leading spaces, if any)
 ; And RDI point to the start of the string
 
-copyit:		; Copy a byte from RSI to RDI one byte at a time until we find a NULL
+os_string_chomp_copy:		; Copy a byte from RSI to RDI one byte at a time until we find a NULL
 	lodsb
 	stosb
 	cmp al, 0x00
-	jne copyit
+	jne os_string_chomp_copy
 
 os_string_chomp_done:
 	pop rax
@@ -390,23 +381,22 @@ os_string_strip:
 	push rdi
 	push rbx
 	push rax
-	
-	mov rdi, rsi
 
-	mov bl, al	; copy the char into BL since LODSB and STOSB use AL
-nextchar:
+	mov rdi, rsi
+	mov bl, al			; copy the char into BL since LODSB and STOSB use AL
+os_string_strip_nextchar:
 	lodsb
 	stosb
-	cmp al, 0x00	; check if we reached the end of the string
-	je finish	; if so bail out
-	cmp al, bl	; check to see if the character we read is the interesting char
-	jne nextchar	; if not skip to the next character
+	cmp al, 0x00			; check if we reached the end of the string
+	je os_string_strip_done		; if so bail out
+	cmp al, bl			; check to see if the character we read is the interesting char
+	jne os_string_strip_nextchar	; if not skip to the next character
 
-skip:			; if so the fall through to here
-	dec rdi		; decrement RDI so we overwrite on the next pass
-	jmp nextchar
+os_string_strip_skip:			; if so the fall through to here
+	dec rdi				; decrement RDI so we overwrite on the next pass
+	jmp os_string_strip_nextchar
 
-finish:
+os_string_strip_done:
 	pop rax
 	pop rbx
 	pop rdi
@@ -429,13 +419,10 @@ os_string_compare:
 os_string_compare_more:
 	mov al, [rsi]			; Store string contents
 	mov bl, [rdi]
-
 	cmp al, 0		; End of first string?
 	je os_string_compare_terminated
-
 	cmp al, bl
 	jne os_string_compare_not_same
-
 	inc rsi
 	inc rdi
 	jmp os_string_compare_more
@@ -471,14 +458,11 @@ os_string_uppercase:
 os_string_uppercase_more:
 	cmp byte [rsi], 0x00		; Zero-termination of string?
 	je os_string_uppercase_done	; If so, quit
-
 	cmp byte [rsi], 97		; In the uppercase A to Z range?
 	jl os_string_uppercase_noatoz
 	cmp byte [rsi], 122
 	jg os_string_uppercase_noatoz
-
 	sub byte [rsi], 0x20		; If so, convert input char to lowercase
-
 	inc rsi
 	jmp os_string_uppercase_more
 
@@ -502,14 +486,11 @@ os_string_lowercase:
 os_string_lowercase_more:
 	cmp byte [rsi], 0x00		; Zero-termination of string?
 	je os_string_lowercase_done	; If so, quit
-
 	cmp byte [rsi], 65		; In the lowercase A to Z range?
 	jl os_string_lowercase_noatoz
 	cmp byte [rsi], 90
 	jg os_string_lowercase_noatoz
-
 	add byte [rsi], 0x20		; If so, convert input char to uppercase
-
 	inc rsi
 	jmp os_string_lowercase_more
 
@@ -533,28 +514,22 @@ os_get_time_string:
 	push rax
 
 	mov rbx, hextable
-
 	mov al, 0x04		; hour
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-
 	mov al, ':'
 	stosb
-
 	mov al, 0x02		; minute
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-
 	mov al, ':'
 	stosb
-
 	mov al, 0x00		; second
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-
 	mov al, 0x00		; Terminate the string
 	stosb
 
@@ -568,7 +543,6 @@ os_get_time_string_processor:
 	shr al, 4	; we want to work on the high part so shift right by 4 bits
 	xlatb
 	stosb
-
 	pop rax
 	and al, 0x0f	; we want to work on the low part so clear the high part
 	xlatb
@@ -588,7 +562,6 @@ os_get_date_string:
 	push rax
 
 	mov rbx, hextable
-
 	mov al, 0x32		; century
 	out 0x70, al
 	in al, 0x71
@@ -597,23 +570,18 @@ os_get_date_string:
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-
 	mov al, '/'
 	stosb
-
 	mov al, 0x08		; month
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-
 	mov al, '/'
 	stosb
-
 	mov al, 0x07		; day
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-
 	mov al, 0x00		; Terminate the string
 	stosb
 
@@ -631,11 +599,12 @@ os_get_date_string:
 ; Note:	JE (Jump if Equal) can be used after this function is called
 os_is_digit:
 	cmp al, '0'
-	jb not_digit
+	jb os_is_digit_not_digit
 	cmp al, '9'
-	ja not_digit
+	ja os_is_digit_not_digit
 	cmp al, al			; To set the equal flag
-not_digit:
+
+os_is_digit_not_digit:
 	ret
 ; -----------------------------------------------------------------------------
 
@@ -647,11 +616,12 @@ not_digit:
 ; Note:	JE (Jump if Equal) can be used after this function is called
 os_is_alpha:
 	cmp al, ' '
-	jb not_alpha
+	jb os_is_alpha_not_alpha
 	cmp al, 0x7E
-	ja not_alpha
+	ja os_is_alpha_not_alpha
 	cmp al, al			; To set the equal flag
-not_alpha:
+
+os_is_alpha_not_alpha:
 	ret
 ; -----------------------------------------------------------------------------
 
