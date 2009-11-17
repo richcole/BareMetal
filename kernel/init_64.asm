@@ -105,8 +105,10 @@ make_real_exception_gates:
 cleartaskdata:
 	stosq
 	xchg rax, rbx
+	stosq
+	xchg rax, rbx
 	inc rcx
-	cmp rcx, 512
+	cmp rcx, 256
 	jne cleartaskdata
 
 	;Grab data from Pure64's infomap

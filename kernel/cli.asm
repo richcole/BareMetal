@@ -96,11 +96,11 @@ bitmore:
 	jmp bitmore
 
 suffix:
-	mov byte [rsi], 'B'		; So sloppy!!
+	mov byte [rsi], 'A'		; So sloppy!!
 	inc rsi
-	mov byte [rsi], 'I'
+	mov byte [rsi], 'P'
 	inc rsi
-	mov byte [rsi], 'N'
+	mov byte [rsi], 'P'
 	inc rsi
 	mov byte [rsi], 0		; Zero-terminate string
 

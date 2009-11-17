@@ -143,13 +143,13 @@ ap_sleep:				; AP's will normally be running here
 
 	; Clear registers. Gives us a clean slate to work with
 	xor rax, rax			; aka r0
-	xor rbx, rbx			; aka r3
 	xor rcx, rcx			; aka r1
 	xor rdx, rdx			; aka r2
+	xor rbx, rbx			; aka r3
+	xor rbp, rbp			; aka r5, We skip RSP (aka r4) as it was previously set
 	xor rsi, rsi			; aka r6
 	xor rdi, rdi			; aka r7
-	xor rbp, rbp			; aka r5
-	xor r8, r8			; We skip RSP (aka r4) as it was previously set
+	xor r8, r8
 	xor r9, r9
 	xor r10, r10
 	xor r11, r11
@@ -205,8 +205,8 @@ continue:
 %include "syscalls.asm"
 %include "drivers.asm"
 %include "interrupt.asm"
-%include "sysvar.asm"
 %include "cli.asm"
+%include "sysvar.asm"		; Include this last to keep the read/write variables away from the code
 
 times 8192-($-$$) db 0		; Set the compiled binary to at least this size in bytes
 

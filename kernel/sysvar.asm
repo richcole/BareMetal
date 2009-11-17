@@ -9,9 +9,10 @@ align 16
 db 'DEBUG: SYSVAR   '
 align 16
 
-
+; Constants
 %DEFINE BAREMETALOS_VER 'v0.4.5 (November 12, 2009)'
 %DEFINE BAREMETALOS_API_VER 1
+hextable: 		db '0123456789ABCDEF'
 
 ; Strings
 readymsg:		db 'BareMetal is ready.', 0
@@ -43,19 +44,19 @@ os_NumCores:		dw 0x0000
 cpu_speed:		dd 0x00000000
 cursorx:		db 0x00		; cursor row location
 cursory:		db 0x00		; cursor column location
-hextable: 		db '0123456789ABCDEF'
 scancode:		db 0x00
 key:			db 0x00
 timer_debug_counter:	db 0x30 ; '0'
 keyboard_debug_counter:	db 0x30 ; '0'
 clock_debug_counter:	db 0x30 ; '0'
-
-
 screen_rows 		db 25 ; x
 screen_cols 		db 80 ; y
 screen_cursor_x		db 0x00
 screen_cursor_y		db 0x00
 screen_cursor_offset	dq 0x0000000000000000
+
+; Function variables
+os_dump_reg_stage:	db 0x00
 
 ; File System
 fat16_BytesPerSector:		dw 0x0000

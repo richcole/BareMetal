@@ -66,8 +66,6 @@ os_dump_reg_string0C:	db ' 12:', 0
 os_dump_reg_string0D:	db ' 13:', 0
 os_dump_reg_string0E:	db ' 14:', 0
 os_dump_reg_string0F:	db ' 15:', 0
-
-os_dump_reg_stage:		db 0x00
 ; -----------------------------------------------------------------------------
 
 
