@@ -10,8 +10,6 @@ db 'DEBUG: SYSVAR   '
 align 16
 
 ; Constants
-%DEFINE BAREMETALOS_VER 'v0.4.5 (November 12, 2009)'
-%DEFINE BAREMETALOS_API_VER 1
 hextable: 		db '0123456789ABCDEF'
 
 ; Strings

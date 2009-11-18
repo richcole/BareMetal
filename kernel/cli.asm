@@ -171,8 +171,20 @@ align 16
 poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
-	mov al, 65
-	call os_serial_send
+	mov rdi, tempstring		; Get string from user
+	mov rcx, 20			; Limit the capture of characters to 255
+	call os_input_string
+
+	call os_string_parse
+	mov rax, rcx
+	call os_dump_rax
+	
+	call os_print_newline
+
+
+
+;	mov al, 65
+;	call os_serial_send
 ;	mov rcx, 100
 ;	mov al, '5'
 ;	call os_print_char
@@ -192,7 +204,7 @@ testzone:
 ;	call os_speaker_beep
 ;	call os_print_newline
 
-	ud2
+;	ud2
 ;	xor rax, rax
 ;	xor rbx, rbx
 ;	xor rcx, rcx

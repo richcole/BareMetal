@@ -626,5 +626,38 @@ os_is_alpha_not_alpha:
 ; -----------------------------------------------------------------------------
 
 
+; -----------------------------------------------------------------------------
+; os_string_parse -- Parse a string into individual words
+;  IN:	RSI = Address of string
+; OUT:	RCX = word count
+os_string_parse:
+	push rsi
+	push rdi
+	push rax
+	
+	xor rcx, rcx
+	mov rdi, rsi
+
+nextchar:
+	lodsb	; load a byte from rsi
+	cmp al, 0x00
+	je os_string_parse_done
+	cmp al, ' '
+	je foundaspace
+	stosb	; store the byte to rdi
+	jmp nextchar
+
+foundaspace:
+
+
+os_string_parse_done:
+	
+	pop rax
+	pop rdi
+	pop rsi
+ret
+; -----------------------------------------------------------------------------
+
+
 ; =============================================================================
 ; EOF

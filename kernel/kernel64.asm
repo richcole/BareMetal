@@ -9,6 +9,9 @@
 USE64
 ORG 0x0000000000100000
 
+%DEFINE BAREMETALOS_VER 'v0.4.5 (November 12, 2009)'
+%DEFINE BAREMETALOS_API_VER 1
+
 kernel_start:
 	jmp start		; Skip over the function call index
 
