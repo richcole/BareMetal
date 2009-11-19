@@ -166,11 +166,11 @@ os_hex_string_to_int_exit:
 ; -----------------------------------------------------------------------------
 ; os_string_length -- Return length of a string
 ;  IN:	RSI = string location
-; OUT:	RAX = length
+; OUT:	RCX = length
 ;	All other registers preserved
 os_string_length:
 	push rdi
-	push rcx
+	push rax
 
 	xor rcx, rcx
 	xor rax, rax
@@ -180,9 +180,8 @@ os_string_length:
 	repne scasb	; compare byte at RDI to value in AL
 	not rcx
 	dec rcx
-	mov rax, rcx
-	
-	pop rcx
+
+	pop rax
 	pop rdi
 	ret
 ; -----------------------------------------------------------------------------
@@ -307,18 +306,20 @@ os_string_truncate:
 os_string_join:
 	push rsi
 	push rdi
+	push rcx
 	push rbx
 	push rax
 
 	mov rsi, rax		; Copy first string to location in RDI
 	call os_string_copy
 	call os_string_length	; Get length of first string
-	add rdi, rax		; Position at end of first string
+	add rdi, rcx		; Position at end of first string
 	mov rsi, rbx		; Add second string onto it
 	call os_string_copy
 
 	pop rax
 	pop rbx
+	pop rcx
 	pop rdi
 	pop rsi
 	ret
@@ -332,15 +333,20 @@ os_string_join:
 os_string_chomp:
 	push rsi
 	push rdi
+	push rcx
 	push rax
 
-	mov rdi, rsi			; RDI will point to the start of the string
-	push rdi			; while RSI will point to the "actual" start (without the spaces)
-	call os_string_length
-	add rdi, rax
+	call os_string_length		; Quick check to see if there are any characters in the string
+	jrcxz os_string_chomp_done	; No need to work on it if there is no data
+
+	mov rdi, rsi			; RDI will point to the start of the string...
+	push rdi			; ...while RSI will point to the "actual" start (without the spaces)
+	add rdi, rcx			; os_string_length stored the length in RCX
 
 os_string_chomp_findend:		; we start at the end of the string and move backwards until we don't find a space
 	dec rdi
+	cmp rsi, rdi			; Check to make sure we are not reading backward past the string start
+	jg os_string_chomp_fail		; If so then fail (string only contained spaces)
 	cmp byte [rdi], ' '
 	je os_string_chomp_findend
 
@@ -354,6 +360,12 @@ os_string_chomp_start_count:		; read through string until we find a non-space ch
 	inc rsi
 	jmp os_string_chomp_start_count
 
+os_string_chomp_fail:			; In this situataion the string is all spaces
+	pop rdi				; We are about to bail out so make sure the stack is sane
+	mov al, 0x00
+	stosb
+	jmp os_string_chomp_done
+
 ; At this point RSI points to the actual start of the string (minus the leading spaces, if any)
 ; And RDI point to the start of the string
 
@@ -365,6 +377,7 @@ os_string_chomp_copy:		; Copy a byte from RSI to RDI one byte at a time until we
 
 os_string_chomp_done:
 	pop rax
+	pop rcx
 	pop rdi
 	pop rsi
 	ret
@@ -630,28 +643,43 @@ os_is_alpha_not_alpha:
 ; os_string_parse -- Parse a string into individual words
 ;  IN:	RSI = Address of string
 ; OUT:	RCX = word count
+; Note:	This function will remove "extra" whitespace in the source string
+;	"This is  a test. " will update to "This is a test."
 os_string_parse:
 	push rsi
 	push rdi
 	push rax
-	
-	xor rcx, rcx
+
+	xor rcx, rcx			; RCX is our word counter
 	mov rdi, rsi
 
-nextchar:
-	lodsb	; load a byte from rsi
-	cmp al, 0x00
-	je os_string_parse_done
-	cmp al, ' '
-	je foundaspace
-	stosb	; store the byte to rdi
-	jmp nextchar
+	call os_string_chomp		; Remove leading and trailing spaces
+	
+	cmp byte [rsi], 0x00		; Check the first byte
+	je os_string_parse_done		; If it is a null then bail out
+	inc rcx				; At this point we know we have at least one word
 
-foundaspace:
+os_string_parse_next_char:
+	lodsb
+	stosb
+	cmp al, 0x00			; Check if we are at the end
+	je os_string_parse_done		; If so then bail out
+	cmp al, ' '			; Is it a space?
+	je os_string_parse_found_a_space
+	jmp os_string_parse_next_char	; If not then grab the next char
 
+os_string_parse_found_a_space:
+	lodsb				; We found a space.. grab the next char
+	cmp al, ' '			; Is it a space as well?
+	jne os_string_parse_no_more_spaces
+	jmp os_string_parse_found_a_space
+
+os_string_parse_no_more_spaces:
+	dec rsi				; Decrement so the next lodsb will read in the non-space
+	inc rcx
+	jmp os_string_parse_next_char
 
 os_string_parse_done:
-	
 	pop rax
 	pop rdi
 	pop rsi

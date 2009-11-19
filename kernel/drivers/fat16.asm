@@ -148,7 +148,7 @@ os_fat16_get_file_list:
 	mov rsi, dir_title_string
 	call os_string_length
 	call os_string_copy
-	add rdi, rax
+	add rdi, rcx
 	pop rsi
 
 	; RDI = location of string

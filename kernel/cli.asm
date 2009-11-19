@@ -16,18 +16,18 @@ os_command_line:
 	call os_print_string_with_color
 
 	mov rdi, tempstring		; Get string from user
-	mov rcx, 255			; Limit the capture of characters to 255
+	mov rcx, 250			; Limit the capture of characters to 250
 	call os_input_string
 
 	push rdi
-	mov rsi, newline
+	mov rsi, newline		; The user hit enter so print a new line
 	call os_print_string
 	pop rsi
 
 	cmp rcx, 0			; If just enter pressed, prompt again
-	je os_command_line
+	je os_command_line		; os_input_string stores the number of charaters received in RCX
 
-	call os_string_chomp		; Remove leading and trailing spaces
+	call os_string_parse		; Remove extra spaces
 	call os_string_uppercase	; Convert to uppercase for comparison
 
 	mov rdi, help_string		; 'HELP' entered?
@@ -70,45 +70,46 @@ os_command_line:
 	call os_string_compare
 	jc near exit
 
-	mov al, '.'
-	call os_find_char_in_string	; User entered dot in filename?
-	cmp rax, 0
-	je notadot			; If not, see if it's 11 chars
-	dec rax
-	jmp padout			; Otherwise, make sure it's padded out
-
-notadot:
-	call os_string_length
-
-	cmp rax, 11
-	je near full_name
-	jg near fail
-
-padout:
-	add rsi, rax			; Pad with spaces and 'BIN'
-
-bitmore:
-	cmp rax, 8
-	jge suffix
-	mov byte [rsi], ' '
-	inc rsi
-	inc rax
-	jmp bitmore
-
-suffix:
-	mov byte [rsi], 'A'		; So sloppy!!
-	inc rsi
-	mov byte [rsi], 'P'
-	inc rsi
-	mov byte [rsi], 'P'
-	inc rsi
-	mov byte [rsi], 0		; Zero-terminate string
+;	mov al, '.'
+;	call os_find_char_in_string	; User entered dot in filename?
+;	cmp rax, 0
+;	je notadot			; If not, see if it's 11 chars
+;	dec rax
+;	jmp padout			; Otherwise, make sure it's padded out
+;
+;notadot:
+;	call os_string_length
+;
+;	cmp rcx, 11
+;	je near full_name
+;	jg near fail
+;
+;padout:
+;	add rsi, rax			; Pad with spaces and 'BIN'
+;
+;bitmore:
+;	cmp rax, 8
+;	jge suffix
+;	mov byte [rsi], ' '
+;	inc rsi
+;	inc rax
+;	jmp bitmore
+;
+;suffix:
+;	mov byte [rsi], 'A'		; So sloppy!!
+;	inc rsi
+;	mov byte [rsi], 'P'
+;	inc rsi
+;	mov byte [rsi], 'P'
+;	inc rsi
+;	mov byte [rsi], 0		; Zero-terminate string
+;
 
 full_name:
 	mov rsi, tempstring
 
 	call findfile			; Fuction will return the starting cluster value in ebx or 0 if not found
-	cmp ax, 0x0000			; If ebx is 0 then the file was not found
+	cmp ax, 0x0000			; If ax is 0 then the file was not found
 	je fail				; bail out if the file was not found
 
 	mov rdi, programlocation	; We load the program to this location in memory (currently 0x00100000 : at the 2MB mark)
@@ -116,9 +117,7 @@ readfile_getdata:
 	call readcluster		; store in memory
 	cmp ax, 0xFFFF
 	jne readfile_getdata		; Are there more clusters? If so then read again.. if not fall through.
-
 	call programlocation		; 0x00100000 : at the 2MB mark
-
 	jmp os_command_line		; After the program is finished we go back to the start of the CLI
 
 fail:					; We didn't get a valid command or program name
@@ -172,14 +171,20 @@ poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
 	mov rdi, tempstring		; Get string from user
-	mov rcx, 20			; Limit the capture of characters to 255
+	mov rsi, rdi
+	mov rcx, 20			; Limit the capture of characters to 20
 	call os_input_string
+	call os_print_newline
 
 	call os_string_parse
+	call os_print_string
+	call os_print_newline
+
 	mov rax, rcx
 	call os_dump_rax
-	
 	call os_print_newline
+;	mov al, 65
+;	call os_print_char
 
 
 
