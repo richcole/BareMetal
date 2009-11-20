@@ -114,7 +114,7 @@ add_suffix:
 full_name:
 	mov rsi, app_tstring
 	mov rdi, programlocation	; We load the program to this location in memory (currently 0x00100000 : at the 2MB mark)
-	call os_load_file		; Load the file
+	call os_file_load		; Load the file
 	jc fail				; If carry is set then the file was not found
 	call programlocation		; 0x00100000 : at the 2MB mark
 	jmp os_command_line		; After the program is finished we go back to the start of the CLI

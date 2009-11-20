@@ -213,11 +213,11 @@ dir_title_string: db "Name     Ext Size", 13, "====================", 13, 0
 
 
 ; -----------------------------------------------------------------------------
-; os_load_file -- Load a file into memory
+; os_file_load -- Load a file into memory
 ; IN:	RSI = Address of filename string
 ;	RDI = Memory location where file will be loaded to
 ; OUT:	Carry set if file was not found
-os_load_file:
+os_file_load:
 	push rsi
 	push rdi
 	push rax
@@ -227,23 +227,23 @@ os_load_file:
 	call os_int_filename_convert
 	xchg rsi, rdi
 	pop rdi				; Grab the memory address
-	jc os_load_file_fail
+	jc os_file_load_fail
 
 	call findfile			; Fuction will return the starting cluster value in ebx or 0 if not found
 	cmp ax, 0x0000			; If ax is 0 then the file was not found
-	jne os_load_file_read		; bail out if the file was not found
+	jne os_file_load_read		; bail out if the file was not found
 
-os_load_file_fail:
+os_file_load_fail:
 	stc
-	jmp os_load_file_done
+	jmp os_file_load_done
 
-os_load_file_read:
+os_file_load_read:
 	call readcluster		; store in memory
 	cmp ax, 0xFFFF
-	jne os_load_file_read		; Are there more clusters? If so then read again.. if not fall through.
+	jne os_file_load_read		; Are there more clusters? If so then read again.. if not fall through.
 	clc
 
-os_load_file_done:
+os_file_load_done:
 	pop rax
 	pop rdi
 	pop rsi
@@ -299,11 +299,12 @@ add_spaces:
 	cmp rcx, 8
 	jl add_spaces
 
-do_extension:
-	mov al, 'A'
+do_extension:				; FIX THIS for cases where ext is less than 3 chars
+	lodsb
 	stosb
-	mov al, 'P'
+	lodsb
 	stosb
+	lodsb
 	stosb
 	mov byte [rdi], 0		; Zero-terminate filename
 	clc				; Clear carry for success
