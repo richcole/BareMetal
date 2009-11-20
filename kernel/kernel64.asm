@@ -211,7 +211,7 @@ continue:
 %include "cli.asm"
 %include "sysvar.asm"		; Include this last to keep the read/write variables away from the code
 
-times 8192-($-$$) db 0		; Set the compiled binary to at least this size in bytes
+times 16384-($-$$) db 0		; Set the compiled binary to at least this size in bytes
 
 
 ; =============================================================================

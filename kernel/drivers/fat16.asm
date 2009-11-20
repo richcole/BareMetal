@@ -67,7 +67,7 @@ readcluster_nextsector:				; Read the sectors in one-by-one
 	jmp readcluster_end
 
 readcluster_bailout:
-	mov ax, 0x0000
+	xor ax, ax
 
 readcluster_end:
 	pop rbx
@@ -209,6 +209,111 @@ os_fat16_get_file_list_done:
 ret
 
 dir_title_string: db "Name     Ext Size", 13, "====================", 13, 0
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_load_file -- Load a file into memory
+; IN:	RSI = Address of filename string
+;	RDI = Memory location where file will be loaded to
+; OUT:	Carry set if file was not found
+os_load_file:
+	push rsi
+	push rdi
+	push rax
+
+	push rdi			; Save the memory address
+	mov rdi, dest_string
+	call os_int_filename_convert
+	xchg rsi, rdi
+	pop rdi				; Grab the memory address
+	jc os_load_file_fail
+
+	call findfile			; Fuction will return the starting cluster value in ebx or 0 if not found
+	cmp ax, 0x0000			; If ax is 0 then the file was not found
+	jne os_load_file_read		; bail out if the file was not found
+
+os_load_file_fail:
+	stc
+	jmp os_load_file_done
+
+os_load_file_read:
+	call readcluster		; store in memory
+	cmp ax, 0xFFFF
+	jne os_load_file_read		; Are there more clusters? If so then read again.. if not fall through.
+	clc
+
+os_load_file_done:
+	pop rax
+	pop rdi
+	pop rsi
+ret
+
+	dest_string	times 13 db 0
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; int_filename_convert -- Change 'TEST.ER' into 'TEST    ER ' as per FAT16
+; IN:	RSI = filename string
+; OUT:	RDI = location of converted string (carry set if invalid)
+os_int_filename_convert:
+	push rsi
+	push rdi
+	push rdx
+	push rcx
+	push rax
+
+	call os_string_length
+	cmp rcx, 12			; Bigger than name + dot + extension?
+	jg failure			; Fail if so
+	cmp rcx, 0
+	je failure			; Similarly, fail if zero-char string
+
+	mov rdx, rcx			; Store string length for now
+	xor rcx, rcx
+copy_loop:
+	lodsb
+	cmp al, '.'
+	je extension_found
+	stosb
+	inc rcx
+	cmp rcx, rdx
+	jg failure			; No extension found = wrong
+	jmp copy_loop
+
+failure:
+	stc				; Set carry for failure
+	jmp done
+
+extension_found:
+	cmp rcx, 0
+	je failure			; Fail if extension dot is first char
+	cmp rcx, 8
+	je do_extension			; Skip spaces if first bit is 8 chars
+
+	mov al, ' '
+add_spaces:
+	stosb
+	inc rcx
+	cmp rcx, 8
+	jl add_spaces
+
+do_extension:
+	mov al, 'A'
+	stosb
+	mov al, 'P'
+	stosb
+	stosb
+	mov byte [rdi], 0		; Zero-terminate filename
+	clc				; Clear carry for success
+done:
+	pop rax
+	pop rcx
+	pop rdx
+	pop rdi
+	pop rsi
+ret
 ; -----------------------------------------------------------------------------
 
 

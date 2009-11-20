@@ -70,53 +70,52 @@ os_command_line:
 	call os_string_compare
 	jc near exit
 
-;	mov al, '.'
-;	call os_find_char_in_string	; User entered dot in filename?
-;	cmp rax, 0
-;	je notadot			; If not, see if it's 11 chars
-;	dec rax
-;	jmp padout			; Otherwise, make sure it's padded out
-;
-;notadot:
-;	call os_string_length
-;
-;	cmp rcx, 11
-;	je near full_name
-;	jg near fail
-;
-;padout:
-;	add rsi, rax			; Pad with spaces and 'BIN'
-;
-;bitmore:
-;	cmp rax, 8
-;	jge suffix
-;	mov byte [rsi], ' '
-;	inc rsi
-;	inc rax
-;	jmp bitmore
-;
-;suffix:
-;	mov byte [rsi], 'A'		; So sloppy!!
-;	inc rsi
-;	mov byte [rsi], 'P'
-;	inc rsi
-;	mov byte [rsi], 'P'
-;	inc rsi
-;	mov byte [rsi], 0		; Zero-terminate string
-;
+; At this point it is not one of the built-in CLI functions. Check the filesystem.
+
+; copy the first word in the string to a new string.
+	xor rcx, rcx
+	mov rsi, tempstring
+	mov rdi, app_tstring
+	push rdi
+nextbyte:
+	inc rcx
+	lodsb
+	cmp al, ' '	; End of the word
+	je endofcommand
+	cmp al, 0x00	; End of the string
+	je endofcommand
+	cmp rcx, 13	; More than 12 bytes
+	je endofcommand
+	stosb
+	jmp nextbyte
+endofcommand:
+	mov al, 0x00
+	stosb		; Terminate the string
+	pop rsi
+; At this point app_tstring holds at least "a" and at most "abcdefgh.ijk"
+
+	mov al, '.'
+	call os_find_char_in_string	; Check for a '.' in the string
+	cmp rax, 0
+	jne full_name			; If there was a '.' then a suffix is present
+
+add_suffix:
+	call os_string_length
+	cmp rcx, 8
+	jg fail				; If the string is longer than 8 chars we can't add a suffix
+	add rsi, rcx			; Move to end of input string
+
+	mov byte [rsi], '.'
+	mov byte [rsi+1], 'A'
+	mov byte [rsi+2], 'P'
+	mov byte [rsi+3], 'P'
+	mov byte [rsi+4], 0		; Zero-terminate string
 
 full_name:
-	mov rsi, tempstring
-
-	call findfile			; Fuction will return the starting cluster value in ebx or 0 if not found
-	cmp ax, 0x0000			; If ax is 0 then the file was not found
-	je fail				; bail out if the file was not found
-
+	mov rsi, app_tstring
 	mov rdi, programlocation	; We load the program to this location in memory (currently 0x00100000 : at the 2MB mark)
-readfile_getdata:
-	call readcluster		; store in memory
-	cmp ax, 0xFFFF
-	jne readfile_getdata		; Are there more clusters? If so then read again.. if not fall through.
+	call os_load_file		; Load the file
+	jc fail				; If carry is set then the file was not found
 	call programlocation		; 0x00100000 : at the 2MB mark
 	jmp os_command_line		; After the program is finished we go back to the start of the CLI
 
@@ -170,19 +169,24 @@ align 16
 poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
-	mov rdi, tempstring		; Get string from user
-	mov rsi, rdi
-	mov rcx, 20			; Limit the capture of characters to 20
-	call os_input_string
-	call os_print_newline
+;	mov rdi, tempstring		; Get string from user
+;	mov rsi, rdi
+;	mov rcx, 20			; Limit the capture of characters to 20
+;	call os_input_string
+;	call os_print_newline
 
-	call os_string_parse
-	call os_print_string
-	call os_print_newline
-
-	mov rax, rcx
-	call os_dump_rax
-	call os_print_newline
+;	call int_filename_convert
+;	mov rsi, rdi
+	
+;	call os_string_parse
+;	call os_print_string
+;	mov al, '!'
+;	call os_print_char
+;	call os_print_newline
+;
+;	mov rax, rcx
+;	call os_dump_rax
+;	call os_print_newline
 ;	mov al, 65
 ;	call os_print_char
 
@@ -254,6 +258,8 @@ exit:
 	reboot_string		db 'REBOOT', 0
 	debug_string		db 'DEBUG', 0
 	exit_string		db 'EXIT', 0
+
+	app_tstring		times 14 db 0
 
 ; =============================================================================
 ; EOF
