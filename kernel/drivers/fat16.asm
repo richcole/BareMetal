@@ -164,6 +164,9 @@ os_fat16_get_file_list_read:
 	mov al, [rsi + 8]		; Grab the attribute byte
 	bt ax, 5			; check if bit 3 is set (volume label)
 	jc os_fat16_get_file_list_skip	; if so skip the entry
+	mov al, [rsi + 11]		; Grab the attribute byte
+	cmp al, 0x0F			; Check if it is a LFN entry
+	je os_fat16_get_file_list_skip	; if so skip the entry
 
 	; copy the string
 	xor rcx, rcx
