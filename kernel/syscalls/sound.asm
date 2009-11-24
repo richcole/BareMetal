@@ -11,9 +11,10 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; os_speaker_tone -- Generate PC speaker tone (call os_speaker_off after)
+; os_speaker_tone -- Generate a tone on the PC speaker
 ; IN:	RAX = note frequency
-; OUT:	Nothing (registers preserved)
+; OUT:	All registers preserved
+; Note:	Call os_speaker_off to stop the tone
 os_speaker_tone:
 	push rax
 	push rcx
@@ -38,7 +39,7 @@ os_speaker_tone:
 ; -----------------------------------------------------------------------------
 ; os_speaker_off -- Turn off PC speaker
 ; IN:	Nothing
-; OUT:	Nothing (registers preserved)
+; OUT:	All registers preserved
 os_speaker_off:
 	push rax
 
@@ -54,7 +55,7 @@ os_speaker_off:
 ; -----------------------------------------------------------------------------
 ; os_speaker_beep -- Create a standard OS beep
 ; IN:	Nothing
-; OUT:	Nothing (registers preserved)
+; OUT:	All registers preserved
 os_speaker_beep:
 	push rax
 	push rcx

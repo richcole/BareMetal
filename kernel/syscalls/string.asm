@@ -14,13 +14,13 @@ align 16
 ; os_int_to_string -- Convert a binary interger into an string string
 ;  IN:	RAX = binary integer
 ;	RDI = location to store string
-; OUT:	RDI = pointer to end of string
-;	All other registers preserved
+; OUT:	All registers preserved
 ; Min return value is 0 and max return value is 18446744073709551615 so your
-; string needs to be able to store at least 21 characters (20 for the number
+; string needs to be able to store at least 21 characters (20 for the digits
 ; and 1 for the string terminator).
 ; Adapted from http://www.cs.usfca.edu/~cruse/cs210s09/rax2uint.s
 os_int_to_string:
+	push rdi
 	push rdx
 	push rcx
 	push rbx
@@ -33,21 +33,22 @@ os_int_to_string_next_divide:
 	div rbx						; divide by the number-base
 	push rdx					; save remainder on the stack
 	inc rcx						; and count this remainder
-	cmp rax, 0x0					; was the quotient zero?
+	cmp rax, 0					; was the quotient zero?
 	jne os_int_to_string_next_divide		; no, do another division
+
 os_int_to_string_next_digit:
-	pop rdx						; else pop recent remainder
-	add dl, '0'					; and convert to a numeral
-	mov [rdi], dl					; store to memory-buffer
-	inc rdi
+	pop rax						; else pop recent remainder
+	add al, '0'					; and convert to a numeral
+	stosb						; store to memory-buffer
 	loop os_int_to_string_next_digit		; again for other remainders
-	mov al, 0x00
+	xor al, al
 	stosb						; Store the null terminator at the end of the string
 
 	pop rax
 	pop rbx
 	pop rcx
 	pop rdx
+	pop rdi
 	ret
 ; -----------------------------------------------------------------------------
 
@@ -73,7 +74,7 @@ os_string_to_int_next_digit:
 	cmp cl, '9'			; char follows '9'?
 	ja os_string_to_int_invalid	; yes, not a numeral
 	mul rbx				; ten times prior sum
-	and rcx, 0xF			; convert char to int
+	and rcx, 0x0F			; convert char to int
 	add rax, rcx			; add to prior total
 	inc rsi				; advance source index
 	jmp os_string_to_int_next_digit	; and check another char
@@ -91,8 +92,7 @@ os_string_to_int_invalid:
 ; os_int_to_hex_string -- Convert an integer to a hex string
 ;  IN:	RAX = Integer value
 ;	RDI = location to store string
-; OUT:	Nothing. All registers preserved
-;	All other registers preserved
+; OUT:	All registers preserved
 os_int_to_hex_string:
 	push rdi
 	push rdx
@@ -166,7 +166,7 @@ os_hex_string_to_int_exit:
 ; -----------------------------------------------------------------------------
 ; os_string_length -- Return length of a string
 ;  IN:	RSI = string location
-; OUT:	RCX = length
+; OUT:	RCX = length (not including the NULL terminator)
 ;	All other registers preserved
 os_string_length:
 	push rdi
@@ -190,7 +190,7 @@ os_string_length:
 ; -----------------------------------------------------------------------------
 ; os_find_char_in_string -- Find first location of character in a string
 ;  IN:	RSI = string location
-;	AL = character to find
+;	AL  = character to find
 ; OUT:	RAX = location in string, or 0 if char not present
 ;	All other registers preserved
 os_find_char_in_string:
@@ -225,8 +225,8 @@ os_find_char_in_string_notfound:
 ; -----------------------------------------------------------------------------
 ; os_string_charchange -- Change all instances of a character in a string
 ;  IN:	RSI = string location
-;	AL = character to replace
-;	BL = replacement character
+;	AL  = character to replace
+;	BL  = replacement character
 ; OUT:	All registers preserved
 os_string_charchange:
 	push rsi
@@ -260,7 +260,7 @@ os_string_charchange_done:
 ; os_string_copy -- Copy the contents of one string into another
 ;  IN:	RSI = source
 ;	RDI = destination
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 ; Note:	It is up to the programmer to ensure that there is sufficient space in the destination
 os_string_copy:
 	push rsi
@@ -284,7 +284,7 @@ os_string_copy_more:
 ; os_string_truncate -- Chop string down to specified number of characters
 ;  IN:	RSI = string location
 ;	RAX = number of characters
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 os_string_truncate:
 	push rsi
 
@@ -301,8 +301,7 @@ os_string_truncate:
 ;  IN:	RAX = string one
 ;	RBX = string two
 ;	RDI = destination string
-; OUT:	Nothing. All registers preserved
-; What should it do with the null chars????
+; OUT:	All registers preserved
 os_string_join:
 	push rsi
 	push rdi
@@ -329,7 +328,7 @@ os_string_join:
 ; -----------------------------------------------------------------------------
 ; os_string_chomp -- Strip leading and trailing spaces from a string
 ;  IN:	RSI = string location
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 os_string_chomp:
 	push rsi
 	push rdi
@@ -387,8 +386,8 @@ os_string_chomp_done:
 ; -----------------------------------------------------------------------------
 ; os_string_strip -- Removes specified character from a string
 ;  IN:	RSI = string location
-;	AL = character to remove
-; OUT:	Nothing. All registers preserved
+;	AL  = character to remove
+; OUT:	All registers preserved
 os_string_strip:
 	push rsi
 	push rdi
@@ -432,7 +431,7 @@ os_string_compare:
 os_string_compare_more:
 	mov al, [rsi]			; Store string contents
 	mov bl, [rdi]
-	cmp al, 0		; End of first string?
+	cmp al, 0			; End of first string?
 	je os_string_compare_terminated
 	cmp al, bl
 	jne os_string_compare_not_same
@@ -449,7 +448,7 @@ os_string_compare_not_same:
 	ret
 
 os_string_compare_terminated:
-	cmp bl, 0		; End of second string?
+	cmp bl, 0			; End of second string?
 	jne os_string_compare_not_same
 
 	pop rax
@@ -464,7 +463,7 @@ os_string_compare_terminated:
 ; -----------------------------------------------------------------------------
 ; os_string_uppercase -- Convert zero-terminated string to uppercase
 ;  IN:	RSI = string location
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 os_string_uppercase:
 	push rsi
 
@@ -492,7 +491,7 @@ os_string_uppercase_done:
 ; -----------------------------------------------------------------------------
 ; os_string_lowercase -- Convert zero-terminated string to lowercase
 ;  IN:	RSI = string location
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 os_string_lowercase:
 	push rsi
 
@@ -520,7 +519,7 @@ os_string_lowercase_done:
 ; -----------------------------------------------------------------------------
 ; os_get_time_string -- Store the current time in a string in format "HH:MM:SS"
 ;  IN:	RDI = location to store string (must be able to fit 9 bytes, 8 data plus null terminator)
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 os_get_time_string:
 	push rdi
 	push rbx
@@ -567,7 +566,7 @@ os_get_time_string_processor:
 ; -----------------------------------------------------------------------------
 ; os_get_date_string -- Store the current time in a string in format "YYYY/MM/DD"
 ;  IN:	RDI = location to store string (must be able to fit 11 bytes, 10 data plus null terminator)
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 ; Note:	Uses the os_get_time_string_processor function
 os_get_date_string:
 	push rdi
@@ -607,7 +606,7 @@ os_get_date_string:
 
 ; -----------------------------------------------------------------------------
 ; os_is_digit -- 
-;  IN:	AL = ASCII char
+;  IN:	AL  = ASCII char
 ; OUT:	EQ flag set if numeric
 ; Note:	JE (Jump if Equal) can be used after this function is called
 os_is_digit:
@@ -624,7 +623,7 @@ os_is_digit_not_digit:
 
 ; -----------------------------------------------------------------------------
 ; os_is_alpha -- 
-;  IN:	AL = ASCII char
+;  IN:	AL  = ASCII char
 ; OUT:	EQ flag set if alpha
 ; Note:	JE (Jump if Equal) can be used after this function is called
 os_is_alpha:

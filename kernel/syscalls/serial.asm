@@ -12,8 +12,8 @@ align 16
 
 ; -----------------------------------------------------------------------------
 ; os_serial_write -- Send a byte over the primary serial port
-; IN:	AL = Byte to send over serial port
-; OUT:	Nothing, all registers preserved
+; IN:	AL  = Byte to send over serial port
+; OUT:	All registers preserved
 os_serial_send:
 	push rdx
 
@@ -35,7 +35,7 @@ os_serial_send_wait:
 ; -----------------------------------------------------------------------------
 ; os_serial_recv -- Receive a byte from the primary serial port
 ; IN:	Nothing 
-; OUT:	AL = Byte recevied
+; OUT:	AL  = Byte recevied
 ;	Carry flag is set if a byte was received, otherwise AL is trashed
 ;	All other registers preserved
 os_serial_recv:

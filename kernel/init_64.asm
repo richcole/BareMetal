@@ -13,56 +13,32 @@ align 16
 init_64:
 	xor rdi, rdi 			; create the 64-bit IDT (at linear address 0x0000000000000000) as defined by Pure64
 
-	; Create exception gate stubs
+	; Create exception gate stubs (Pure64 has already set the correct gate markers)
 	mov rcx, 32
-make_exception_gates:
+make_exception_gate_stubs:
 	mov rax, exception_gate
-	push rax			; save the exception gate to the stack for later use
-	stosw				; store the low word (15..0) of the address
-	mov ax, SYS64_CODE_SEL
-	stosw				; store the segment selector
-	mov ax, 0x8E00
-	stosw				; store exception gate marker
-	pop rax				; get the exception gate back
-	shr rax, 16
-	stosw				; store the high word (31..16) of the address
-	shr rax, 16
-	stosd				; store the high dword (63..32) of the address.
-	xor rax, rax
-	stosd				; reserved
+	call create_gate
 	dec rcx
-	jnz make_exception_gates
+	jnz make_exception_gate_stubs
 
-	; Create interrupt gate stubs
+	; Create interrupt gate stubs (Pure64 has already set the correct gate markers)
 	mov rcx, 256-32
-make_interrupt_gates:
+make_interrupt_gate_stubs:
 	mov rax, interrupt_gate
-	push rax			; save the interrupt gate to the stack for later use
-	stosw				; store the low word (15..0) of the address
-	mov ax, SYS64_CODE_SEL
-	stosw				; store the segment selector
-	mov ax, 0x8F00
-	stosw				; store interrupt gate marker
-	pop rax				; get the interrupt gate back
-	shr rax, 16
-	stosw				; store the high word (31..16) of the address
-	shr rax, 16
-	stosd				; store the high dword (63..32) of the address.
-	xor rax, rax
-	stosd				; reserved
+	call create_gate
 	dec rcx
-	jnz make_interrupt_gates
+	jnz make_interrupt_gate_stubs
 
 	; Set up the exception gates for all of the CPU exceptions
 	mov rcx, 20
 	xor rdi, rdi
 	mov rax, exception_gate_00
-make_real_exception_gates:
+make_exception_gates:
 	call create_gate
 	inc rdi
 	add rax, 16			; The exception gates are aligned at 16 bytes
 	dec rcx
-	jnz make_real_exception_gates
+	jnz make_exception_gates
 	
 	; Set up the IRQ handlers
 	mov rdi, 0x20

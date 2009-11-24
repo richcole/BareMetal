@@ -12,9 +12,9 @@ align 16
 
 ; -----------------------------------------------------------------------------
 ; os_move_cursor -- Moves cursor in text mode
-;  IN:	AH = row
-;	AL = column
-; OUT:	Nothing. All registers preserved
+;  IN:	AH  = row
+;	AL  = column
+; OUT:	All registers preserved
 os_move_cursor:
 	push rdx
 	push rcx
@@ -61,7 +61,7 @@ os_move_cursor:
 ; -----------------------------------------------------------------------------
 ; os_inc_cursor -- Increment the hardware cursor by one
 ;  IN:	Nothing
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 os_inc_cursor:
 	push rax
 
@@ -90,7 +90,7 @@ os_inc_cursor_done:
 ; -----------------------------------------------------------------------------
 ; os_dec_cursor -- Decrement the hardware cursor by one
 ;  IN:	Nothing
-; OUT:	Nothing. All registers preserved
+; OUT:	All registers preserved
 os_dec_cursor:
 	push rax
 
@@ -113,7 +113,7 @@ os_dec_cursor_done:
 ; -----------------------------------------------------------------------------
 ; os_print_newline -- Reset cursor to start of next line and scroll if needed
 ;  IN:	Nothing
-; OUT:	Nothing, all registers perserved
+; OUT:	All registers perserved
 os_print_newline:
 	push rax
 
@@ -138,7 +138,7 @@ os_print_newline_done:
 ; -----------------------------------------------------------------------------
 ; os_print_string -- Displays text
 ;  IN:	RSI = message location (zero-terminated string)
-; OUT:	Nothing, all registers perserved
+; OUT:	All registers perserved
 os_print_string:
 	push rsi
 	push rax
@@ -171,8 +171,8 @@ os_print_string_done:
 ; -----------------------------------------------------------------------------
 ; os_print_string_with_color -- Displays text with color
 ;  IN:	RSI = message location (zero-terminated string)
-;	BL = color
-; OUT:	Nothing, all registers perserved
+;	BL  = color
+; OUT:	All registers perserved
 os_print_string_with_color:
 	push rsi
 	push rax
@@ -204,8 +204,8 @@ os_print_string_with_color_done:
 
 ; -----------------------------------------------------------------------------
 ; os_print_char -- Displays a char
-;  IN:	AL = char to display
-; OUT:	Nothing. All registers preserved
+;  IN:	AL  = char to display
+; OUT:	All registers perserved
 os_print_char:
 	push rdi
 
@@ -224,9 +224,9 @@ os_print_char:
 
 ; -----------------------------------------------------------------------------
 ; os_print_char_with_color -- Displays a char with color
-;  IN:	AL = char to display
-;	BL = color
-; OUT:	Nothing. All registers preserved
+;  IN:	AL  = char to display
+;	BL  = color
+; OUT:	All registers perserved
 os_print_char_with_color:
 	push rdi
 
@@ -244,8 +244,8 @@ os_print_char_with_color:
 
 ; -----------------------------------------------------------------------------
 ; os_print_char_hex -- Displays a char in hex mode
-;  IN:	AL = char to display
-; OUT:	Nothing. All registers preserved
+;  IN:	AL  = char to display
+; OUT:	All registers perserved
 os_print_char_hex:
 	push rbx
 	push rax
@@ -271,7 +271,7 @@ os_print_char_hex:
 ; -----------------------------------------------------------------------------
 ; os_scroll_screen -- Scrolls the screen up by one line
 ;  IN:	Nothing
-; OUT:	Nothing, all registers perserved
+; OUT:	All registers perserved
 os_scroll_screen:
 	push rsi
 	push rdi
@@ -300,7 +300,7 @@ os_scroll_screen:
 ; -----------------------------------------------------------------------------
 ; os_hide_cursor -- Turns off cursor in text mode
 ;  IN:	Nothing
-; OUT:	Nothing, all registers perserved
+; OUT:	All registers perserved
 os_hide_cursor:
 	push rdx
 	push rbx
@@ -331,7 +331,7 @@ os_hide_cursor:
 ; -----------------------------------------------------------------------------
 ; os_show_cursor -- Turns on cursor in text mode
 ;  IN:	Nothing
-; OUT:	Nothing, all registers perserved
+; OUT:	All registers perserved
 os_show_cursor:
 	push rdx
 	push rbx

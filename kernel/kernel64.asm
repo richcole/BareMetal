@@ -9,13 +9,13 @@
 USE64
 ORG 0x0000000000100000
 
-%DEFINE BAREMETALOS_VER 'v0.4.5 (November 12, 2009)'
+%DEFINE BAREMETALOS_VER 'v0.4.6-dev (November 24, 2009)'
 %DEFINE BAREMETALOS_API_VER 1
 
 kernel_start:
 	jmp start		; Skip over the function call index
 
-	; Aligned for simplicity... It does waste a bit of space.
+	; Aligned for simplicity.
 	align 16
 
 	jmp os_print_string	; 0x00010010
