@@ -39,7 +39,7 @@ make_exception_gates:
 	add rax, 16			; The exception gates are aligned at 16 bytes
 	dec rcx
 	jnz make_exception_gates
-	
+
 	; Set up the IRQ handlers
 	mov rdi, 0x20
 	mov rax, timer
