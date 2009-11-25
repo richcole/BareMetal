@@ -14,13 +14,13 @@ align 16
 ; os_int_to_string -- Convert a binary interger into an string string
 ;  IN:	RAX = binary integer
 ;	RDI = location to store string
-; OUT:	All registers preserved
+; OUT:	RDI = points to end of string
+;	All other registers preserved
 ; Min return value is 0 and max return value is 18446744073709551615 so your
 ; string needs to be able to store at least 21 characters (20 for the digits
 ; and 1 for the string terminator).
 ; Adapted from http://www.cs.usfca.edu/~cruse/cs210s09/rax2uint.s
 os_int_to_string:
-	push rdi
 	push rdx
 	push rcx
 	push rbx
@@ -48,7 +48,6 @@ os_int_to_string_next_digit:
 	pop rbx
 	pop rcx
 	pop rdx
-	pop rdi
 	ret
 ; -----------------------------------------------------------------------------
 
