@@ -89,6 +89,8 @@ kernel_start:
 	jmp os_serial_send
 	align 8
 	jmp os_serial_recv
+	align 8
+	jmp os_string_parse
 	align 16
 
 start:

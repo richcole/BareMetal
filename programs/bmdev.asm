@@ -42,7 +42,7 @@ os_smp_wait_for_aps	equ	0x0000000000100110	;
 os_smp_set_free		equ	0x0000000000100118	;
 os_serial_send		equ	0x0000000000100120	;
 os_serial_recv		equ	0x0000000000100128	;
-
+os_string_parse		equ	0x0000000000100130	;
 
 ; =============================================================================
 ; EOF
