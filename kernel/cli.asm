@@ -15,20 +15,37 @@ os_command_line:
 	mov bl, 0x0C			; Black background, Light Red text
 	call os_print_string_with_color
 
-	mov rdi, tempstring		; Get string from user
-	mov rcx, 250			; Limit the capture of characters to 250
+	mov rdi, tempstring
+	mov rcx, 250			; Limit the input to 250 characters
 	call os_input_string
+	call os_print_newline		; The user hit enter so print a new line
+	jrcxz os_command_line		; os_input_string stores the number of charaters received in RCX
 
-	push rdi
-	mov rsi, newline		; The user hit enter so print a new line
-	call os_print_string
-	pop rsi
-
-	cmp rcx, 0			; If just enter pressed, prompt again
-	je os_command_line		; os_input_string stores the number of charaters received in RCX
-
+	mov rsi, rdi
 	call os_string_parse		; Remove extra spaces
 	call os_string_uppercase	; Convert to uppercase for comparison
+
+; copy the first word in the string to a new string.
+	xor rcx, rcx
+	mov rsi, tempstring
+	mov rdi, command_string
+	push rdi
+nextbyte:
+	inc rcx
+	lodsb
+	cmp al, ' '	; End of the word
+	je endofcommand
+	cmp al, 0x00	; End of the string
+	je endofcommand
+	cmp rcx, 13	; More than 12 bytes
+	je endofcommand
+	stosb
+	jmp nextbyte
+endofcommand:
+	mov al, 0x00
+	stosb		; Terminate the string
+	pop rsi
+; At this point command_string holds at least "a" and at most "abcdefgh.ijk"
 
 	mov rdi, help_string		; 'HELP' entered?
 	call os_string_compare
@@ -72,28 +89,6 @@ os_command_line:
 
 ; At this point it is not one of the built-in CLI functions. Check the filesystem.
 
-; copy the first word in the string to a new string.
-	xor rcx, rcx
-	mov rsi, tempstring
-	mov rdi, app_tstring
-	push rdi
-nextbyte:
-	inc rcx
-	lodsb
-	cmp al, ' '	; End of the word
-	je endofcommand
-	cmp al, 0x00	; End of the string
-	je endofcommand
-	cmp rcx, 13	; More than 12 bytes
-	je endofcommand
-	stosb
-	jmp nextbyte
-endofcommand:
-	mov al, 0x00
-	stosb		; Terminate the string
-	pop rsi
-; At this point app_tstring holds at least "a" and at most "abcdefgh.ijk"
-
 	mov al, '.'
 	call os_find_char_in_string	; Check for a '.' in the string
 	cmp rax, 0
@@ -112,7 +107,7 @@ add_suffix:
 	mov byte [rsi+4], 0		; Zero-terminate string
 
 full_name:
-	mov rsi, app_tstring
+	mov rsi, command_string
 	mov rdi, programlocation	; We load the program to this location in memory (currently 0x00100000 : at the 2MB mark)
 	call os_file_load		; Load the file
 	jc fail				; If carry is set then the file was not found
@@ -145,22 +140,23 @@ print_ver:
 
 dir:
 	mov rdi, tempstring
+	mov rsi, rdi
 	call os_fat16_get_file_list
 	call os_print_string
 	jmp os_command_line
 
 date:
 	mov rdi, tempstring
-	call os_get_date_string
 	mov rsi, rdi
+	call os_get_date_string
 	call os_print_string
 	call os_print_newline
 	jmp os_command_line
 
 time:
 	mov rdi, tempstring
-	call os_get_time_string
 	mov rsi, rdi
+	call os_get_time_string
 	call os_print_string
 	call os_print_newline
 	jmp os_command_line
@@ -255,18 +251,18 @@ exit:
 	not_found_msg		db 'Command or program not found', 13, 0
 	version_msg		db 'BareMetal ', BAREMETALOS_VER, 13, 0
 
-	help_string		db 'HELP', 0
 	cls_string		db 'CLS', 0
-	ver_string		db 'VER', 0
 	dir_string		db 'DIR', 0
+	ver_string		db 'VER', 0
 	date_string		db 'DATE', 0
-	time_string		db 'TIME', 0
-	testzone_string		db 'TESTZONE', 0
-	reboot_string		db 'REBOOT', 0
-	debug_string		db 'DEBUG', 0
 	exit_string		db 'EXIT', 0
+	help_string		db 'HELP', 0
+	time_string		db 'TIME', 0
+	debug_string		db 'DEBUG', 0
+	reboot_string		db 'REBOOT', 0
+	testzone_string		db 'TESTZONE', 0
 
-	app_tstring		times 14 db 0
+	command_string		times 14 db 0
 
 ; =============================================================================
 ; EOF
