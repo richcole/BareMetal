@@ -28,7 +28,7 @@ os_command_line:
 ; copy the first word in the string to a new string.
 	xor rcx, rcx
 	mov rsi, tempstring
-	mov rdi, command_string
+	mov rdi, cli_command_string
 	push rdi
 nextbyte:
 	inc rcx
@@ -45,55 +45,58 @@ endofcommand:
 	mov al, 0x00
 	stosb		; Terminate the string
 	pop rsi
-; At this point command_string holds at least "a" and at most "abcdefgh.ijk"
-
-	mov rdi, help_string		; 'HELP' entered?
-	call os_string_compare
-	jc near print_help
+; At this point cli_command_string holds at least "a" and at most "abcdefgh.ijk"
 
 	mov rdi, cls_string		; 'CLS' entered?
 	call os_string_compare
 	jc near clear_screen
 
-	mov rdi, ver_string		; 'VER' entered?
-	call os_string_compare
-	jc near print_ver
-
 	mov rdi, dir_string		; 'DIR' entered?
 	call os_string_compare
 	jc near dir
+
+	mov rdi, ver_string		; 'VER' entered?
+	call os_string_compare
+	jc near print_ver
 
 	mov rdi, date_string		; 'DATE' entered?
 	call os_string_compare
 	jc near date
 
+	mov rdi, exit_string		; 'EXIT' entered?
+	call os_string_compare
+	jc near exit
+
+	mov rdi, help_string		; 'HELP' entered?
+	call os_string_compare
+	jc near print_help
+
 	mov rdi, time_string		; 'TIME' entered?
 	call os_string_compare
 	jc near time
-
-	mov rdi, testzone_string	; 'TESTZONE' entered?
-	call os_string_compare
-	jc near testzone
-
-	mov rdi, reboot_string		; 'REBOOT' entered?
-	call os_string_compare
-	jc near reboot
 
 	mov rdi, debug_string		; 'DEBUG' entered?
 	call os_string_compare
 	jc near debug
 
-	mov rdi, exit_string		; 'EXIT' entered?
+	mov rdi, reboot_string		; 'REBOOT' entered?
 	call os_string_compare
-	jc near exit
+	jc near reboot
 
-; At this point it is not one of the built-in CLI functions. Check the filesystem.
+	mov rdi, testzone_string	; 'TESTZONE' entered?
+	call os_string_compare
+	jc near testzone
 
+
+
+
+; At this point it is not one of the built-in CLI functions. Prepare to check the filesystem.
 	mov al, '.'
 	call os_find_char_in_string	; Check for a '.' in the string
 	cmp rax, 0
 	jne full_name			; If there was a '.' then a suffix is present
 
+; No suffix was present so we add the default application suffix of ".APP"
 add_suffix:
 	call os_string_length
 	cmp rcx, 8
@@ -106,8 +109,9 @@ add_suffix:
 	mov byte [rsi+3], 'P'
 	mov byte [rsi+4], 0		; Zero-terminate string
 
+; cli_command_string now contains a full filename
 full_name:
-	mov rsi, command_string
+	mov rsi, cli_command_string
 	mov rdi, programlocation	; We load the program to this location in memory (currently 0x00100000 : at the 2MB mark)
 	call os_file_load		; Load the file
 	jc fail				; If carry is set then the file was not found
@@ -262,7 +266,6 @@ exit:
 	reboot_string		db 'REBOOT', 0
 	testzone_string		db 'TESTZONE', 0
 
-	command_string		times 14 db 0
 
 ; =============================================================================
 ; EOF
