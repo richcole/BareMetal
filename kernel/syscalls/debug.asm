@@ -100,7 +100,7 @@ os_dump_rax:
 	push rsi
 	push rdi
 
-	mov rdi, tempstring
+	mov rdi, os_temp_string
 	mov rsi, rdi
 	call os_int_to_hex_string
 	call os_print_string

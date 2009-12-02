@@ -293,7 +293,7 @@ exception_gate_main:
 	mov rsi, int_string00
 	call os_print_string_with_color
 	call os_smp_get_id		; Get the local CPU ID and print it
-	mov rdi, tempstring
+	mov rdi, os_temp_string
 	mov rsi, rdi
 	call os_int_to_string
 	call os_print_string_with_color

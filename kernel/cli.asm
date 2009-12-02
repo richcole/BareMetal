@@ -15,7 +15,7 @@ os_command_line:
 	mov bl, 0x0C			; Black background, Light Red text
 	call os_print_string_with_color
 
-	mov rdi, tempstring
+	mov rdi, cli_temp_string
 	mov rcx, 250			; Limit the input to 250 characters
 	call os_input_string
 	call os_print_newline		; The user hit enter so print a new line
@@ -23,11 +23,13 @@ os_command_line:
 
 	mov rsi, rdi
 	call os_string_parse		; Remove extra spaces
+	jrcxz os_command_line		; os_string_parse stores the number of words in RCX
+	mov byte [cli_args], cl		; Store the number of words in the string
 	call os_string_uppercase	; Convert to uppercase for comparison
 
-; copy the first word in the string to a new string.
+; Copy the first word in the string to a new string. This is the command/application to run
 	xor rcx, rcx
-	mov rsi, tempstring
+	mov rsi, cli_temp_string
 	mov rdi, cli_command_string
 	push rdi
 nextbyte:
@@ -87,9 +89,6 @@ endofcommand:
 	call os_string_compare
 	jc near testzone
 
-
-
-
 ; At this point it is not one of the built-in CLI functions. Prepare to check the filesystem.
 	mov al, '.'
 	call os_find_char_in_string	; Check for a '.' in the string
@@ -143,14 +142,14 @@ print_ver:
 	jmp os_command_line
 
 dir:
-	mov rdi, tempstring
+	mov rdi, cli_temp_string
 	mov rsi, rdi
 	call os_fat16_get_file_list
 	call os_print_string
 	jmp os_command_line
 
 date:
-	mov rdi, tempstring
+	mov rdi, cli_temp_string
 	mov rsi, rdi
 	call os_get_date_string
 	call os_print_string
@@ -158,7 +157,7 @@ date:
 	jmp os_command_line
 
 time:
-	mov rdi, tempstring
+	mov rdi, cli_temp_string
 	mov rsi, rdi
 	call os_get_time_string
 	call os_print_string
@@ -169,14 +168,26 @@ align 16
 poomsg db 'OMG TESTZONE', 0
 align 16
 testzone:
-	mov rdi, tempstring
-	mov rsi, rdi
-	mov rax, 0xFFFFFFFFFFFFFFFF
-	call os_int_to_string
-	call os_print_string
-	call os_print_newline
+;	mov rdi, cli_temp_string
+;	mov rcx, 50
+;	call os_input_string
+;	mov rax, rcx
+;	call os_dump_rax
+;	call os_print_newline
+;	mov rsi, rdi
+;	call os_string_parse
+;	mov rax, rcx
+;	call os_dump_rax
+;	call os_print_newline
+	
+;	mov rdi, cli_temp_string
+;	mov rsi, rdi
+;	mov rax, 0xFFFFFFFFFFFFFFFF
+;	call os_int_to_string
+;	call os_print_string
+;	call os_print_newline
 
-;	mov rdi, tempstring		; Get string from user
+;	mov rdi, cli_temp_string		; Get string from user
 ;	mov rsi, rdi
 ;	mov rcx, 20			; Limit the capture of characters to 20
 ;	call os_input_string
@@ -196,8 +207,6 @@ testzone:
 ;	call os_print_newline
 ;	mov al, 65
 ;	call os_print_char
-
-
 
 ;	mov al, 65
 ;	call os_serial_send
@@ -220,7 +229,7 @@ testzone:
 ;	call os_speaker_beep
 ;	call os_print_newline
 
-	ud2
+;	ud2
 ;	xor rax, rax
 ;	xor rbx, rbx
 ;	xor rcx, rcx
