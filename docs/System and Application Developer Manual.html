@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-<title>BareMetal OS Application Developer Manual</title>
+<title>BareMetal OS - System and Application Developer Manual</title>
 
 <style type="text/css">
 
@@ -74,11 +74,11 @@ li {
 
 <td valign="top">
 
-<h1>BareMetal OS Application Developer Manual</h1>
+<h1>BareMetal OS - System and Application Developer Manual</h1>
 
-<h3>Version 4.0, 20 November 2009 - (C) Return Infinity</h3>
+<h3>Version 0.5.0, 7 December 2009 - © Return Infinity</h3>
 
-<p>This documentation file explains how write software for BareMetal OS in assembly language. It shows you the tools you need, how BareMetal OS programs work, and how to use the system calls included in the kernel. If you have any questions, see <a href="http://mikeos.berlios.de">the BareMetal OS website</a> for contact details and mailing list information.</p>
+<p>This documentation file explains how write software for BareMetal OS in assembly language. It shows you the tools you need, how BareMetal OS programs work, and how to use the system calls included in the kernel. If you have any questions, see <a href="http://www.returninfinity.com/baremetal.html">the BareMetal OS website</a> for contact details and mailing list information.</p>
 
 <br />
 
@@ -88,11 +88,11 @@ li {
 
 <h2>Overview</h2>
 
-<h3>Introduction to 64-bit Assembly</h3>
+<h3>Introduction to 64-bit (x86-64) Assembly</h3>
 
-<p>Most modern operating systems are written in C/C++. That's very useful when portability and code-maintainability are crucial, but it adds an extra layer of complexity to the proceedings. BareMetal OS is written in assembly to remove those extra layers and get right down to the hardware level. It's more verbose and non-portable, but you don't have to worry about compilers and linkers.</p>
+<p>Most modern operating systems are written in high level programming languages such as C, and C++. High level programming is very useful when portability and code-maintainability are crucial, but it adds an extra layer of complexity to the proceedings. BareMetal OS is written in assembly to remove those extra layers and get right down to the hardware level. It's more verbose and non-portable, but you don't have to worry about compilers and linkers.</p>
 
-<p>Assembly language (or colloquially "asm") is a textual way of representing the instructions that a CPU executes. For instance, an instruction to move some memory in the CPU may be <strong>11001001 01101110</strong> - but that's hardly memorable! So assembly provides mnemonics to substitute for these instructions, such as <strong>mov ax, 30</strong>. They correlate directly with machine-code CPU instructions, but without the meaningless binary numbers.</p>
+<p>Assembly language (or colloquially "asm") is a textual way of representing the instructions that a CPU executes. For instance, an instruction to move some memory in the CPU may be <strong>11001001 01101110</strong> - but that's hardly memorable. Assembly provides mnemonics to substitute for these instructions, such as <strong>mov rax, 55</strong>. They correlate directly with machine-code CPU instructions, but without the meaningless binary numbers.</p>
 
 <p>Like most programming languages, assembly is a list of instructions followed in order. You can jump around between various places and set up subroutines/functions, but it's much more minimal than C/C++ and friends. You can't just print "Hello world" to the screen - the CPU has no concept of what a screen is! Instead, you work with memory, manipulating chunks of RAM, performing arithmetic on them and putting the results in the right place. Sounds scary? It's a bit alien at first, but it's not hard to grasp.</p>
 
@@ -102,29 +102,30 @@ li {
 <tbody>
 
 <tr>
-<td style="width: 100px;">RAX, RBX, RCX, RDX</td>
+<td>RAX, RBX, RCX, RDX</td>
 <td>General-purpose registers for storing numbers that you're using. For instance, you may use RAX to store the character
 that has been pressed on the keyboard, while using RCX to act as a counter in a loop. These 64-bit registers can
 be split into 32-bit, 16-bit, and 8-bit registers as well (See below).</td>
 </tr>
 
 <tr>
-<td style="width: 100px;">RSI, RDI</td>
+<td>RSI, RDI</td>
 <td>Source and destination data index registers. These point to places in memory for retrieving and storing data.</td>
 </tr>
 
 <tr>
-<td style="width: 100px;">RSP</td>
+<td>RSP</td>
 <td>The Stack Pointer (explained in a moment).</td>
 </tr>
 
 <tr>
-<td style="width: 100px;">RIP</td>
+<td>RIP</td>
 <td>The Instruction/Code Pointer. This contains the location in memory of the instruction being executed. When an instruction has finished, it is incremented and moves on to the next instruction. You can change the contents of this register to move around in your code.</td>
 </tr>
 
 <tr>
-<td>Notes </td>
+<td>Notes</td>
+<td>RAX is the 64-bit register but can also go by other names depending on "how much" of the register you want to use. EAX will use 32-bits, AX will use 16-bits, and AL will use 8-bits. The same goes for other registers. More information can be found <a href="http://sandpile.org/aa64/reg.htm">here</a>.</td>
 </tr>
 
 </tbody>
@@ -187,59 +188,36 @@ you will <strong>pop</strong> them out as 15 first, then 7, and lastly 5. In ass
 <td>14</td>
 </tr></tbody></table>
 
-<p>As you can see, whereas our normal decimal system uses 0 - 9, hexadecimal uses 0 - F in counting. It's a bit weird
-at first, but you'll get the hang of it. In assembly programming, we identify hexadecimal (hex) numbers by tagging
-a <strong>'h'</strong> onto the end - so <strong>0Ah</strong> is hex for the number <strong>10</strong>. (You
-can also denote hexadecimal in assembly by prefixing the number with 0x - for instance, 0x0A.)</p>
+<p>As you can see, whereas our normal decimal system uses 0 - 9, hexadecimal uses 0 - F in counting. It's a bit weird at first, but you'll get the hang of it. In assembly programming, we identify hexadecimal (hex) numbers by tagging a <strong>'h'</strong> onto the end - so <strong>0Ah</strong> is hex for the number <strong>10</strong>. (You can also denote hexadecimal in assembly by prefixing the number with 0x - for instance, 0x0A.)</p>
 
-<p>Let's finish off with a few common assembly instructions. These move memory around, compare them and perform
-calculations. They're the building blocks of your OS - there are hundreds of instructions, but you don't have to memorise
-them all, because the most important handful are used 90% of the time.</p>
+<p>Let's finish off with a few common assembly instructions. These move memory around, compare them and perform calculations. They're the building blocks of your software - there are hundreds of instructions, but you don't have to memorise them all, because the most important handful are used 90% of the time.</p>
 
 <table border="1" cellpadding="5">
 
 <tbody><tr>
 <td style="width: 100px;">mov</td>
-<td>Copies memory from one location or register to another. For instance, <strong>mov ax, 30</strong> places the number
-30 into the AX register. Using square brackets, you can get the number at the memory location pointed to by the register.
-For instance, if BX contains 80, then <strong>mov ax, [bx]</strong> means "get the number in memory location 80, and put
-it into AX". You can move numbers between registers too: <strong>mov bx, cx</strong>.</td>
+<td>Copies memory from one location or register to another. For instance, <strong>mov ax, 30</strong> places the number 30 into the AX register. Using square brackets, you can get the number at the memory location pointed to by the register. For instance, if BX contains 80, then <strong>mov ax, [bx]</strong> means "get the number in memory location 80, and put it into AX". You can move numbers between registers too: <strong>mov bx, cx</strong>.</td>
 </tr>
 
 <tr>
 <td style="width: 100px;">add / sub</td>
-<td>Adds a number to a register. <strong>add ax, FFh</strong> adds FF in hexadecimal (255 in our normal decimal) to
-the AX register. You can use <strong>sub</strong> in the same way: <strong>sub dx, 50</strong>.</td>
+<td>Adds a number to a register. <strong>add ax, FFh</strong> adds FF in hexadecimal (255 in our normal decimal) to the AX register. You can use <strong>sub</strong> in the same way: <strong>sub dx, 50</strong>.</td>
 </tr>
 
 <tr>
 
 <td style="width: 100px;">cmp</td>
-<td>Compares a register with a number. <strong>cmp cx, 12</strong> compares the CX register with the number 12. It
-then updates a special register on the CPU called <strong>FLAGS</strong> - a special register that contains information
-about the last operation. In this case, if the number 12 is bigger than the value in CX, it generates a negative
-result, and notes that negative in the FLAGS register. We can use this in the following instructions...</td>
+<td>Compares a register with a number. <strong>cmp cx, 12</strong> compares the CX register with the number 12. It then updates a special register on the CPU called <strong>FLAGS</strong> - a special register that contains information about the last operation. In this case, if the number 12 is bigger than the value in CX, it generates a negative result, and notes that negative in the FLAGS register. We can use this in the following instructions...</td>
 </tr>
 
 <tr>
 <td style="width: 100px;">jmp / jg / jl...</td>
-<td>Jump to a different part of the code. <strong>jmp label</strong> jumps (GOTOs) to the part of our source code
-where we have <strong>label:</strong> written. But there's more - you can jump conditionally, based on the CPU
-flags set in the previous command. For instance, if a <strong>cmp</strong> instruction determined that a register
-held a smaller value than the one with which it was compared, you can act on that with <strong>jl label</strong> (jump
-if less-than to label). Similarly, <strong>jge label</strong> jumps to 'label' in the code if the value in the <strong>
-
-cmp</strong> was greater-than or equal to its compared number.</td>
+<td>Jump to a different part of the code. <strong>jmp label</strong> jumps (GOTOs) to the part of our source code where we have <strong>label:</strong> written. But there's more - you can jump conditionally, based on the CPU flags set in the previous command. For instance, if a <strong>cmp</strong> instruction determined that a register held a smaller value than the one with which it was compared, you can act on that with <strong>jl label</strong> (jump if less-than to label). Similarly, <strong>jge label</strong> jumps to 'label' in the code if the value in the <strong>cmp</strong> was greater-than or equal to its compared number.</td>
 </tr>
 
 <tr>
-<td style="width: 100px;">int</td>
-<td>Interrupt the program and jump to a specified place in memory. Operating systems set up <strong>interrupts</strong>
-which are analogous to subroutines in high-level languages. For instance, in MS-DOS, the 21h interrupt provides DOS
-services (eg as opening a file). Typically, you put a value in the AX register, then call an interrupt and wait for
-a result (passed back in a register too). When you're writing an OS from scratch, you can call the BIOS with <strong>int 10h,
-int 13h, int 14h</strong> or <strong>int 16h</strong> to perform tasks like printing strings, reading sectors
-from a floppy disk etc.</td>
+<td style="width: 100px;">call</td>
+<td>Run a function. Operating systems set up <strong>system calls</strong> or <strong>interrupts</strong> which are analogous to subroutines in high-level languages.</td>
 
 </tr>
 
@@ -261,40 +239,25 @@ label:
 </pre>
 
 
-<p>In the first instruction, we move the number 1000h into the BX register. Then, in the second instruction, we store
-in AX whatever's in the memory location pointed to by BX. This is what the <strong>[bx]</strong> means: if we just did
+<p>In the first instruction, we move the number 1000h into the BX register. Then, in the second instruction, we store in AX whatever's in the memory location pointed to by BX. This is what the <strong>[bx]</strong> means: if we just did <strong>mov ax, bx</strong> it'd simply copy the number 1000h into the AX register. But by using square brackets, we're saying: don't just copy the contents of BX into AX, but copy the contents of the memory address to which BX points. Given that BX contains 1000h, this instruction says: find whatever is at memory location 1000h, and put it into AX.</p>
 
-<strong>mov ax, bx</strong> it'd simply copy the number 1000h into the AX register. But by using square brackets, we're
-saying: don't just copy the contents of BX into AX, but copy the contents of the memory address to which BX points. Given
-that BX contains 1000h, this instruction says: find whatever is at memory location 1000h, and put it into AX.</p>
+<p>So, if the byte of memory at location 1000h contains 37, then that number 37 will be put into the AX register via our second instruction. Next up, we use <strong>cmp</strong> to compare the number in AX with the number 50 (the decimal number 50 - we didn't suffix it with 'h'). The following <strong>jge</strong> instruction acts on the <strong>cmp</strong> comparison, which has set the FLAGS register as described earlier. The <strong>jge label</strong> says: if the result from the previous comparison is greater than or equal, jump to the part of the code denoted by <strong>label:</strong>. So if the number in AX is greater than or equal to 50, execution jumps to label:. If not, execution continues at the '...' stage.</p>
 
-<p>So, if the byte of memory at location 1000h contains 37, then that number 37 will be put into the AX register via
-our second instruction. Next up, we use <strong>cmp</strong> to compare the number in AX with the number 50 (the decimal
-number 50 - we didn't suffix it with 'h'). The following <strong>jge</strong> instruction acts on the <strong>cmp</strong> comparison,
-which has set the FLAGS register as described earlier. The <strong>jge label</strong> says: if the result from the previous
-comparison is greater than or equal, jump to the part of the code denoted by <strong>label:</strong>. So if the number in
-AX is greater than or equal to 50, execution jumps to label:. If not, execution continues at the '...' stage.</p>
-
-<p>One last thing: you can insert data into a program with the <strong>db</strong> (define byte) directive. For instance,
-this defines a series of bytes with the number zero at the end, representing a string:</p>
+<p>One last thing: you can insert data into a program with the <strong>db</strong> (define byte) directive. For instance, this defines a series of bytes with the number zero at the end, representing a string:</p>
 
 <pre>mylabel: db 'Message here', 0</pre>
 
-<p>In our assembly code, we know that a string of characters, terminated by a zero, can be found at the <strong>mylabel:</strong>
-position. We could also set up single byte to use somewhat like a variable:</p>
+<p>In our assembly code, we know that a string of characters, terminated by a zero, can be found at the <strong>mylabel:</strong> position. We could also set up single byte to use somewhat like a variable:</p>
 
 <pre>foo: db 0</pre>
 
-<p>Now <strong>foo:</strong> points at a single byte in the code, which in the case of MikeOS will be writable
-as the OS is copied completely to RAM. So you could have this instruction:</p>
+<p>Now <strong>foo:</strong> points at a single byte in the code, which in the case of MikeOS will be writable as the OS is copied completely to RAM. So you could have this instruction:</p>
 
 <pre>mov byte al, [foo]</pre>
 
 <p>This moves the byte pointed to by <strong>foo</strong> into the AL register.</p>
 
-<p>That's the essentials of x86 PC assembly language, and enough to get you started. When writing an OS, though, you'll
-need to learn much more as you progress, so see the <a href="#reslinks">Resources</a> section for links to more in-depth
-assembly tutorials.</p>
+<p>That's the essentials of x86 PC assembly language, and enough to get you started. When writing an OS, though, you'll need to learn much more as you progress, so see the <a href="#reslinks">Resources</a> section for links to more in-depth assembly tutorials.</p>
 
 
 <p></p>
@@ -352,8 +315,7 @@ assembly tutorials.</p>
 <a name="sourcecode"></a>
 <h3>Source code</h3>
 
-<p>Here is an example MikeOS program, in NASM format, which prints a string to the screen
-and waits for the user to press a key before finishing:</p>
+<p>Here is an example BareMetal OS program, in NASM format, which prints a string to the screen:</p>
 
 <pre>
 [BITS 64]
@@ -378,17 +340,13 @@ test_message: db 'My first BareMetal OS program!', 13, 0
 <a name="building"></a>
 <h3>Building</h3>
 
-<p>Save the above code as <strong>testapp.asm</strong>, and enter this command to assemble it
-(works on both Linux and Windows):</p>
+<p>Save the above code as <strong>test.asm</strong>, and enter this command to assemble it (works on both Linux and Windows):</p>
 
 <pre>
-nasm -f bin -o testapp.bin testapp.asm
+nasm -f bin -o test.app test.asm
 </pre>
 
-<p>Using the '-f bin' option we tell NASM that we just want a plain binary file: no header or sections.
-The resulting executable file is <strong>testapp.bin</strong> that we can copy to our floppy disk or add
-to the virtual disk image as described in <em>Copying files</em> in the User Handbook. Then we can boot
-MikeOS and run the program.</p>
+<p>Using the '-f bin' option we tell NASM that we just want a plain binary file: no header or sections. The resulting executable file is <strong>test.app</strong> that we can copy to our floppy disk or add to the virtual disk image as described in <em>Copying files</em> in the User Handbook. Then we can boot MikeOS and run the program.</p>
 
 
 <br />
@@ -398,18 +356,11 @@ MikeOS and run the program.</p>
 <h3>Explanation</h3>
 
 
-<p>This is a very short program, but we'll explain exactly how it works for complete clarity. The first
-three lines will not be assembled to machine code instructions, but are just directives to tell NASM that
-we want to operate in 16 bit mode, our code is written to be executed from the 32K mark, and we want to
-use system calls from the MikeOS API.</p>
+<p>This is a very short program, but we'll explain exactly how it works for complete clarity. The first three lines will not be assembled to machine code instructions, but are just directives to tell NASM that we want to operate in 64 bit mode, our code is written to be executed from the 2MiB mark, and we want to use system calls from the BareMetal OS API.</p>
 
-<p>Next we have the 'start:' label, which is not essential but good practice to make things clear. We put
-the location of a zero-terminated string into the <strong>SI</strong> register, then call the MikeOS
-<strong>os_print_string</strong> routine which we can access via the vectors listed in <strong>mikedev.inc</strong>.
-After that we pause program until a the user presses a key.</p>
+<p>Next we have the 'start:' label, which is not essential but good practice to make things clear. We put the location of a zero-terminated string into the <strong>RSI</strong> register, then call the BareMetal OS <strong>os_print_string</strong> routine which we can access via the vectors listed in <strong>bmdev.asm</strong>.</p>
 
-<p>All MikeOS programs must end with a <strong>ret</strong> instruction, which passes control back to the OS.
-After that instruction we have the data for our string. And that's it!</p>
+<p>All BareMetal OS programs must end with a <strong>ret</strong> instruction, which passes control back to the OS.</p>
 
 
 
@@ -424,14 +375,9 @@ After that instruction we have the data for our string. And that's it!</p>
 <a name="syscallintro"></a>
 <h3>Introduction</h3>
 
-<p>The MikeOS kernel includes system calls for outputting to the screen, taking keyboard input,
-manipulating strings, producing PC speaker sounds, math operations and disk I/O. You can get
-a quick reference to the registers that these calls take and pass back by looking at <strong>mikedev.inc</strong>,
-and see practical use of the calls in the <strong>programs/</strong> directory.</p>
+<p>The MikeOS kernel includes system calls for outputting to the screen, taking keyboard input, manipulating strings, producing PC speaker sounds, math operations and disk I/O. You can get a quick reference to the registers that these calls take and pass back by looking at <strong>mikedev.inc</strong>, and see practical use of the calls in the <strong>programs/</strong> directory.</p>
 
-<p>Here we have a detailed API explanation with examples. You can see the full source code behind these system
-calls in the <strong>source/features/</strong> directory in MikeOS. Each aspect of the API below is contained
-within an assembly source file, so you can enhance the system calls as per the MikeOS System Developer Handbook.</p>
+<p>Here we have a detailed API explanation with examples. You can see the full source code behind these system calls in the <strong>source/features/</strong> directory in MikeOS. Each aspect of the API below is contained within an assembly source file, so you can enhance the system calls as per the MikeOS System Developer Handbook.</p>
 
 
 
