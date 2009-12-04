@@ -9,7 +9,7 @@
 <style type="text/css">
 
 body {
-	font-family: sans-serif;
+	font-family: "Verdana", Lucida, Verdana, sans-serif;
 }
 
 h1 {
@@ -134,59 +134,22 @@ be split into 32-bit, 16-bit, and 8-bit registers as well (See below).</td>
 
 <p>So you can use these registers to store numbers as you work - a bit like variables, but they're much more fixed in size and purpose. There are a few others, notably the extra 64-bit registers (R8, R9, R10, R11, R12, R13, R14, and R15), 8 80-bit Floating Point registers (ST0 - ST7), and 16 128-bit SIMD registers (XMM0 - XMM15).<p>
 
-<p>The <strong>stack</strong> is an area of your main RAM used for storing temporary information. It's called a stack because numbers are stacked one-on-top of another. Imagine a Pringles tube: if you put in a playing card, an iPod Shuffle and a beermat, you'll pull them out in the reverse order (beermat, then iPod, and finally playing card). It's the same with numbers: if you <strong>push</strong> the numbers 5, 7 and 15 onto the stack,
-you will <strong>pop</strong> them out as 15 first, then 7, and lastly 5. In assembly, you can push registers onto the stack and pop them out later - it's useful when you want to store temporarily the value of a register while you use that register for something else.</p>
+<p>The <strong>stack</strong> is an area of your main RAM used for storing temporary information. It's called a stack because numbers are stacked one-on-top of another. Imagine a Pringles tube: if you put in a playing card, an iPod Shuffle and a beermat, you'll pull them out in the reverse order (beermat, then iPod, and finally playing card). It's the same with numbers: if you <strong>push</strong> the numbers 5, 7 and 15 onto the stack, you will <strong>pop</strong> them out as 15 first, then 7, and lastly 5. In assembly, you can push registers onto the stack and pop them out later - it's useful when you want to store temporarily the value of a register while you use that register for something else.</p>
 
 <p>PC <strong>memory</strong> can be viewed as a linear line of pigeon-holes ranging from byte 0 to whatever you have installed (millions of bytes on modern machines). At byte number 53,634,246 in your RAM, for instance, you may have your web browser code to view this document. But whereas we humans count in powers of 10 (10, 100, 1000 etc. - decimal), computers are better off with powers of two (because they're based on binary). So we use <strong>hexadecimal</strong>, which is <strong>base 16</strong>, as a way of representing numbers. See this chart to understand:</p>
 
 <table border="1" cellpadding="5">
-<tbody><tr><td>Decimal</td>
-<td>0</td>
-<td>1</td>
-<td>2</td>
-<td>3</td>
-<td>4</td>
-<td>5</td>
-<td>6</td>
-<td>7</td>
-<td>8</td>
-<td>9</td>
-<td>10</td>
-<td>11</td>
-<td>12</td>
-<td>13</td>
-<td>14</td>
-<td>15</td>
-<td>16</td>
-<td>17</td>
-<td>18</td>
-<td>19</td>
-<td>20</td>
+<tbody>
+<tr>
+<td>Decimal</td>
+<td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td>
 </tr>
-
-<tr><td>Hexadecimal</td>
-<td>0</td>
-<td>1</td>
-<td>2</td>
-<td>3</td>
-<td>4</td>
-<td>5</td>
-<td>6</td>
-<td>7</td>
-<td>8</td>
-<td>9</td>
-<td>A</td>
-<td>B</td>
-<td>C</td>
-<td>D</td>
-<td>E</td>
-<td>F</td>
-<td>10</td>
-<td>11</td>
-<td>12</td>
-<td>13</td>
-<td>14</td>
-</tr></tbody></table>
+<tr>
+<td>Hexadecimal</td>
+<td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td>
+</tr>
+</tbody>
+</table>
 
 <p>As you can see, whereas our normal decimal system uses 0 - 9, hexadecimal uses 0 - F in counting. It's a bit weird at first, but you'll get the hang of it. In assembly programming, we identify hexadecimal (hex) numbers by tagging a <strong>'h'</strong> onto the end - so <strong>0Ah</strong> is hex for the number <strong>10</strong>. (You can also denote hexadecimal in assembly by prefixing the number with 0x - for instance, 0x0A.)</p>
 
@@ -762,19 +725,19 @@ nasm -f bin -o test.app test.asm
 <p><strong>Displays text</strong></p>
 
 <ul>
- <li>IN: SI = message location (zero-terminated string)</li>
+ <li>IN: RSI = message location (zero-terminated string)</li>
  <li>OUT: Nothing (registers preserved)</li>
 </ul>
 
 <p>Example:</p>
 
 <pre>
-	mov si, .message
+	mov rsi, message
 	call os_print_string
 
 	...
 
-	.message	db 'Hello, world', 0
+	message		db 'Hello, world', 0
 </pre>
 
 <br />
@@ -786,8 +749,6 @@ nasm -f bin -o test.app test.asm
 <ul>
  <li>IN/OUT: Nothing (registers preserved)</li>
 </ul>
-
-
 
 <br />
 
@@ -810,7 +771,6 @@ nasm -f bin -o test.app test.asm
 	call os_move_cursor
 </pre>
 
-
 <br />
 
 
@@ -820,19 +780,6 @@ nasm -f bin -o test.app test.asm
 <ul>
  <li>OUT: DH, DL = row, column</li>
 </ul>
-
-
-<br />
-
-
-<h3>os_print_horiz_line</h3>
-<p><strong>Draw a horizontal line on the screen</strong></p>
-
-<ul>
- <li>IN: AX = line type (1 for double, otherwise single)</li>
- <li>OUT: Nothing (registers preserved)</li>
-</ul>
-
 
 <br />
 
@@ -844,9 +791,7 @@ nasm -f bin -o test.app test.asm
  <li>IN/OUT: Nothing</li>
 </ul>
 
-
 <br />
-
 
 
 <h3>os_hide_cursor</h3>
@@ -856,116 +801,7 @@ nasm -f bin -o test.app test.asm
  <li>IN/OUT: Nothing</li>
 </ul>
 
-
 <br />
-
-
-<h3>os_draw_block</h3>
-<p><strong>Render block of specified colour</strong></p>
-
-<ul>
- <li>IN: BL/DL/DH/SI/DI = colour/start X pos/start Y pos/width/finish Y pos</li>
- <li>OUT: Nothing</li>
-</ul>
-
-<p>Example:</p>
-
-<pre>
-	mov bl, 0100111b	; White on red
-	mov dl, 20		; Start X position
-	mov dh, 2		; Start Y position
-	mov si, 40		; Width
-	mov di, 23		; Finish Y position
-	call os_draw_block
-</pre>
-
-
-<br />
-
-
-<h3>os_file_selector</h3>
-<p><strong>Show a file selection dialog</strong></p>
-
-<ul>
- <li>IN: Nothing </li>
- <li>OUT: AX = location of filename string (or carry set if Esc pressed)</li>
-</ul>
-
-<p>Example:</p>
-
-<pre>
-	call os_file_selector
-	jc .esc_pressed
-
-	; Now AX points to the chosen filename
-	...
-
-.esc_pressed:
-	...
-</pre>
-
-
-<br />
-
-
-<h3>os_list_dialog</h3>
-<p><strong>Show a dialog with a list of options</strong></p>
-
-<ul>
- <li>IN: AX = comma-separated list of strings to show (zero-terminated),</li>
- <li>&nbsp;BX = first help string, CX = second help string</li>
- <li>OUT: AX = number (starts from 1) of entry selected carry set if Esc pressed</li>
-</ul>
-
-<p>Example:</p>
-
-<pre>
-	mov ax, .list
-	mov bx, .msg1
-	mov cx, .msg2
-	call os_list_dialog
-	jc .esc_pressed
-
-	; Now AX = number (from 1) of option chosen
-	...
-
-.esc_pressed:
-	...
-
-	.list	db 'Open,Close,Reboot', 0
-	.msg1	db 'Choose an option', 0
-	.msg2	db 'Or press Esc to quit', 0
-</pre>
-
-
-<br />
-
-
-<h3>os_draw_background</h3>
-<p><strong>Clear screen with white top and bottom bars, containing text, and a coloured middle section</strong></p>
-
-<ul>
- <li>IN: AX/BX = top/bottom string locations, CX = colour</li>
- <li>OUT: Nothing</li>
-</ul>
-
-<p>Example:</p>
-
-<pre>
-	mov ax, .title_msg
-	mov bx, .footer_msg
-	mov cx, 00100000b	; Colour
-	call os_draw_background
-
-	...
-
-	.title_msg	db 'File manager', 0
-	.footer_msg	db 'Choose an option...', 0
-</pre>
-
-
-<br />
-
 
 
 <h3>os_print_newline</h3>
@@ -974,7 +810,6 @@ nasm -f bin -o test.app test.asm
 <ul>
  <li>IN/OUT: Nothing (registers preserved)</li>
 </ul>
-
 
 <br />
 
@@ -986,144 +821,6 @@ nasm -f bin -o test.app test.asm
  <li>IN/OUT: AX/BX/CX/DX = registers to show</li>
 </ul>
 
-
-
-<br />
-
-
-<h3>os_input_dialog</h3>
-<p><strong>Get text string from user via a dialog box</strong></p>
-
-<ul>
- <li>IN: AX = string location, BX = message to show </li>
- <li>OUT: AX = string location</li>
-</ul>
-
-<p>Example:</p>
-
-<pre>
-	mov bx, .filename_msg
-	mov ax, .filename_input
-	call os_input_dialog
-
-	...
-
-	.filename_msg	'Please enter a filename:', 0
-	.filename_input	times 12 db 0
-</pre>
-
-
-<br />
-
-
-<h3>os_dialog_box</h3>
-<p><strong>Print dialog box in middle of screen, with button(s)</strong></p>
-
-<ul>
- <li>IN: AX, BX, CX = string locations (set registers to 0 for no display),</li>
- <li>&nbsp;DX = 0 for single 'OK' dialog, 1 for two-button 'OK' and 'Cancel'</li>
- <li>OUT: If two-button mode, AX = 0 for OK and 1 for cancel</li>
- <li>NOTE: Each string is limited to 40 characters</li>
-</ul>
-
-<p>Example:</p>
-
-<pre>
-	mov ax, .string1
-	mov bx, .string1
-	mov cx, .string1
-	mov dx, 1
-	call os_dialog_box
-
-	cmp ax, 1
-	je .first_option_chosen
-
-	; Otherwise second was chosen
-	...
-
-.first_option_chosen:
-	...
-
-	.string1	db 'Welcome to my program!', 0
-	.string2	db 'Please choose to destroy the world,', 0
-	.string3	db 'or play with fluffy kittens.', 0
-</pre>
-
-
-<br />
-
-
-<h3>os_print_space</h3>
-<p><strong>Print a space to the screen</strong></p>
-
-<ul>
- <li>IN/OUT: nothing</li>
-</ul>
-
-
-
-<br />
-
-
-<h3>os_dump_string</h3>
-<p><strong>Dump string as hex bytes and printable characters</strong></p>
-
-<ul>
- <li>IN: SI = points to string to dump</li>
- <li>OUT: Nothing</li>
-</ul>
-
-
-
-<br />
-
-
-<h3>os_print_digit</h3>
-<p><strong>Displays contents of AX as a single digit (works up to base 37, ie digits 0-Z)</strong></p>
-
-<ul>
- <li>IN: AX = "digit" to format and print</li>
- <li>OUT: Nothing</li>
-</ul>
-
-
-
-<br />
-
-
-<h3>os_print_1hex</h3>
-<p><strong>Displays low nibble of AL in hex format</strong></p>
-
-<ul>
- <li>IN: AL = number to format and print</li>
- <li>OUT: Nothing</li>
-</ul>
-
-
-<br />
-
-
-<h3>os_print_2hex</h3>
-<p><strong>Displays AL in hex format</strong></p>
-
-<ul>
- <li>IN: AL = number to format and print</li>
- <li>OUT: Nothing</li>
-</ul>
-
-
-<br />
-
-
-<h3>os_print_4hex</h3>
-<p><strong>Displays AX in hex format</strong></p>
-
-<ul>
- <li>IN: AX = number to format and print</li>
- <li>OUT: Nothing</li>
-</ul>
-
-
 <br />
 
 
@@ -1131,19 +828,20 @@ nasm -f bin -o test.app test.asm
 <p><strong>Take string from keyboard entry</strong></p>
 
 <ul>
- <li>IN/OUT: AX = location of string, other regs preserved</li>
- <li>(Location will contain up to 255 characters, zero-terminated)</li>
+ <li>IN: RDI = location of string, RCX = max characters to accept</li>
+ <li></li>
 </ul>
 
 <p>Example:</p>
 
 <pre>
-	mov ax, .string
+	mov rdi, string
+	mov rcx, 255
 	call os_input_string
 
 	...
 
-	.string		times 256 db 0
+	string		times 256 db 0
 </pre>
 
 
