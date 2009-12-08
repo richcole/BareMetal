@@ -253,6 +253,11 @@ reboot:
 	jmp reboot
 
 debug:
+	cmp byte [cli_args], 1
+	je debug_dump_reg
+	
+	jmp os_command_line
+debug_dump_reg:
 	call os_dump_reg
 	jmp os_command_line
 
