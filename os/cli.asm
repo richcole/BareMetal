@@ -144,7 +144,7 @@ print_ver:
 dir:
 	mov rdi, cli_temp_string
 	mov rsi, rdi
-	call os_fat16_get_file_list
+	call os_get_file_list
 	call os_print_string
 	jmp os_command_line
 

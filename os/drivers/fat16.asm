@@ -11,12 +11,12 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; readcluster -- Read a cluster from the FAT16 volume
+; os_fat16_read_cluster -- Read a cluster from the FAT16 volume
 ; IN:	AX - (cluster)
 ;	RDI - (memory location to store at least 32KB)
 ; OUT:	AX - (next cluster)
 ;	RDI - points one byte after the last byte read
-readcluster:
+os_fat16_read_cluster:
 	push rsi
 	push rdx
 	push rcx
@@ -26,7 +26,7 @@ readcluster:
 	mov rbx, rax				; Save the cluster number to be used later
 
 	cmp ax, 2				; If less than 2 then bail out...
-	jl near readcluster_bailout		; as clusters start at 2
+	jl near os_fat16_read_cluster_bailout	; as clusters start at 2
 
 ; Calculate the LBA address --- startingsector = (cluster-2) * clustersize + data_start
 	xor rcx, rcx	
@@ -37,11 +37,11 @@ readcluster:
 	add eax, dword [fat16_DataStart]	; EAX now holds the sector where our cluster starts
 
 	pop rcx					; Restore the number of sectors per cluster
-readcluster_nextsector:				; Read the sectors in one-by-one
+os_fat16_read_cluster_nextsector:		; Read the sectors in one-by-one
 	call readsector
 	dec cl
 	cmp cl, 0
-	jne readcluster_nextsector		; Keep going until we have a whole cluster
+	jne os_fat16_read_cluster_nextsector	; Keep going until we have a whole cluster
 
 ; Calculate the next cluster
 ; Psuedo-code
@@ -64,12 +64,12 @@ readcluster_nextsector:				; Read the sectors in one-by-one
 	lodsw					; AX now holds the next cluster
 	pop rdi
 	
-	jmp readcluster_end
+	jmp os_fat16_read_cluster_end
 
-readcluster_bailout:
+os_fat16_read_cluster_bailout:
 	xor ax, ax
 
-readcluster_end:
+os_fat16_read_cluster_end:
 	pop rbx
 	pop rcx
 	pop rdx
@@ -79,11 +79,11 @@ ret
 
 
 ; -----------------------------------------------------------------------------
-; findfile -- 
+; os_fat16_find_file -- Search for a file name and return the starting cluster
 ; IN:	RSI(Pointer to file name, must be in 'FILENAMEEXT" format)
 ; OUT:	AX(Staring cluster), 0x0 if not found
 ; Notes: Only searches the root sector.. not the following sectors.
-findfile:
+os_fat16_find_file:
 	push rsi
 	push rdi
 	push rcx
@@ -95,29 +95,29 @@ findfile:
 	push rdi
 	call readsector
 	pop rdi
-	mov rbx, 16	; records / sector
+	mov rbx, 16			; records / sector
 
-findfile_next_entry:
-	cmp byte [rdi], 0x00 ; end of records
-	je findfile_notfound
+os_fat16_find_file_next_entry:
+	cmp byte [rdi], 0x00		; end of records
+	je os_fat16_find_file_notfound
 	
 	mov rcx, 11
 	push rsi
 	repe cmpsb
 	pop rsi
-	mov ax, [rdi+15]	; AX now holds the starting cluster # of the file we just looked at
-	jz findfile_done	; The file was found. Note that rdi now is at dirent+11
+	mov ax, [rdi+15]		; AX now holds the starting cluster # of the file we just looked at
+	jz os_fat16_find_file_done	; The file was found. Note that rdi now is at dirent+11
 
 	add rdi, byte 0x20
 	and rdi, byte -0x20
 	dec rbx
 	cmp rbx, 0
-	jne findfile_next_entry	
+	jne os_fat16_find_file_next_entry	
 
-findfile_notfound:
+os_fat16_find_file_notfound:
 	xor ax, ax
 
-findfile_done:
+os_fat16_find_file_done:
 	pop rbx
 	pop rcx
 	pop rdi
@@ -156,9 +156,9 @@ os_fat16_get_file_list:
 
 	; start reading
 os_fat16_get_file_list_read:
-	cmp byte [rsi], 0x00 ; end of records
+	cmp byte [rsi], 0x00		; end of records
 	je os_fat16_get_file_list_done
-	cmp byte [rsi], 0xE5 ; unused record
+	cmp byte [rsi], 0xE5		; unused record
 	je os_fat16_get_file_list_skip
 
 	mov al, [rsi + 8]		; Grab the attribute byte
@@ -171,14 +171,14 @@ os_fat16_get_file_list_read:
 	; copy the string
 	xor rcx, rcx
 	xor rax, rax
-copyname:
+os_fat16_get_file_list_copy:
 	mov al, [rsi+rcx]
-	stosb	; Store to RDI
+	stosb				; Store to RDI
 	inc rcx
 	cmp rcx, 8
-	jne copyname
+	jne os_fat16_get_file_list_copy
 
-	mov al, ' ' ; Store a space as the separtator
+	mov al, ' '			; Store a space as the separtator
 	stosb
 
 	mov al, [rsi+8]
@@ -188,7 +188,7 @@ copyname:
 	mov al, [rsi+10]
 	stosb
 
-	mov al, ' ' ; Store a space as the separtator
+	mov al, ' '			; Store a space as the separtator
 	stosb
 
 	mov eax, [rsi+0x1C]
@@ -216,37 +216,37 @@ dir_title_string: db "Name     Ext Size", 13, "====================", 13, 0
 
 
 ; -----------------------------------------------------------------------------
-; os_file_load -- Load a file into memory
+; os_fat16_file_load -- Load a file into memory
 ; IN:	RSI = Address of filename string
 ;	RDI = Memory location where file will be loaded to
 ; OUT:	Carry set if file was not found
-os_file_load:
+os_fat16_file_load:
 	push rsi
 	push rdi
 	push rax
 
 	push rdi			; Save the memory address
 	mov rdi, dest_string
-	call os_int_filename_convert
+	call os_fat16_filename_convert
 	xchg rsi, rdi
 	pop rdi				; Grab the memory address
-	jc os_file_load_fail
+	jc os_fat16_file_load_fail
 
-	call findfile			; Fuction will return the starting cluster value in ebx or 0 if not found
+	call os_fat16_find_file		; Fuction will return the starting cluster value in ebx or 0 if not found
 	cmp ax, 0x0000			; If ax is 0 then the file was not found
-	jne os_file_load_read		; bail out if the file was not found
+	jne os_fat16_file_load_read	; bail out if the file was not found
 
-os_file_load_fail:
+os_fat16_file_load_fail:
 	stc
-	jmp os_file_load_done
+	jmp os_fat16_file_load_done
 
-os_file_load_read:
-	call readcluster		; store in memory
+os_fat16_file_load_read:
+	call os_fat16_read_cluster	; store in memory
 	cmp ax, 0xFFFF
-	jne os_file_load_read		; Are there more clusters? If so then read again.. if not fall through.
+	jne os_fat16_file_load_read	; Are there more clusters? If so then read again.. if not fall through.
 	clc
 
-os_file_load_done:
+os_fat16_file_load_done:
 	pop rax
 	pop rdi
 	pop rsi
@@ -257,10 +257,10 @@ ret
 
 
 ; -----------------------------------------------------------------------------
-; int_filename_convert -- Change 'TEST.ER' into 'TEST    ER ' as per FAT16
+; os_fat16_filename_convert -- Change 'TEST.ER' into 'TEST    ER ' as per FAT16
 ; IN:	RSI = filename string
 ; OUT:	RDI = location of converted string (carry set if invalid)
-os_int_filename_convert:
+os_fat16_filename_convert:
 	push rsi
 	push rdi
 	push rdx
@@ -269,40 +269,40 @@ os_int_filename_convert:
 
 	call os_string_length
 	cmp rcx, 12			; Bigger than name + dot + extension?
-	jg failure			; Fail if so
+	jg os_fat16_filename_convert_failure			; Fail if so
 	cmp rcx, 0
-	je failure			; Similarly, fail if zero-char string
+	je os_fat16_filename_convert_failure			; Similarly, fail if zero-char string
 
 	mov rdx, rcx			; Store string length for now
 	xor rcx, rcx
-copy_loop:
+os_fat16_filename_convert_copy_loop:
 	lodsb
 	cmp al, '.'
-	je extension_found
+	je os_fat16_filename_convert_extension_found
 	stosb
 	inc rcx
 	cmp rcx, rdx
-	jg failure			; No extension found = wrong
-	jmp copy_loop
+	jg os_fat16_filename_convert_failure			; No extension found = wrong
+	jmp os_fat16_filename_convert_copy_loop
 
-failure:
+os_fat16_filename_convert_failure:
 	stc				; Set carry for failure
-	jmp done
+	jmp os_fat16_filename_convert_done
 
-extension_found:
+os_fat16_filename_convert_extension_found:
 	cmp rcx, 0
-	je failure			; Fail if extension dot is first char
+	je os_fat16_filename_convert_failure			; Fail if extension dot is first char
 	cmp rcx, 8
-	je do_extension			; Skip spaces if first bit is 8 chars
+	je os_fat16_filename_convert_do_extension			; Skip spaces if first bit is 8 chars
 
 	mov al, ' '
-add_spaces:
+os_fat16_filename_convert_add_spaces:
 	stosb
 	inc rcx
 	cmp rcx, 8
-	jl add_spaces
+	jl os_fat16_filename_convert_add_spaces
 
-do_extension:				; FIX THIS for cases where ext is less than 3 chars
+os_fat16_filename_convert_do_extension:				; FIX THIS for cases where ext is less than 3 chars
 	lodsb
 	stosb
 	lodsb
@@ -311,7 +311,8 @@ do_extension:				; FIX THIS for cases where ext is less than 3 chars
 	stosb
 	mov byte [rdi], 0		; Zero-terminate filename
 	clc				; Clear carry for success
-done:
+
+os_fat16_filename_convert_done:
 	pop rax
 	pop rcx
 	pop rdx
