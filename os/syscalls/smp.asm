@@ -11,7 +11,7 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; os_smp_call -- Set a certain CPU to run a piece of code
+; os_smp_call -- Set a CPU/Core to run a piece of code
 ;  IN:	AL = CPU #
 ;	RBX = location of code to return to
 ; OUT:	Nothing. All registers preserved.
@@ -43,7 +43,7 @@ os_smp_call:
 
 
 ; -----------------------------------------------------------------------------
-; os_smp_wakeup -- wake up a certain CPU
+; os_smp_wakeup -- Wake up a CPU/Core
 ;  IN:	AL = CPU #
 ; OUT:	Nothing. All registers perserved.
 ; Note:	Uses interrupt 0x80. Just a stub interrupt with no real code behind it.
@@ -69,7 +69,7 @@ os_smp_wakeup:
 
 
 ; -----------------------------------------------------------------------------
-; os_smp_wakeup_all -- wake up all CPU's (except self)
+; os_smp_wakeup_all -- Wake up all CPU's (except self)
 ;  IN:	Nothing
 ; OUT:	Nothing. All registers perserved.
 ; Note:	Should use os_smp_wakeup

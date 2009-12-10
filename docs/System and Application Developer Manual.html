@@ -76,14 +76,14 @@ li {
 
 <h1>BareMetal OS - System and Application Developer Manual</h1>
 
-<h3>Version 0.5.0, 7 December 2009 - © Return Infinity</h3>
+<h3>Version 0.5.0, 10 December 2009 - Return Infinity</h3>
 
 <p>This documentation file explains how write software for BareMetal OS in assembly language. It shows you the tools you need, how BareMetal OS programs work, and how to use the system calls included in the kernel. If you have any questions, see <a href="http://www.returninfinity.com/baremetal.html">the BareMetal OS website</a> for contact details and mailing list information.</p>
 
 <br />
 
 
-<hr noshade="noshade" />
+<hr noshade="noshade"></hr>
 
 
 <h2>Overview</h2>
@@ -154,8 +154,9 @@ li {
 <p>Let's finish off with a few common assembly instructions. These move memory around, compare them and perform calculations. They're the building blocks of your software - there are hundreds of instructions, but you don't have to memorise them all, because the most important handful are used 90% of the time.</p>
 
 <table border="1" cellpadding="5">
+<tbody>
 
-<tbody><tr>
+<tr>
 <td style="width: 100px;">mov</td>
 <td>Copies memory from one location or register to another. For instance, <strong>mov ax, 30</strong> places the number 30 into the AX register. Using square brackets, you can get the number at the memory location pointed to by the register. For instance, if BX contains 80, then <strong>mov ax, [bx]</strong> means "get the number in memory location 80, and put it into AX". You can move numbers between registers too: <strong>mov bx, cx</strong>.</td>
 </tr>
@@ -166,7 +167,6 @@ li {
 </tr>
 
 <tr>
-
 <td style="width: 100px;">cmp</td>
 <td>Compares a register with a number. <strong>cmp cx, 12</strong> compares the CX register with the number 12. It then updates a special register on the CPU called <strong>FLAGS</strong> - a special register that contains information about the last operation. In this case, if the number 12 is bigger than the value in CX, it generates a negative result, and notes that negative in the FLAGS register. We can use this in the following instructions...</td>
 </tr>
@@ -179,10 +179,10 @@ li {
 <tr>
 <td style="width: 100px;">call</td>
 <td>Run a function. Operating systems set up <strong>system calls</strong> or <strong>interrupts</strong> which are analogous to subroutines in high-level languages.</td>
-
 </tr>
 
-</tbody></table>
+</tbody>
+</table>
 
 
 
@@ -268,7 +268,7 @@ label:
 <br />
 
 
-<hr noshade="noshade" />
+<hr noshade="noshade"></hr>
 
 
 <h2>Example</h2>
@@ -328,7 +328,7 @@ nasm -f bin -o test.app test.asm
 <br />
 
 
-<hr noshade="noshade" />
+<hr noshade="noshade"></hr>
 
 
 <h2>System calls</h2>
@@ -348,7 +348,7 @@ nasm -f bin -o test.app test.asm
 
 
 
-<hr style="width:75%;" />
+<hr style="width:75%;"></hr>
 <h2>Input</h2>
 
 
@@ -399,7 +399,7 @@ OUT:	RCX = length of string that was inputed (NULL not counted)
 
 
 
-<hr style="width:75%;" />
+<hr style="width:75%;"></hr>
 <h2>Screen</h2>
 
 
@@ -588,7 +588,7 @@ OUT:	All registers perserved
 
 
 
-<hr style="width:75%;" />
+<hr style="width:75%;"></hr>
 <h2>Serial</h2>
 
 
@@ -623,7 +623,132 @@ OUT:	AL  = Byte recevied
 
 
 
-<hr style="width:75%;" />
+<hr style="width:75%;"></hr>
+<h2>SMP (Symmetric multiprocessing)</h2>
+
+
+
+<h3>os_smp_call</h3>
+<p><strong>Set a CPU/Core to run a piece of code</strong></p>
+<pre>
+ IN:	AL = CPU #
+	RBX = location of code to return to
+OUT:	Nothing. All registers preserved.
+</pre>
+<p>This code gets an AP to modify its stack to reprogram the return RIP after the IRETQ. <strong>This is an internal function for setup use only.</strong> Uses interrupt 0x81 to pull the address from the stagingarea into the AP stack
+</p>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_smp_wakeup</h3>
+<p><strong>Wake up a CPU/Core</strong></p>
+<pre>
+ IN:	AL = CPU #
+OUT:	Nothing. All registers perserved.
+</pre>
+<p>Uses interrupt 0x80. Just a stub interrupt with no real code behind it.</p>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+
+<h3>os_smp_wakeup_all</h3>
+<p><strong>Wake up all CPU's (except self)</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	Nothing. All registers perserved.
+</pre>
+<p>Should use os_smp_wakeup</p>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_smp_set_task</h3>
+<p><strong>Set an AP to execute a piece of code</strong></p>
+<pre>
+ IN:	RAX = CPU #
+	RBX = Code to execute
+	RCX = Data to work on
+OUT:	Nothing
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_smp_get_id</h3>
+<p><strong>Returns the APIC ID of the CPU that ran this function</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	RAX = CPU's APIC ID number
+	All other registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_smp_find_free</h3>
+<p><strong>Returns the APIC ID of a free (not busy) CPU</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	RAX = CPU ID of first free (not busy) CPU
+	Carry flag = Set if a free CPU was not found
+	All other registers perserved.
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_smp_set_free</h3>
+<p><strong>Set a free CPU to run some code</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	RAX = Address of Code
+	RBX = Address of Data/Variable
+	Carry flag = Set if a free CPU was not found
+	All other registers perserved.
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_smp_wait_for_aps</h3>
+<p><strong>Wait for all AP's to finish</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	Nothing. All registers preserved.
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+
+
+<hr style="width:75%;"></hr>
 <h2>Sound</h2>
 
 
@@ -671,7 +796,7 @@ OUT:	All registers preserved
 
 
 
-<hr style="width:75%;" />
+<hr style="width:75%;"></hr>
 <h2>String</h2>
 
 
@@ -991,7 +1116,7 @@ OUT:	RCX = word count
 
 
 
-<hr noshade="noshade" />
+<hr noshade="noshade"></hr>
 
 
 <h3></h3>
