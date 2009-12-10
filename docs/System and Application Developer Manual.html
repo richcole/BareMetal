@@ -345,16 +345,19 @@ nasm -f bin -o test.app test.asm
 <br />
 
 
-<hr style="width:50%;" />
 
 
+
+<hr style="width:75%;" />
 <h2>Input</h2>
+
+
 
 <h3>os_input_key_check</h3>
 <p><strong>Scans keyboard for input, but doesn't wait</strong></p>
 <pre>
  IN:	Nothing
-OUT:	AL = 0 if no key pressed, otherwise ASCII code
+OUT:	AL = 0 if no key pressed, otherwise ASCII code, other regs preserved
 	Carry flag is set if there was a keystoke, clear if there was not
 	All other registers preserved
 </pre>
@@ -393,7 +396,612 @@ OUT:	RCX = length of string that was inputed (NULL not counted)
 <br />
 
 
+
+
+
+<hr style="width:75%;" />
+<h2>Screen</h2>
+
+
+
+<h3>os_move_cursor</h3>
+<p><strong>Moves cursor in text mode</strong></p>
+<pre>
+ IN:	AH  = row
+	AL  = column
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_inc_cursor</h3>
+<p><strong>Increment the hardware cursor by one</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+	call os_inc_cursor
+</pre>
+<br />
+
+
+
+<h3>os_dec_cursor</h3>
+<p><strong>Decrement the hardware cursor by one</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+	call os_dec_cursor
+</pre>
+<br />
+
+
+
+<h3>os_print_newline</h3>
+<p><strong>Reset cursor to start of next line and scroll if needed</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+	call os_print_newline
+</pre>
+<br />
+
+
+
+<h3>os_print_string</h3>
+<p><strong>Displays text</strong></p>
+<pre>
+ IN:	RSI = message location (zero-terminated string)
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+	mov rsi, teststring
+	call os_print_string
+
+	...
+
+	teststring: db "This is a test string.", 0
+</pre>
+<br />
+
+
+
+<h3>os_print_string_with_color</h3>
+<p><strong>Displays text with color</strong></p>
+<pre>
+ IN:	RSI = message location (zero-terminated string)
+	BL  = color
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+	mov rsi, colorteststring
+	mov bl, 0x06
+	call os_print_string_with_color
+
+	...
+
+	colorteststring: db "This is a test string in color!", 0
+</pre>
+<br />
+
+
+
+<h3>os_print_char</h3>
+<p><strong>Displays a char</strong></p>
+<pre>
+ IN:	AL  = char to display
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+	mov al, 'B'
+	call os_print_char
+</pre>
+<br />
+
+
+
+<h3>os_print_char_with_color</h3>
+<p><strong>Displays a char with color</strong></p>
+<pre>
+ IN:	AL  = char to display
+	BL  = color
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+	mov al, 'B'
+	mov bl, 0x45
+	call os_print_char_with_color
+</pre>
+<br />
+
+
+
+<h3>os_print_char_hex</h3>
+<p><strong>Displays a char in hex mode</strong></p>
+<pre>
+ IN:	AL  = char to display
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+	mov al, 0x5f
+	call os_print_char_hex		; "5F" will be printed
+</pre>
+<br />
+
+
+
+<h3>os_scroll_screen</h3>
+<p><strong>Scrolls the screen up by one line</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_hide_cursor</h3>
+<p><strong>Turns off cursor in text mode</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_show_cursor</h3>
+<p><strong>Turns on cursor in text mode</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	All registers perserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+
+
+<hr style="width:75%;" />
+<h2>Serial</h2>
+
+
+
+<h3>os_serial_send</h3>
+<p><strong>Send a byte over the primary serial port</strong></p>
+<pre>
+ IN:	AL  = Byte to send over serial port
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_serial_recv</h3>
+<p><strong>Receive a byte from the primary serial port</strong></p>
+<pre>
+ IN:	Nothing 
+OUT:	AL  = Byte recevied
+	Carry flag is set if a byte was received, otherwise AL is trashed
+	All other registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+
+
+<hr style="width:75%;" />
+<h2>Sound</h2>
+
+
+
+<h3>os_speaker_tone</h3>
+<p><strong>Generate a tone on the PC speaker</strong></p>
+<pre>
+ IN:	RAX = note frequency
+OUT:	All registers preserved
+</pre>
+<p>Call os_speaker_off to stop the tone</p>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_speaker_off</h3>
+<p><strong>Turn off PC speaker</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_speaker_beep</h3>
+<p><strong>Create a standard OS beep</strong></p>
+<pre>
+ IN:	Nothing
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+
+
+
+<hr style="width:75%;" />
+<h2>String</h2>
+
+
+
+<h3>os_int_to_string</h3>
+<p><strong>Convert a binary interger into an string</strong></p>
+<pre>
+ IN:	RAX = binary integer
+	RDI = location to store string
+OUT:	RDI = points to end of string
+	All other registers preserved
+</pre>
+<p>The minimum return value is 0 and maximum return value is 18446744073709551615. The string needs to be able to store at least 21 characters (20 for the digits and 1 for the string terminator).</p>
+<p>Example:</p>
+<pre>
+	mov rax, 0xFFFFFFFFFFFFFFFF
+	mov rdi, teststring
+	mov rsi, rdi			; Set RSI for print_string call
+	call os_int_to_string
+	call os_print_string		; "18446744073709551615" will be printed
+
+	...
+
+	teststring: times 21 db 0	; Space for a 20 character string
+</pre>
+<br />
+
+
+
+<h3>os_string_to_int</h3>
+<p><strong>Convert a string into a binary interger</strong></p>
+<pre>
+ IN:	RSI = location of string
+OUT:	RAX = integer value
+	All other registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_int_to_hex_string</h3>
+<p><strong>Convert an integer to a hex string</strong></p>
+<pre>
+ IN:	RAX = Integer value
+	RDI = location to store string
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_hex_string_to_int</h3>
+<p><strong>Convert up to 8 hexascii to bin</strong></p>
+<pre>
+ IN:	RSI = Location of hex asciiz string
+OUT:	RAX = binary value of hex string
+	All other registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_length</h3>
+<p><strong>Return length of a string</strong></p>
+<pre>
+ IN:	RSI = string location
+OUT:	RCX = length (not including the NULL terminator)
+	All other registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_find_char_in_string</h3>
+<p><strong>Find first location of character in a string</strong></p>
+<pre>
+ IN:	RSI = string location
+	AL  = character to find
+OUT:	RAX = location in string, or 0 if char not present
+	All other registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_charchange</h3>
+<p><strong>Change all instances of a character in a string</strong></p>
+<pre>
+ IN:	RSI = string location
+	AL  = character to replace
+	BL  = replacement character
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_copy</h3>
+<p><strong>Copy the contents of one string into another</strong></p>
+<pre>
+ IN:	RSI = source
+	RDI = destination
+OUT:	All registers preserved
+</pre>
+<p>It is up to the programmer to ensure that there is sufficient space in the destination!
+</p>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_truncate</h3>
+<p><strong>Chop string down to specified number of characters</strong></p>
+<pre>
+ IN:	RSI = string location
+	RAX = number of characters
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_join</h3>
+<p><strong>Join two strings into a third string</strong></p>
+<pre>
+ IN:	RAX = string one
+	RBX = string two
+	RDI = destination string
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_chomp</h3>
+<p><strong>Strip leading and trailing spaces from a string</strong></p>
+<pre>
+ IN:	RSI = string location
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_strip</h3>
+<p><strong>Removes specified character from a string</strong></p>
+<pre>
+ IN:	RSI = string location
+	AL  = character to remove
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_compare</h3>
+<p><strong>See if two strings match</strong></p>
+<pre>
+ IN:	RSI = string one
+	RDI = string two
+OUT:	Carry flag set if same
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_string_uppercase</h3>
+<p><strong>Convert zero-terminated string to uppercase</strong></p>
+<pre>
+ IN:	RSI = string location
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+	mov rsi, teststring
+	call os_string_uppercase
+	call os_print_string		; "AABBCCDD 123" will be printed
+
+	...
+
+	teststring: db "AaBbCcDd 123", 0
+</pre>
+<br />
+
+
+
+<h3>os_string_lowercase</h3>
+<p><strong>Convert zero-terminated string to lowercase</strong></p>
+<pre>
+ IN:	RSI = string location
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+	mov rsi, teststring
+	call os_string_lowercase
+	call os_print_string		; "aabbccdd 123" will be printed
+
+	...
+
+	teststring: db "AaBbCcDd 123", 0
+</pre>
+<br />
+
+
+
+<h3>os_get_time_string</h3>
+<p><strong>Store the current time in a string in format "HH:MM:SS"</strong></p>
+<pre>
+ IN:	RDI = location to store string (must be able to fit 9 bytes, 8 data plus null terminator)
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_get_date_string</h3>
+<p><strong>Store the current time in a string in format "YYYY/MM/DD"</strong></p>
+<pre>
+ IN:	RDI = location to store string (must be able to fit 11 bytes, 10 data plus null terminator)
+OUT:	All registers preserved
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+<h3>os_is_digit</h3>
+<p><strong>Check if character is a digit</strong></p>
+<pre>
+ IN:	AL  = ASCII char
+OUT:	EQ flag set if numeric
+</pre>
+<p>JE (Jump if Equal) or JNE (Jump if Not Equal) can be used after this function is called.</p>
+<p>Example:</p>
+<pre>
+	mov al, '6'
+	call os_is_digit
+	je itsanumber		; Jump if it was a digit, else fall through to next instruction
+	mov rbx, 2134
+</pre>
+<br />
+
+
+
+<h3>os_is_alpha</h3>
+<p><strong>Check if character is a letter</strong></p>
+<pre>
+ IN:	AL  = ASCII char
+OUT:	EQ flag set if alpha
+</pre>
+<p>JE (Jump if Equal) or JNE (Jump if Not Equal) can be used after this function is called.</p>
+<p>Example:</p>
+<pre>
+	mov al, 'j'
+	call os_is_alpha
+	jne notaletter		; Jump if it was not a letter, else fall through to next instruction
+	mov rbx, 2134
+</pre>
+<br />
+
+
+
+<h3>os_string_parse</h3>
+<p><strong>Parse a string into individual words</strong></p>
+<pre>
+ IN:	RSI = Address of string
+OUT:	RCX = word count
+</pre>
+<p>This function will remove "extra" whitespace in the source string. "This is   a test. " will update to "This is a test."</p>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
+
+
+
+
+
 <hr noshade="noshade" />
+
+
+<h3></h3>
+<p><strong></strong></p>
+<pre>
+</pre>
+<p>Example:</p>
+<pre>
+</pre>
+<br />
 
 
 <h2>Extra</h2>
@@ -401,10 +1009,7 @@ OUT:	RCX = length of string that was inputed (NULL not counted)
 <a name="license"></a>
 <h3>License</h3>
 
-<p>MikeOS is open source and released under a BSD-like license (see <strong>doc/LICENSE.TXT</strong>
-in the MikeOS <strong>.zip</strong> file). Essentially, it means you can do anything you like with the
-code, including basing your own project on it, providing you retain the license file and give credit
-to the MikeOS developers for their work.</p>
+<p>MikeOS is open source and released under a MIT license (see <strong>doc/LICENSE.TXT</strong> in the BareMetal OS distribution). Essentially, it means you can do anything you like with the code, including basing your own project on it, providing you retain the license file and give credit to the BareMetal OS developers for their work.</p>
 
 
 <br />

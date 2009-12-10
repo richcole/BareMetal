@@ -11,7 +11,7 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; os_serial_write -- Send a byte over the primary serial port
+; os_serial_send -- Send a byte over the primary serial port
 ; IN:	AL  = Byte to send over serial port
 ; OUT:	All registers preserved
 os_serial_send:

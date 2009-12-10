@@ -11,7 +11,7 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; os_int_to_string -- Convert a binary interger into an string string
+; os_int_to_string -- Convert a binary interger into an string
 ;  IN:	RAX = binary integer
 ;	RDI = location to store string
 ; OUT:	RDI = points to end of string
@@ -123,7 +123,7 @@ os_int_to_hex_string_next_nibble:
 
 
 ; -----------------------------------------------------------------------------
-; os_hex_string_to_int -- convert up to 8 hexascii to bin
+; os_hex_string_to_int -- Convert up to 8 hexascii to bin
 ;  IN:	RSI = Location of hex asciiz string
 ; OUT:	RAX = binary value of hex string
 ;	All other registers preserved
@@ -604,7 +604,7 @@ os_get_date_string:
 
 
 ; -----------------------------------------------------------------------------
-; os_is_digit -- 
+; os_is_digit -- Check if character is a digit
 ;  IN:	AL  = ASCII char
 ; OUT:	EQ flag set if numeric
 ; Note:	JE (Jump if Equal) can be used after this function is called
@@ -621,7 +621,7 @@ os_is_digit_not_digit:
 
 
 ; -----------------------------------------------------------------------------
-; os_is_alpha -- 
+; os_is_alpha -- Check if character is a letter
 ;  IN:	AL  = ASCII char
 ; OUT:	EQ flag set if alpha
 ; Note:	JE (Jump if Equal) can be used after this function is called
