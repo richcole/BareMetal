@@ -26,9 +26,9 @@ kernel_start:
 	align 8
 	jmp os_print_newline
 	align 8
-	jmp os_check_for_key
+	jmp os_input_key_check
 	align 8
-	jmp os_wait_for_key
+	jmp os_input_key_wait
 	align 8
 	jmp os_input_string
 	align 8

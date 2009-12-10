@@ -11,19 +11,20 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; os_check_for_key -- Scans keyboard for input, but doesn't wait
+; os_input_key_check -- Scans keyboard for input, but doesn't wait
 ;  IN:	Nothing
 ; OUT:	AL = 0 if no key pressed, otherwise ASCII code, other regs preserved
 ;	Carry flag is set if there was a keystoke, clear if there was not
-os_check_for_key:
+;	All other registers preserved
+os_input_key_check:
 	mov al, [key]
 	cmp al, 0
-	je os_check_for_key_nokey
+	je os_input_key_check_no_key
 	mov byte [key], 0x00	; clear the variable as the keystroke is in AL now
 	stc			; set the carry flag
 	ret
 
-os_check_for_key_nokey:	
+os_input_key_check_no_key:	
 	xor al, al		; mov al, 0x00
 	clc			; clear the carry flag
 	ret
@@ -31,14 +32,15 @@ os_check_for_key_nokey:
 
 
 ; -----------------------------------------------------------------------------
-; os_wait_for_key -- Waits for keypress and returns key
+; os_input_key_wait -- Waits for keypress and returns key
 ;  IN:	Nothing
-; OUT:	AL = key pressed, other regs preserved
-os_wait_for_key:
+; OUT:	AL = key pressed
+;	All other registers preserved
+os_input_key_wait:
 	hlt			; Wait for an interrupt to be triggered. Thanks Dex!
 	mov al, [key]
 	cmp al, 0
-	je os_wait_for_key
+	je os_input_key_wait
 	mov byte [key], 0x00	; clear the variable as the keystroke is in AL now
 	ret
 ; -----------------------------------------------------------------------------
@@ -49,6 +51,7 @@ os_wait_for_key:
 ;  IN:	RDI = location where string will be stored
 ;	RCX = number of characters to accept
 ; OUT:	RCX = length of string that was inputed (NULL not counted)
+;	All other registers preserved
 os_input_string:
 	push rdi
 	push rdx			; Counter to keep track of max accepted characters
@@ -57,7 +60,7 @@ os_input_string:
 	mov rdx, rcx
 	xor rcx, rcx
 os_input_string_more:
-	call os_wait_for_key
+	call os_input_key_wait
 	cmp al, 0x1C			; If Enter key pressed, finish
 	je os_input_string_done
 	cmp al, 0x0E			; Backspace

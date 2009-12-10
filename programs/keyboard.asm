@@ -17,7 +17,7 @@ music_keyboard:
 	call os_print_newline
 
 .retry:
-	call os_wait_for_key
+	call os_input_key_wait
 
 ; And start matching keys with notes
 

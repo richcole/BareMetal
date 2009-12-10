@@ -10,8 +10,8 @@ os_print_string		equ	0x0000000000100010	; Displays text, IN: RSI = message locat
 os_print_char		equ	0x0000000000100018	; Displays a char, IN: AL = char to display
 os_print_char_hex	equ	0x0000000000100020	; Displays a char in hex mode, AL = char to display
 os_print_newline	equ	0x0000000000100028	; Print a new line
-os_check_for_key	equ	0x0000000000100030	; Scans keyboard for input, but doesn't wait, OUT: AL = 0 if no key pressed, otherwise ASCII code, other regs preserved
-os_wait_for_key		equ	0x0000000000100038	; Waits for keypress and returns key, OUT: AL = key pressed, other regs preserved
+os_input_key_check	equ	0x0000000000100030	; Scans keyboard for input, but doesn't wait, OUT: AL = 0 if no key pressed, otherwise ASCII code, other regs preserved
+os_input_key_wait	equ	0x0000000000100038	; Waits for keypress and returns key, OUT: AL = key pressed, other regs preserved
 os_input_string		equ	0x0000000000100040	; Take string from keyboard entry, IN/OUT: RDI = location where string will be stored
 os_delay		equ	0x0000000000100048	; 
 os_speaker_tone		equ	0x0000000000100050	; Generate PC speaker tone (call os_speaker_off after), IN: RAX = note frequency
