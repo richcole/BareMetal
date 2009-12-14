@@ -148,6 +148,8 @@ os_print_string_nextchar:
 	lodsb				; Get char from string and store in AL
 	cmp al, 0			; Strings are Zero terminated.
 	je os_print_string_done		; If char is Zero then it is the end of the string
+	cmp al, 10			; Check if there was a newline character in the string
+	je os_print_string_newline	; If so then we print a new line
 	cmp al, 13			; Check if there was a newline character in the string
 	je os_print_string_newline	; If so then we print a new line
 	mov rdi, [screen_cursor_offset]
