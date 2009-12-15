@@ -111,5 +111,104 @@ os_delay_loop:
 ; -----------------------------------------------------------------------------
 
 
+; -----------------------------------------------------------------------------
+; os_seed_random -- Seed the RNG based on the current date and time
+; IN:	Nothing
+; OUT:	All registers preserved
+os_seed_random:
+	push rbx
+	push rax
+
+	xor rbx, rbx
+	mov al, 0x32		; century
+	out 0x70, al
+	in al, 0x71
+	mov bl, al
+	shl rbx, 8
+	mov al, 0x09		; year
+	out 0x70, al
+	in al, 0x71
+	mov bl, al
+	shl rbx, 8
+	mov al, 0x08		; month
+	out 0x70, al
+	in al, 0x71
+	mov bl, al
+	shl rbx, 8
+	mov al, 0x07		; day
+	out 0x70, al
+	in al, 0x71
+	mov bl, al
+	shl rbx, 8
+	mov al, 0x04		; hour
+	out 0x70, al
+	in al, 0x71
+	mov bl, al
+	shl rbx, 8
+	mov al, 0x02		; minute
+	out 0x70, al
+	in al, 0x71
+	mov bl, al
+	shl rbx, 8
+	mov al, 0x00		; second
+	out 0x70, al
+	in al, 0x71
+	mov bl, al
+	shl rbx, 8
+	mov [os_random_seed], rbx
+
+	pop rax
+	pop rbx
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_get_random -- Return a random integer
+; IN:	Nothing
+; OUT:	RAX = Random number
+;	All other registers preserved
+os_get_random:
+	push rdx
+	push rbx
+
+	mov rax, [os_random_seed]
+	mov rdx, 0x0019660D0019660D
+	mul rdx
+	mov rbx, 0x3C6EF35F3C6EF35F
+	add rax, rbx
+	mov [os_random_seed], rax
+
+	pop rbx
+	pop rdx
+	ret
+; -----------------------------------------------------------------------------
+
+
+; -----------------------------------------------------------------------------
+; os_get_random_integer -- Return a random integer between Low and High (incl)
+; IN:	RAX = Low integer
+;	RBX = High integer
+; OUT:	RCX = Random integer
+os_get_random_integer:
+	push rdx
+	push rbx
+	push rax
+
+	sub rbx, rax		; We want to look for a number between 0 and (High-Low)
+	call os_get_random
+	mov rdx, rbx
+	add rdx, 1
+	mul rdx
+	mov rcx, rdx
+
+	pop rax
+	pop rbx
+	pop rdx
+	add rcx, rax		; Add the low offset back
+	ret
+; -----------------------------------------------------------------------------
+
+
 ; =============================================================================
 ; EOF

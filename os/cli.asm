@@ -179,12 +179,23 @@ testzone:
 ;	mov rax, rcx
 ;	call os_dump_rax
 ;	call os_print_newline
-	
-;	mov rdi, cli_temp_string
-;	mov rsi, rdi
-;	mov rax, 0xFFFFFFFFFFFFFFFF
-;	call os_int_to_string
-;	call os_print_string
+
+	xor rdx, rdx
+loopy:
+	mov rax, 0
+	mov rbx, 10
+	call os_get_random_integer
+
+	mov rdi, cli_temp_string
+	mov rsi, rdi
+	mov rax, rcx
+	call os_int_to_string
+	call os_print_string
+	mov al, ' '
+	call os_print_char
+	add rdx, 1
+	cmp rdx, 100
+	jne loopy
 ;	call os_print_newline
 
 ;	mov rdi, cli_temp_string		; Get string from user

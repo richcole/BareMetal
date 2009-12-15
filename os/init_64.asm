@@ -129,6 +129,8 @@ no_more_aps:
 	mov al, 11111110b		; enable rtc
 	out 0xA1, al
 
+	call os_seed_random		; Seed the RNG
+
 	sti				; Re-enable interupts.
 
 ret
