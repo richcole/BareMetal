@@ -2,12 +2,14 @@
 // ld -T app.ld -o testc1.app testc1.o
 
 void b_print_string(const char *str);
+void b_print_char(const char chr);
 unsigned char b_input_wait_for_key(void);
 
 int main(void)
 {
-	unsigned char tchar;
-
+	unsigned char tchar = 0x65;
+	b_print_char(tchar);
+	
 	b_print_string("Hello world, from C!\nHit a key: ");
 	tchar = b_input_wait_for_key();
 	
@@ -29,6 +31,11 @@ int main(void)
 void b_print_string(const char *str)
 {
 	asm volatile ("call 0x00100010" :: "S"(str)); // Make sure string is passed in RSI
+}
+
+void b_print_char(const char chr)
+{
+	asm volatile ("call 0x00100018" :: "a"(chr)); // Make sure the char is passed in RAX
 }
 
 // C call to os_input_key_wait
