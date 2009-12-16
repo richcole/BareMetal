@@ -280,11 +280,11 @@ os_scroll_screen:
 	push rcx
 	push rax
 
-	cld				; Clear the direction flag.. we want to increment through the string
+	cld				; Clear the direction flag.. we want to increment through memory
 	mov rsi, 0x00000000000B80A0	; start of video text memory for row 2
 	mov rdi, 0x00000000000B8000	; start of video text memory
-	mov rcx, 0x0000000000000780	; Set to repeat 1920 times (80x24)
-	rep movsw
+	mov rcx, 480			; (80 x 24) / 4
+	rep movsq			; Copy 8 bytes at a time
 ; now we need to clear the last line in video memory
 	mov ax, 0x0720			;0x00 characteristic	00 actual diplayed character (char 0x20 is a space)
 	mov rdi, 0x00000000000B8F00
