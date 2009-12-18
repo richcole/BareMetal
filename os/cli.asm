@@ -91,7 +91,7 @@ endofcommand:
 
 ; At this point it is not one of the built-in CLI functions. Prepare to check the filesystem.
 	mov al, '.'
-	call os_find_char_in_string	; Check for a '.' in the string
+	call os_string_find_char	; Check for a '.' in the string
 	cmp rax, 0
 	jne full_name			; If there was a '.' then a suffix is present
 
@@ -180,22 +180,22 @@ testzone:
 ;	call os_dump_rax
 ;	call os_print_newline
 
-	xor rdx, rdx
-loopy:
-	mov rax, 0
-	mov rbx, 10
-	call os_get_random_integer
-
-	mov rdi, cli_temp_string
-	mov rsi, rdi
-	mov rax, rcx
-	call os_int_to_string
-	call os_print_string
-	mov al, ' '
-	call os_print_char
-	add rdx, 1
-	cmp rdx, 100
-	jne loopy
+;	xor rdx, rdx
+;loopy:
+;	mov rax, 0
+;	mov rbx, 10
+;	call os_get_random_integer
+;
+;	mov rdi, cli_temp_string
+;	mov rsi, rdi
+;	mov rax, rcx
+;	call os_int_to_string
+;	call os_print_string
+;	mov al, ' '
+;	call os_print_char
+;	add rdx, 1
+;	cmp rdx, 100
+;	jne loopy
 ;	call os_print_newline
 
 ;	mov rdi, cli_temp_string		; Get string from user
@@ -221,24 +221,28 @@ loopy:
 
 ;	mov al, 65
 ;	call os_serial_send
-;	mov rcx, 100
-;	mov al, '5'
-;	call os_print_char
-;	call os_delay
-;	mov al, '4'
-;	call os_print_char
-;	call os_delay
-;	mov al, '3'
-;	call os_print_char
-;	call os_delay
-;	mov al, '2'
-;	call os_print_char
-;	call os_delay
-;	mov al, '1'
-;	call os_print_char
-;	call os_delay
-;	call os_speaker_beep
-;	call os_print_newline
+	mov al, '5'
+	call os_print_char
+	mov rax, 100
+	call os_delay
+	mov al, '4'
+	call os_print_char
+	mov rax, 100
+	call os_delay
+	mov al, '3'
+	call os_print_char
+	mov rax, 100
+	call os_delay
+	mov al, '2'
+	call os_print_char
+	mov rax, 100
+	call os_delay
+	mov al, '1'
+	call os_print_char
+	mov rax, 100
+	call os_delay
+	call os_speaker_beep
+	call os_print_newline
 
 ;	ud2
 ;	xor rax, rax
@@ -269,7 +273,7 @@ debug:
 	
 	jmp os_command_line
 debug_dump_reg:
-	call os_dump_reg
+	call os_debug_dump_reg
 	jmp os_command_line
 
 exit:

@@ -56,7 +56,7 @@ screen_cursor_y:	db 0x00
 screen_cursor_offset:	dq 0x0000000000000000
 
 ; Function variables
-os_dump_reg_stage:	db 0x00
+os_debug_dump_reg_stage:	db 0x00
 
 ; File System
 fat16_BytesPerSector:		dw 0x0000
@@ -72,6 +72,23 @@ fat16_RootStart:		dd 0x00000000
 
 keylayoutlower:
 db 0, '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0x0e, 0, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 0x1c, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 0, 0, 0, 0, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, 0, 0, ' ', 0
+
+os_debug_dump_reg_string00:	db '  A:', 0
+os_debug_dump_reg_string01:	db '  B:', 0
+os_debug_dump_reg_string02:	db '  C:', 0
+os_debug_dump_reg_string03:	db '  D:', 0
+os_debug_dump_reg_string04:	db ' SI:', 0
+os_debug_dump_reg_string05:	db ' DI:', 0
+os_debug_dump_reg_string06:	db ' BP:', 0
+os_debug_dump_reg_string07:	db ' SP:', 0
+os_debug_dump_reg_string08:	db '  8:', 0
+os_debug_dump_reg_string09:	db '  9:', 0
+os_debug_dump_reg_string0A:	db ' 10:', 0
+os_debug_dump_reg_string0B:	db ' 11:', 0
+os_debug_dump_reg_string0C:	db ' 12:', 0
+os_debug_dump_reg_string0D:	db ' 13:', 0
+os_debug_dump_reg_string0E:	db ' 14:', 0
+os_debug_dump_reg_string0F:	db ' 15:', 0
 	
 ;keylayoutupper:
 ;db 0, '~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 0x0e, 0, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U','I', 'O', 'P', '{', '}', 0x1c, 0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', 0, 0, 0, 0, 'Z', 'X', 'C', 'V', 'B', 'N', 'M' , '<', '>', '?', 0, 0, 0, ' ', 0
@@ -80,6 +97,9 @@ cli_command_string:	times 14 db 0
 cli_args:		db 0
 ; 0e = backspace
 ; 1c = enter
+
+align 16
+this_is_the_end:	db 'This is the end.'
 
 ;------------------------------------------------------------------------------
 

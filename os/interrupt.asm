@@ -312,7 +312,7 @@ exception_gate_main:
 	xor rax, rax
 	pop rax				; The processor puts an error code on the stack, get it and print it
 	call os_print_newline
-	call os_dump_reg
+	call os_debug_dump_reg
 
 	jmp ap_clear			; jump to AP clear code
 

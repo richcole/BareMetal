@@ -5,14 +5,17 @@ void b_print_string(const char *str);
 void b_print_char(const char chr);
 unsigned char b_input_wait_for_key(void);
 void b_int_to_string(unsigned long long nbr, char *str);
+unsigned long long b_string_to_int(const char *str);
 
 int main(void)
 {
 	unsigned char tchar = 0x65, tstring[25];
+	unsigned long long tlonglong;
 //	b_print_char(tchar);
 
 	b_int_to_string(0xFFFFFFFFFFFFFFFF, tstring);
 	b_print_string(tstring);
+	tlonglong = b_string_to_int(tstring);
 
 	b_print_string("Hello world, from C!\nHit a key: ");
 	tchar = b_input_wait_for_key();
@@ -51,4 +54,9 @@ unsigned char b_input_wait_for_key(void)
 void b_int_to_string(unsigned long long nbr, char *str)
 {
 	asm volatile ("call 0x001000C0" : : "a"(nbr), "D"(str));
+}
+
+unsigned long long b_string_to_int(const char *str)
+{
+	asm volatile ("call 0x001000E0" : : "S"(str));
 }

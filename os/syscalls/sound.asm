@@ -62,7 +62,7 @@ os_speaker_beep:
 
 	mov rax, 0x0000000000000C80
 	call os_speaker_tone
-	mov rcx, 25		; A quarter of a second
+	mov rax, 25		; A quarter of a second
 	call os_delay
 	call os_speaker_off
 

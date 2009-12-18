@@ -11,11 +11,11 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; os_dump_reg -- Dump the values on the registers to the screen (For debug purposes)
+; os_debug_dump_reg -- Dump the values on the registers to the screen (For debug purposes)
 ;  IN:	Nothing
 ; OUT:	Nothing, all registers preserved
-os_dump_reg:
-	push r15	; Push all of the major registers to the stack
+os_debug_dump_reg:
+	push r15					; Push all of the registers to the stack
 	push r14
 	push r13
 	push r12
@@ -32,71 +32,54 @@ os_dump_reg:
 	push rbx
 	push rax
 
-	mov byte [os_dump_reg_stage], 0x00	; Reset the stage to 0 since we are starting
-again:
-	mov rsi, os_dump_reg_string00
+	mov byte [os_debug_dump_reg_stage], 0x00	; Reset the stage to 0 since we are starting
+os_debug_dump_reg_next:
+	mov rsi, os_debug_dump_reg_string00
 	xor rax, rax
 	xor rbx, rbx
-	mov al, [os_dump_reg_stage]
-	mov bl, 5	; each string is 5 bytes
-	mul bl		; ax = bl x al
-	add rsi, rax
-	call os_print_string			; Print the register name
-	pop rax							; Pop the next register from the stack
-	call os_dump_rax				; Print the hex string vale of RAX
-	inc byte [os_dump_reg_stage]
-	cmp byte [os_dump_reg_stage], 0x10
-	jne again
+	mov al, [os_debug_dump_reg_stage]
+	mov bl, 5					; Each string is 5 bytes
+	mul bl						; AX = BL x AL
+	add rsi, rax					; Add the offset to get to the correct string
+	call os_print_string				; Print the register name
+	pop rax						; Pop the register from the stack
+	call os_debug_dump_rax				; Print the hex string value of RAX
+	inc byte [os_debug_dump_reg_stage]
+	cmp byte [os_debug_dump_reg_stage], 0x10	; Check to see if all 16 registers are displayed
+	jne os_debug_dump_reg_next
 
 	ret
-
-os_dump_reg_string00:	db '  A:', 0
-os_dump_reg_string01:	db '  B:', 0
-os_dump_reg_string02:	db '  C:', 0
-os_dump_reg_string03:	db '  D:', 0
-os_dump_reg_string04:	db ' SI:', 0
-os_dump_reg_string05:	db ' DI:', 0
-os_dump_reg_string06:	db ' BP:', 0
-os_dump_reg_string07:	db ' SP:', 0
-os_dump_reg_string08:	db '  8:', 0
-os_dump_reg_string09:	db '  9:', 0
-os_dump_reg_string0A:	db ' 10:', 0
-os_dump_reg_string0B:	db ' 11:', 0
-os_dump_reg_string0C:	db ' 12:', 0
-os_dump_reg_string0D:	db ' 13:', 0
-os_dump_reg_string0E:	db ' 14:', 0
-os_dump_reg_string0F:	db ' 15:', 0
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
-; os_dump_mem -- Dump some memory content to the screen
-;  IN:	RSI = location of memory to dump
+; os_debug_dump_mem -- Dump some memory content to the screen
+;  IN:	RSI = Start of memory address to dump
 ;	RCX = number of bytes to dump
 ; OUT:	Nothing, all registers preserved
-os_dump_mem:
+os_debug_dump_mem:
 	push rsi
 	push rcx
 	push rax
 
-os_dump_mem_next_byte:
+os_debug_dump_mem_next_byte:
 	lodsb
 	call os_print_char_hex
 	dec rcx
-	jnz os_dump_mem_next_byte	; jump if RCX is not equal to zero
+	jnz os_debug_dump_mem_next_byte	; jump if RCX is not equal to zero
 
 	pop rax
 	pop rcx
 	pop rsi
-ret
+	ret
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
-; os_dump_rax -- Dump content of RAX to the screen in hex format
+; os_debug_dump_rax -- Dump content of RAX to the screen in hex format
 ;  IN:	RAX = content to dump
 ; OUT:	Nothing, all registers preserved
-os_dump_rax:
+os_debug_dump_rax:
 	push rsi
 	push rdi
 
@@ -107,17 +90,17 @@ os_dump_rax:
 
 	pop rdi
 	pop rsi
-ret
+	ret
 ; -----------------------------------------------------------------------------
 
 
 ; -----------------------------------------------------------------------------
-; os_get_ip -- Dump content of RIP into RAX
+; os_debug_get_ip -- Dump content of RIP into RAX
 ;  IN:	Nothing
 ; OUT:	RAX = RIP
-os_get_ip:
+os_debug_get_ip:
 	mov rax, qword [rsp]
-ret
+	ret
 ; -----------------------------------------------------------------------------
 
 

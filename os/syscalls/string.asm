@@ -185,35 +185,35 @@ os_string_length:
 	ret
 ; -----------------------------------------------------------------------------
 
-	
+
 ; -----------------------------------------------------------------------------
-; os_find_char_in_string -- Find first location of character in a string
+; os_string_find_char -- Find first location of character in a string
 ;  IN:	RSI = string location
 ;	AL  = character to find
 ; OUT:	RAX = location in string, or 0 if char not present
 ;	All other registers preserved
-os_find_char_in_string:
+os_string_find_char:
 	push rsi
 	push rcx
 
 	mov rcx, 1		; Counter -- start at first char
-os_find_char_in_string_more:
+os_string_find_char_more:
 	cmp byte [rsi], al
-	je os_find_char_in_string_done
+	je os_string_find_char_done
 	cmp byte [rsi], 0
-	je os_find_char_in_string_notfound
+	je os_string_find_char_not_found
 	inc rsi
 	inc rcx
-	jmp os_find_char_in_string_more
+	jmp os_string_find_char_more
 
-os_find_char_in_string_done:
+os_string_find_char_done:
 	mov rax, rcx
 
 	pop rcx
 	pop rsi
 	ret
 
-os_find_char_in_string_notfound:
+os_string_find_char_not_found:
 	pop rcx
 	pop rsi
 	xor rax, rax	; not found, set RAX to 0
@@ -222,31 +222,31 @@ os_find_char_in_string_notfound:
 
 
 ; -----------------------------------------------------------------------------
-; os_string_charchange -- Change all instances of a character in a string
+; os_string_change_char -- Change all instances of a character in a string
 ;  IN:	RSI = string location
 ;	AL  = character to replace
 ;	BL  = replacement character
 ; OUT:	All registers preserved
-os_string_charchange:
+os_string_change_char:
 	push rsi
 	push rcx
 	push rbx
 	push rax
 
 	mov cl, al
-os_string_charchange_loop:
+os_string_change_char_loop:
 	mov byte al, [rsi]
 	cmp al, 0
-	je os_string_charchange_done
+	je os_string_change_char_done
 	cmp al, cl
-	jne os_string_charchange_nochange
+	jne os_string_change_char_no_change
 	mov byte [rsi], bl
 
-os_string_charchange_nochange:
+os_string_change_char_no_change:
 	inc rsi
-	jmp os_string_charchange_loop
+	jmp os_string_change_char_loop
 
-os_string_charchange_done:
+os_string_change_char_done:
 	pop rax
 	pop rbx
 	pop rcx

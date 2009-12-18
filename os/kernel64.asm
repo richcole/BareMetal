@@ -9,7 +9,7 @@
 USE64
 ORG 0x0000000000100000
 
-%DEFINE BAREMETALOS_VER 'v0.4.6-dev (December 2, 2009)'
+%DEFINE BAREMETALOS_VER 'v0.4.6-dev (December 18, 2009)'
 %DEFINE BAREMETALOS_API_VER 1
 
 kernel_start:
@@ -18,13 +18,13 @@ kernel_start:
 	; Aligned for simplicity.
 	align 16
 
-	jmp os_print_string	; 0x00010010
+	jmp os_print_string	; 0x00100010
 	align 8
-	jmp os_print_char
+	jmp os_print_char	; 0x00100018
 	align 8
-	jmp os_print_char_hex
+	jmp os_print_char_hex	; 0x00100020
 	align 8
-	jmp os_print_newline
+	jmp os_print_newline	; 0x00100028
 	align 8
 	jmp os_input_key_check
 	align 8
@@ -44,7 +44,7 @@ kernel_start:
 	align 8
 	jmp os_string_length
 	align 8
-	jmp os_find_char_in_string
+	jmp os_string_find_char
 	align 8
 	jmp os_string_copy
 	align 8
@@ -64,11 +64,11 @@ kernel_start:
 	align 8
 	jmp os_int_to_string
 	align 8
-	jmp os_dump_reg
+	jmp os_debug_dump_reg
 	align 8
-	jmp os_dump_mem
+	jmp os_debug_dump_mem
 	align 8
-	jmp os_dump_rax
+	jmp os_debug_dump_rax
 	align 8
 	jmp os_string_to_int
 	align 8
@@ -203,6 +203,7 @@ continue:
 
 	; Go back to sleep
 	jmp ap_sleep		; Reset the stack, clear the registers, and wait for something to work on
+
 
 ; Includes
 %include "init_64.asm"

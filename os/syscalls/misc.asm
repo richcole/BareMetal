@@ -90,20 +90,19 @@ clock_debug_end:
 
 ; -----------------------------------------------------------------------------
 ; os_delay -- Delay by X
-; IN:	RCX = Time in hundredths of a second
+; IN:	RAX = Time in hundredths of a second
 ; OUT:	All registers preserved
-; A value of 100 in RCX will delay 1 second and a value of 1 will delay 1/100 of a second
+; A value of 100 in RAX will delay 1 second and a value of 1 will delay 1/100 of a second
 ; This function depends on the PIT (IRQ 0) so interrupts must be enabled.
 os_delay:
 	push rcx
 	push rax
 
-	mov rax, [timer_counter]	; Grab the initial timer counter. It increments 100 times a second
-	add rcx, rax			; Add RCX so we get the end time we want
+	mov rcx, [timer_counter]	; Grab the initial timer counter. It increments 100 times a second
+	add rax, rcx			; Add RCX so we get the end time we want
 os_delay_loop:
-	mov rax, [timer_counter]	; Grab the timer couter again
-	cmp rax, rcx			; Compare it against our end time
-	jle os_delay_loop		; Loop if RCX is still lower
+	cmp qword [timer_counter], rax	; Compare it against our end time
+	jle os_delay_loop		; Loop if RAX is still lower
 
 	pop rax
 	pop rcx
