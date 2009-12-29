@@ -153,8 +153,8 @@ os_seed_random:
 	out 0x70, al
 	in al, 0x71
 	mov bl, al
-	shl rbx, 8
-	mov [os_random_seed], rbx
+	mov [os_random_seed], rbx	; Seed will be something like 0x0020091229164435
+	;shift again and get rtsc?
 
 	pop rax
 	pop rbx
