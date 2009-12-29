@@ -1,25 +1,33 @@
-// gcc -o testc1.o -c testc1.c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer
+// gcc -c -m64 -nostdlib -nostartfiles -nodefaultlibs -fomit-frame-pointer -o testc1.o testc1.c
 // ld -T app.ld -o testc1.app testc1.o
 
-void b_print_string(const char *str);
-void b_print_char(const char chr);
+void b_print_string(char *str);
+void b_print_char(char chr);
+void b_print_newline(void);
+unsigned char b_input_check_for_key(void);
 unsigned char b_input_wait_for_key(void);
-void b_int_to_string(unsigned long long nbr, char *str);
-unsigned long long b_string_to_int(const char *str);
+void b_int_to_string(unsigned long nbr, unsigned char *str);
+unsigned long b_string_to_int(unsigned char *str);
 
 int main(void)
 {
-	unsigned char tchar = 0x65, tstring[25];
-	unsigned long long tlonglong;
-//	b_print_char(tchar);
+	unsigned char tchar = 0x00, tstring[25];
+	unsigned short tshort;
+	unsigned int tint;
+	unsigned long tlong;
 
-	b_int_to_string(0xFFFFFFFFFFFFFFFF, tstring);
-	b_print_string(tstring);
-	tlonglong = b_string_to_int(tstring);
+//	b_int_to_string(0xFFFFFFFFFFFFFFFF, tstring);
+//	b_print_string(tstring);
+//	b_print_newline();
+//	tlong = b_string_to_int(tstring);
+//	tlong = fib(20);
+//	b_int_to_string(tlong, tstring);
+//	b_print_string(tstring);
 
 	b_print_string("Hello world, from C!\nHit a key: ");
 	tchar = b_input_wait_for_key();
-	
+	b_print_char(tchar);
+
 	if (tchar == 'a')
 	{
 		b_print_string("key was 'a'\n");
@@ -35,28 +43,43 @@ int main(void)
 
 // C call to os_print_string
 // C passes the string address in RDI instead of RSI
-void b_print_string(const char *str)
+void b_print_string(char *str)
 {
-	asm volatile ("call 0x00100010" : : "S"(str)); // Make sure string is passed in RSI
+	asm volatile ("call 0x00100010" : : "S"(str)); // Make sure source register (RSI) has the string address (str)
 }
 
-void b_print_char(const char chr)
+void b_print_char(char chr)
 {
 	asm volatile ("call 0x00100018" : : "a"(chr));
 }
 
-// C call to os_input_key_wait
-unsigned char b_input_wait_for_key(void)
+void b_print_newline(void)
 {
-	asm volatile ("call 0x00100038");
+	asm volatile ("call 0x00100028");
 }
 
-void b_int_to_string(unsigned long long nbr, char *str)
+unsigned char b_input_check_for_key(void)
+{
+	unsigned char chr;
+	asm volatile ("call 0x00100030" : "=a" (chr));
+	return chr;
+}
+
+unsigned char b_input_wait_for_key(void)
+{
+	unsigned char chr;
+	asm volatile ("call 0x00100038" : "=a" (chr));
+	return chr;
+}
+
+void b_int_to_string(unsigned long nbr, unsigned char *str)
 {
 	asm volatile ("call 0x001000C0" : : "a"(nbr), "D"(str));
 }
 
-unsigned long long b_string_to_int(const char *str)
+unsigned long b_string_to_int(unsigned char *str)
 {
-	asm volatile ("call 0x001000E0" : : "S"(str));
+	unsigned long nbr;
+	asm volatile ("call 0x001000E0" : "=a"(nbr) : "S"(str));
+	return nbr;
 }
