@@ -115,15 +115,11 @@ os_delay_loop:
 ; IN:	Nothing
 ; OUT:	All registers preserved
 os_seed_random:
+	push rdx
 	push rbx
 	push rax
 
 	xor rbx, rbx
-	mov al, 0x32		; century
-	out 0x70, al
-	in al, 0x71
-	mov bl, al
-	shl rbx, 8
 	mov al, 0x09		; year
 	out 0x70, al
 	in al, 0x71
@@ -153,11 +149,15 @@ os_seed_random:
 	out 0x70, al
 	in al, 0x71
 	mov bl, al
-	mov [os_random_seed], rbx	; Seed will be something like 0x0020091229164435
-	;shift again and get rtsc?
+	shl rbx, 16
+	rdtsc			; Read the Time Stamp Counter in EDX:EAX
+	mov bx, ax		; Only use the last 2 bytes
+
+	mov [os_random_seed], rbx	; Seed will be something like 0x091229164435F30A
 
 	pop rax
 	pop rbx
+	pop rdx
 	ret
 ; -----------------------------------------------------------------------------
 
@@ -172,10 +172,8 @@ os_get_random:
 	push rbx
 
 	mov rax, [os_random_seed]
-	mov rdx, 0x0019660D0019660D
-	mul rdx
-	mov rbx, 0x3C6EF35F3C6EF35F
-	add rax, rbx
+	mov rdx, 0x23D8AD1401DE7383	; The magic number (random.org)
+	mul rdx				; RDX:RAX = RAX * RDX
 	mov [os_random_seed], rax
 
 	pop rbx
