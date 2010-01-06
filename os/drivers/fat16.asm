@@ -11,7 +11,7 @@ align 16
 
 
 ; -----------------------------------------------------------------------------
-; os_fat16_read_cluster -- Read a cluster from the FAT16 volume
+; os_fat16_read_cluster -- Read a cluster from the FAT16 partition
 ; IN:	AX - (cluster)
 ;	RDI - (memory location to store at least 32KB)
 ; OUT:	AX - (next cluster)
@@ -35,6 +35,7 @@ os_fat16_read_cluster:
 	sub ax, 2
 	imul cx					; EAX now holds starting sector
 	add eax, dword [fat16_DataStart]	; EAX now holds the sector where our cluster starts
+	add eax, [fat16_PartitionOffset]	; Add the offset to the partition
 
 	pop rcx					; Restore the number of sectors per cluster
 os_fat16_read_cluster_nextsector:		; Read the sectors in one-by-one
@@ -54,6 +55,7 @@ os_fat16_read_cluster_nextsector:		; Read the sectors in one-by-one
 	push rbx				; Save the original cluster value
 	shr rbx, 8				; Divide the cluster value by 256. Keep no remainder
 	movzx ax, [fat16_ReservedSectors]	; First sector of the first FAT
+	add eax, [fat16_PartitionOffset]	; Add the offset to the partition
 	add rax, rbx				; Add the sector offset
 	call readsector
 	pop rax					; Get our original cluster value back
@@ -91,6 +93,7 @@ os_fat16_find_file:
 
 	xor rax, rax
 	mov eax, [fat16_RootStart]	; eax points to the first sector of the root
+	add eax, [fat16_PartitionOffset]	; Add the offset to the partition
 	mov rdi, hdbuffer1
 	push rdi
 	call readsector
@@ -138,6 +141,7 @@ os_fat16_get_file_list:
 
 	xor rax, rax
 	mov eax, [fat16_RootStart]	; eax points to the first sector of the root
+	add eax, [fat16_PartitionOffset]	; Add the offset to the partition
 	push rdi
 	mov rdi, hdbuffer1
 	mov rsi, rdi

@@ -11,13 +11,24 @@ align 16
 
 
 hdd_setup:
-	xor rax, rax		; Read first sector (Sector #0) into memory
+; Read first sector (MBR) into memory
+	xor rax, rax
 	mov rdi, hdbuffer
 	push rdi
 	call readsector
 	pop rdi
 
-;get the values we need to start using fat16
+; Grab the partition offset value for the first partition
+	mov eax, [rdi+0x01C6]
+	mov [fat16_PartitionOffset], eax
+
+; Read the first sector of the first partition
+	mov rdi, hdbuffer
+	push rdi
+	call readsector
+	pop rdi
+
+; Get the values we need to start using fat16
 	mov ax, [rdi+0x0b]
 	mov [fat16_BytesPerSector], ax		; This will probably be 512
 	mov al, [rdi+0x0d]
@@ -32,7 +43,7 @@ hdd_setup:
 	mov ax, [rdi+0x16]
 	mov [fat16_SectorsPerFat], ax
 
-;find out how many sectors are on the disk
+; Find out how many sectors are on the disk
 	xor eax, eax
 	mov ax, [rdi+0x13]
 	cmp ax, 0x0000

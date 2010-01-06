@@ -69,6 +69,7 @@ fat16_TotalSectors:		dd 0x00000000
 fat16_RootDirEnts:		dw 0x0000
 fat16_DataStart:		dd 0x00000000
 fat16_RootStart:		dd 0x00000000
+fat16_PartitionOffset:		dd 0x00000000
 
 keylayoutlower:
 db 0, '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0x0e, 0, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 0x1c, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 0, 0, 0, 0, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, 0, 0, ' ', 0
