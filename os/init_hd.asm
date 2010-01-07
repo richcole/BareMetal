@@ -18,6 +18,9 @@ hdd_setup:
 	call readsector
 	pop rdi
 
+	cmp byte [0x000000000000F030], 0x01	; Did we boot from a MBR drive
+	jne hdd_setup_no_mbr			; If not then we already have the correct sector
+
 ; Grab the partition offset value for the first partition
 	mov eax, [rdi+0x01C6]
 	mov [fat16_PartitionOffset], eax
@@ -28,6 +31,7 @@ hdd_setup:
 	call readsector
 	pop rdi
 
+hdd_setup_no_mbr:
 ; Get the values we need to start using fat16
 	mov ax, [rdi+0x0b]
 	mov [fat16_BytesPerSector], ax		; This will probably be 512
