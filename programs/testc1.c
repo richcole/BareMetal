@@ -4,25 +4,23 @@
 void b_print_string(char *str);
 void b_print_char(char chr);
 void b_print_newline(void);
-unsigned char b_input_check_for_key(void);
 unsigned char b_input_wait_for_key(void);
 void b_int_to_string(unsigned long nbr, unsigned char *str);
 unsigned long b_string_to_int(unsigned char *str);
+unsigned long fib(unsigned int n);
 
 int main(void)
 {
 	unsigned char tchar = 0x00, tstring[25];
-	unsigned short tshort;
-	unsigned int tint;
 	unsigned long tlong;
 
 //	b_int_to_string(0xFFFFFFFFFFFFFFFF, tstring);
 //	b_print_string(tstring);
 //	b_print_newline();
 //	tlong = b_string_to_int(tstring);
-//	tlong = fib(20);
-//	b_int_to_string(tlong, tstring);
-//	b_print_string(tstring);
+	tlong = fib(20);
+	b_int_to_string(tlong, tstring);
+	b_print_string(tstring);
 
 	b_print_string("Hello world, from C!\nHit a key: ");
 	tchar = b_input_wait_for_key();
@@ -58,13 +56,6 @@ void b_print_newline(void)
 	asm volatile ("call 0x00100028");
 }
 
-unsigned char b_input_check_for_key(void)
-{
-	unsigned char chr;
-	asm volatile ("call 0x00100030" : "=a" (chr));
-	return chr;
-}
-
 unsigned char b_input_wait_for_key(void)
 {
 	unsigned char chr;
@@ -79,7 +70,20 @@ void b_int_to_string(unsigned long nbr, unsigned char *str)
 
 unsigned long b_string_to_int(unsigned char *str)
 {
-	unsigned long nbr;
-	asm volatile ("call 0x001000E0" : "=a"(nbr) : "S"(str));
-	return nbr;
+	unsigned long tlong;
+	asm volatile ("call 0x001000E0" : "=a"(tlong) : "S"(str));
+	return tlong;
+}
+
+unsigned long fib(unsigned int n)
+{
+	unsigned long a = 1, b = 1;
+	unsigned long tmp;
+	for (; n > 2; --n)
+	{
+		tmp = a;
+		a += b;
+		b = tmp;
+	}
+	return a;
 }
