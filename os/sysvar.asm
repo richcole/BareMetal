@@ -37,6 +37,7 @@ stackbase:		equ 0x0000000000050400	; Address for the base of the stacks
 os_LocalAPICAddress	dq 0x0000000000000000
 os_IOAPICAddress	dq 0x0000000000000000
 timer_counter:		dq 0x0000000000000000	; 64-bit system counter
+clock_counter:		dq 0x0000000000000000
 stagingarea		dq 0x0000000000000000
 os_random_seed		dq 0x0000000000000000	; Seed for RNG
 cpu_speed:		dd 0x00000000
@@ -54,6 +55,7 @@ screen_cols: 		db 80 ; y
 screen_cursor_x:	db 0x00
 screen_cursor_y:	db 0x00
 screen_cursor_offset:	dq 0x0000000000000000
+clockval:		dq 0x0000000000000000
 
 ; Function variables
 os_debug_dump_reg_stage:	db 0x00

@@ -120,6 +120,7 @@ rtc:
 	push rdi
 	
 	call clock_debug		; For debug to see if system is still running
+	add qword [clock_counter], 1	; 64-bit counter started at bootup
 	
 	; Check to make sure that at least one core is running something
 	mov rsi, taskdata
