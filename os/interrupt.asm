@@ -2,7 +2,7 @@
 ; BareMetal -- a 64-bit OS written in Assembly for x86-64 systems
 ; Copyright (C) 2008-2009 Return Infinity -- see LICENSE.TXT
 ;
-; Interupts
+; Interrupts
 ; =============================================================================
 
 align 16
@@ -17,7 +17,7 @@ exception_gate:
 	call os_print_string
 	mov rsi, exc_string
 	call os_print_string
-	jmp $			; hang
+	jmp $				; Hang
 ; -----------------------------------------------------------------------------
 
 
@@ -31,8 +31,7 @@ interrupt_gate:				; handler for all other interrupts
 ; -----------------------------------------------------------------------------
 ; Timer interrupt. IRQ 0x00, INT 0x20
 ; Currently this IRQ runs 100 times per second (As defined in Pure64)
-; That gives us a runtime of 184467440737095516 seconds before rollover
-; That translates to ~5,845,545,310 years. Do we really need the "hi" counter?
+; That gives us a runtime of 184467440737095516 seconds before rollover (~5,845,545,310 years)
 timer:
 	push rax
 
@@ -96,7 +95,7 @@ donekey:
 
 
 ; -----------------------------------------------------------------------------
-; Cascade interrup. IRQ 0x02, INT 0x22
+; Cascade interrupt. IRQ 0x02, INT 0x22
 cascade:
 	push rax
 

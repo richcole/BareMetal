@@ -64,7 +64,7 @@ keyboard_debug_end:
 
 ; -----------------------------------------------------------------------------
 ; Show a incrementing digit on the screen... as long as it is incrementing the system is working (not hung)
-; After 9 it wraps back to 0
+; After 7 it wraps back to 0
 clock_debug:
 	push rdi
 	push rax
@@ -76,7 +76,7 @@ clock_debug:
 	mov al, [clock_debug_counter]
 	stosb
 	inc al
-	cmp al, 0x3A ; 0x39 is '9'
+	cmp al, '8'
 	jne clock_debug_end
 	mov al, 0x30
 
