@@ -123,8 +123,7 @@ rtc:
 	
 	; Check to make sure that at least one core is running something
 	mov rsi, taskdata
-	xor rcx, rcx
-	mov cx, [os_NumCores]
+	movzx rcx, word [os_NumCores]
 check_loop:
 	dec rcx
 	lodsq
