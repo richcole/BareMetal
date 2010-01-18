@@ -36,9 +36,11 @@ timer:
 	push rax
 
 	call timer_debug		; For debug to see if system is still running
+
 	add qword [timer_counter], 1	; 64-bit counter started at bootup
-	mov al, 20h			; Acknowledge the IRQ
-	out 20h, al
+
+	mov al, 0x20			; Acknowledge the IRQ
+	out 0x20, al
 
 	pop rax
 	iretq
@@ -53,40 +55,56 @@ keyboard:
 
 	call keyboard_debug		; For debug to see if system is still running
 
-	mov al, 0xad
-	out 0x64, al			; disable keyboard
-	in al, 0x61			; get the scancode
-	mov [scancode], al		; store the scancode
-	xor al, 0x80			; next five lines are for acknowledging the scancode
-	out 0x61, al
-	mov al, [scancode]
-	and al, 0x7f
-	out 0x61, al
-	xor eax, eax
-	in al, 0x60			; get the key
+	xor rax, rax
+	in al, 0x60			; Get the scancode from the keyboard
+	cmp al, 0x2A			; Left Shift Make
+	je keyboard_shift
+	cmp al, 0x36			; Right Shift Make
+	je keyboard_shift
+	cmp al, 0xAA			; Left Shift Break
+	je keyboard_noshift
+	cmp al, 0xB6			; Right Shift Break
+	je keyboard_noshift
 	test al, 0x80
 	jz keydown
 	jmp keyup
 
 keydown:
-	mov ebx, keylayoutlower
-	add ebx, eax
-	mov bl, [ebx]
+	cmp byte [key_shift], 0x00
+	jne keyboard_lowercase
+	jmp keyboard_uppercase
+
+keyboard_lowercase:
+	mov rbx, keylayoutupper
+	jmp keyboard_processkey
+
+keyboard_uppercase:	
+	mov rbx, keylayoutlower
+
+keyboard_processkey:			; Convert the scancode
+	add rbx, rax
+	mov bl, [rbx]
 	mov [key], bl
 	mov al, [key]
-	jmp donekey
+	jmp keyboard_done
 
 keyup:
-	; else we got a valid key
+	jmp keyboard_done
 
+
+keyboard_shift:
+	mov byte [key_shift], 0x01
+	jmp keyboard_done
+
+keyboard_noshift:
+	mov byte [key_shift], 0x00
+	jmp keyboard_done
+
+keyboard_done:
 ;	mov byte [0xB8f9c], al	; put the typed character in the bottom right hand corner
 
-
-donekey:
-	mov al, 0xae
-	out 0x64, al			; Enable keyboard
-	mov al, 20h			; Acknowledge the IRQ
-	out 20h, al
+	mov al, 0x20			; Acknowledge the IRQ
+	out 0x20, al
 
 	pop rbx
 	pop rax
@@ -138,11 +156,11 @@ check_loop:
 	stosq
 
 check_end:
-	mov al, 0x0c			; Select RTC register C
+	mov al, 0x0C			; Select RTC register C
 	out 0x70, al			; Port 0x70 is the RTC index, and 0x71 is the RTC data
 	in al, 0x71			; Read the value in register C
 	mov al, 0x20			; Acknowledge the IRQ
-	out 0xa0, al
+	out 0xA0, al
 	out 0x20, al
 
 	pop rdi

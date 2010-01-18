@@ -280,8 +280,11 @@ loopy:
 ;	ret
 
 reboot:
+	in al, 0x64
+	test al, 00000010b	; Wait for an empty Input Buffer
+	jne reboot
 	mov al, 0xFE
-	out 0x64, al
+	out 0x64, al		; Send the reboot call to the keyboard controller
 	jmp reboot
 
 debug:

@@ -47,6 +47,7 @@ cursorx:		db 0x00		; cursor row location
 cursory:		db 0x00		; cursor column location
 scancode:		db 0x00
 key:			db 0x00
+key_shift:		db 0x00
 timer_debug_counter:	db 0x30 ; '0'
 keyboard_debug_counter:	db 0x30 ; '0'
 clock_debug_counter:	db 0x30 ; '0'
@@ -75,6 +76,10 @@ fat16_PartitionOffset:		dd 0x00000000
 
 keylayoutlower:
 db 0, '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0x0e, 0, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 0x1c, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 0, 0, 0, 0, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, 0, 0, ' ', 0
+keylayoutupper:
+db 0, '~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 0x0e, 0, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', 0x1c, 0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', 0, 0, 0, 0, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0, 0, 0, ' ', 0
+; 0e = backspace
+; 1c = enter
 
 os_debug_dump_reg_string00:	db '  A:', 0
 os_debug_dump_reg_string01:	db '  B:', 0
@@ -92,14 +97,9 @@ os_debug_dump_reg_string0C:	db ' 12:', 0
 os_debug_dump_reg_string0D:	db ' 13:', 0
 os_debug_dump_reg_string0E:	db ' 14:', 0
 os_debug_dump_reg_string0F:	db ' 15:', 0
-	
-;keylayoutupper:
-;db 0, '~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 0x0e, 0, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U','I', 'O', 'P', '{', '}', 0x1c, 0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', 0, 0, 0, 0, 'Z', 'X', 'C', 'V', 'B', 'N', 'M' , '<', '>', '?', 0, 0, 0, ' ', 0
 
 cli_command_string:	times 14 db 0
 cli_args:		db 0
-; 0e = backspace
-; 1c = enter
 
 align 16
 this_is_the_end:	db 'This is the end.'

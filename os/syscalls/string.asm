@@ -524,24 +524,30 @@ os_get_time_string:
 	push rbx
 	push rax
 
+os_get_time_string_wait:
+	mov al, 10
+	out 0x70, al
+	in al, 0x71
+	test al, 0x80			; Is there an update in progress?
+	jne os_get_time_string_wait	; If so then try again
 	mov rbx, hextable
-	mov al, 0x04		; hour
+	mov al, 0x04			; Hours
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
 	mov al, ':'
 	stosb
-	mov al, 0x02		; minute
+	mov al, 0x02			; Minutes
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
 	mov al, ':'
 	stosb
-	mov al, 0x00		; second
+	mov al, 0x00			; Seconds
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-	mov al, 0x00		; Terminate the string
+	mov al, 0x00			; Terminate the string
 	stosb
 
 	pop rax
@@ -572,28 +578,34 @@ os_get_date_string:
 	push rbx
 	push rax
 
+os_get_date_string_wait:
+	mov al, 10
+	out 0x70, al
+	in al, 0x71
+	test al, 0x80			; Is there an update in progress?
+	jne os_get_date_string_wait	; If so then try again
 	mov rbx, hextable
-	mov al, 0x32		; century
+	mov al, 0x32			; Century
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-	mov al, 0x09		; year
-	out 0x70, al
-	in al, 0x71
-	call os_get_time_string_processor
-	mov al, '/'
-	stosb
-	mov al, 0x08		; month
+	mov al, 0x09			; Year
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
 	mov al, '/'
 	stosb
-	mov al, 0x07		; day
+	mov al, 0x08			; Month
 	out 0x70, al
 	in al, 0x71
 	call os_get_time_string_processor
-	mov al, 0x00		; Terminate the string
+	mov al, '/'
+	stosb
+	mov al, 0x07			; Day
+	out 0x70, al
+	in al, 0x71
+	call os_get_time_string_processor
+	mov al, 0x00			; Terminate the string
 	stosb
 
 	pop rax
