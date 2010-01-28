@@ -89,9 +89,9 @@ cleartaskdata:
 
 	;Grab data from Pure64's infomap
 	mov rsi, 0xf000
-	xor rax, rax
-	lodsd
-	mov [os_LocalAPICAddress], rax
+	xor rax, rax			; For clearing the high 32-bits
+	lodsd				; Pure64 records the 2 APIC addresses as 32-bit
+	mov [os_LocalAPICAddress], rax	; Save it for BareMetal as a 64-bit value
 	lodsd
 	mov [os_IOAPICAddress], rax
 	mov rsi, 0xf012
@@ -104,16 +104,16 @@ cleartaskdata:
 	mov rsi, 0x000000000000F700	; Location in memory of the Pure64 CPU data
 
 next_ap:
-	cmp rcx, 128			; enable up to this amount of CPUs
+	cmp rcx, 128			; Enable up to this amount of CPUs
 	je no_more_aps
 	lodsb				; Load the CPU parameters
 	bt rax, 0			; Check if the CPU is enabled
 	jnc skip_ap
-	bt rax, 1			; test to see if this is the BSP (Do not init!)
+	bt rax, 1			; Test to see if this is the BSP (Do not init!)
 	jc skip_ap
 	mov rax, rcx
-	mov rbx, ap_clear
-	call os_smp_call
+	mov rbx, ap_clear		; The address of where we will send the AP's
+	call os_smp_call		; Our very nasty call to get a CPU to jump to where we want it
 skip_ap:
 	inc rcx
 	jmp next_ap
@@ -123,10 +123,10 @@ no_more_aps:
 	; Enable specific interrupts
 	; To be replaced with IOAPIC instead of PIC.
 	in al, 0x21
-	mov al, 11111000b		; enable cascade, keyboard, timer
+	mov al, 11111000b		; Enable cascade, keyboard, timer
 	out 0x21, al
 	in al, 0xA1
-	mov al, 11111110b		; enable rtc
+	mov al, 11111110b		; Enable rtc
 	out 0xA1, al
 
 	call os_seed_random		; Seed the RNG

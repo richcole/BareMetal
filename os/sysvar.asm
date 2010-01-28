@@ -32,7 +32,8 @@ cli_temp_string:	equ 0x0000000000080000	; 1024 bytes = 0x80000 -> 0x803FF
 os_temp_string:		equ 0x0000000000080400	; 1024 bytes = 0x00400 -> 0x807FF
 programlocation:	equ 0x0000000000200000	; Location in memory where programs are loaded (the start of 2M)
 taskdata:		equ 0x00000000001FF000	; Location of task data (4KB before the 2MB mark)
-stackbase:		equ 0x0000000000050400	; Address for the base of the stacks
+taskdata1:		equ 0x00000000001FEF00	; Location of CPU marker data (256 bytes)
+stackbase:		equ 0x0000000000050400	; Address for the base of the stacks (1 KiB in)
 
 os_LocalAPICAddress	dq 0x0000000000000000
 os_IOAPICAddress	dq 0x0000000000000000
