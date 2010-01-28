@@ -110,10 +110,9 @@ start:
 	call os_move_cursor
 	call os_show_cursor
 
-	mov rdi, taskdata		; Start the CLI
-	mov rax, os_command_line
-	stosq
-	jmp ap_sleep
+	; We fall through to ap_clear as align fills the space with No-Ops
+	; At this point the BSP is just like one of the AP's
+
 
 align 16
 
@@ -124,13 +123,20 @@ ap_clear:				; BSP and AP's start here on first start and after an exception
 	add rsi, 0x20			; ... yet defined. It is safer to find the value directly.
 	lodsd				; Load a 32-bit value. We only want the high 8 bits
 	shr rax, 24			; Shift to the right and AL now holds the CPU's APIC ID
+	mov rbx, rax			; Copy APIC ID for later use
 
 	; Find the task for this core in the taskdata and clear it
-	mov rdi, taskdata		; Point RDI to point to the start of the task data
+	mov rdi, taskdata		; Point RDI to the start of the task data
 	shl rax, 4			; Quickly multiply the APIC ID by 16 (task data record size)
 	add rdi, rax			; Add the CPU ID offset to RDI
 	xor rax, rax			; Clear RAX to 0x0
 	stosq				; And store it to the task data
+
+	; Clear the CPU status to Ready
+	mov rdi, cpustatus		; Point RDI to the start of the CPU status data
+	add rdi, rbx			; Add the CPU ID offset to RDI
+	xor rax, rax			; Clear RAX
+	stosb				; Store 1 byte to clear status for this CPU
 
 	sti				; Re-enable interrupts (in case they were disabled)
 

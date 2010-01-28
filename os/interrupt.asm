@@ -147,7 +147,7 @@ check_loop:
 	lodsq
 	add rsi, 8
 	cmp rax, 0x0000000000000000
-	jne check_end
+	jne rtc_end
 	cmp rcx, 0
 	jne check_loop
 	; If we got here then there are no active tasks.. start the CLI
@@ -155,7 +155,7 @@ check_loop:
 	mov rax, os_command_line
 	stosq
 
-check_end:
+rtc_end:
 	mov al, 0x0C			; Select RTC register C
 	out 0x70, al			; Port 0x70 is the RTC index, and 0x71 is the RTC data
 	in al, 0x71			; Read the value in register C

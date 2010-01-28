@@ -73,6 +73,17 @@ make_exception_gates:
 	mov al, 01000010b ; Periodic(6), 24H clock(2)
 	out 0x71, al
 
+	; Clear the CPU status data (256 bytes, each CPU uses 1 byte)
+	mov rdi, cpustatus
+	mov rax, 0xFFFFFFFFFFFFFFFF
+	xor rcx, rcx
+clearcpustatus:
+	stosq
+	xchg rax, rbx
+	inc rcx
+	cmp rcx, 32
+	jne clearcpustatus
+
 	; Clear the task data (4096 bytes, each CPU uses 16 bytes)
 	mov rdi, taskdata
 	mov rax, 0xFFFFFFFFFFFFFFFF

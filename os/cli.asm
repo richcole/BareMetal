@@ -115,21 +115,21 @@ full_name:
 	call os_file_load		; Load the file
 	jc fail				; If carry is set then the file was not found
 
-	mov rbx, [clock_counter]	; Grab the start time
-	mov [clockval], rbx		; Save it
+;	mov rbx, [clock_counter]	; Grab the start time
+;	mov [clockval], rbx		; Save it
 
 	call programlocation		; 0x00100000 : at the 2MB mark
 
-	mov rax, [clock_counter]	; Grab the finish time
-	mov rbx, [clockval]		; Grab the start time
-	sub rax, rbx			; RAX = RAX - RBX
-	shr rax, 3			; Divide by 8
+;	mov rax, [clock_counter]	; Grab the finish time
+;	mov rbx, [clockval]		; Grab the start time
+;	sub rax, rbx			; RAX = RAX - RBX
+;	shr rax, 3			; Divide by 8
 
-	mov rdi, cli_temp_string	; Convert time difference to string
-	mov rsi, rdi
-	call os_int_to_string
-	call os_print_string		; Print it
-	call os_print_newline
+;	mov rdi, cli_temp_string	; Convert time difference to string
+;	mov rsi, rdi
+;	call os_int_to_string
+;	call os_print_string		; Print it
+;	call os_print_newline
 
 	jmp os_command_line		; After the program is finished we go back to the start of the CLI
 
