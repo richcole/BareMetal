@@ -138,16 +138,16 @@ os_hex_string_to_int_loop:
 	lodsb
 	mov cl, 4
 	cmp al, 'a'
-	jb os_hex_string_to_int_ok1
-	sub al, 0x20				;convert to upper case if alpha
-os_hex_string_to_int_ok1:
-	sub al, '0'				;check if legal
-	jc os_hex_string_to_int_exit		;jmp if out of range
+	jb os_hex_string_to_int_ok
+	sub al, 0x20				; convert to upper case if alpha
+os_hex_string_to_int_ok:
+	sub al, '0'				; check if legal
+	jc os_hex_string_to_int_exit		; jmp if out of range
 	cmp al, 9
-	jle os_hex_string_to_int_got		;jmp if number is 0-9
-	sub al, 7				;convert to number from A-F or 10-15
-	cmp al, 15				;check if legal
-	ja os_hex_string_to_int_exit		;jmp if illegal hex char
+	jle os_hex_string_to_int_got		; jmp if number is 0-9
+	sub al, 7				; convert to number from A-F or 10-15
+	cmp al, 15				; check if legal
+	ja os_hex_string_to_int_exit		; jmp if illegal hex char
 os_hex_string_to_int_got:
 	shl rbx, cl
 	or bl, al

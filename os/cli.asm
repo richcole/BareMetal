@@ -290,6 +290,12 @@ reboot:
 debug:
 	cmp byte [cli_args], 1
 	je debug_dump_reg
+	; We got an arguement. Convert the mem address string to an interger
+	; Extract the mem address to a separate string
+	; call os_hex_string_to_int
+	; mov rsi, rax
+	; mov rcx, 256
+	; call os_debug_dump_mem
 	
 	jmp os_command_line
 debug_dump_reg:

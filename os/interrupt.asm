@@ -151,9 +151,10 @@ check_loop:
 	cmp rcx, 0
 	jne check_loop
 	; If we got here then there are no active tasks.. start the CLI
-	mov rdi, taskdata
-	mov rax, os_command_line
-	stosq
+	call os_smp_get_id
+	mov rbx, os_command_line
+	xor rcx, rcx
+	call os_smp_set_task
 
 rtc_end:
 	mov al, 0x0C			; Select RTC register C

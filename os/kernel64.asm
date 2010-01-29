@@ -193,7 +193,7 @@ spin:
 	test rax, rax			; Same as a 'cmp rax, 0x0000000000000000' and saves a few bytes
 	je spin				; If it was NULL then there is nothing to work on
 
-continue:	
+continue:
 	xchg rax, rbx			; Swap RAX and RBX since LODSQ uses RAX
 	add rsi, 8			; Increment RSI by the size of a QWORD (8 bytes)
 	mov rax, [rsi]			; Load the task data address/data variable into RAX
